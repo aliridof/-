@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Index - aliridof-trial</title>
+    <title>GitHub Repository Explorer</title>
     <style>
         * { 
             margin: 0; 
@@ -46,6 +46,126 @@
             color: #666;
             font-size: 1.1em;
         }
+
+        /* Repository Selector */
+        .repo-selector {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .repo-selector h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-field label {
+            display: block;
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .load-btn {
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+        }
+
+        .load-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .load-btn:active {
+            transform: translateY(0);
+        }
+
+        .load-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .current-repo {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .current-repo-info {
+            flex: 1;
+        }
+
+        .current-repo-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .current-repo-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .current-repo-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .current-repo-name a:hover {
+            text-decoration: underline;
+        }
         
         .stats {
             display: flex;
@@ -81,6 +201,7 @@
             line-height: 2.2;
             overflow-x: auto;
             border: 2px solid #e9ecef;
+            min-height: 200px;
         }
         
         .tree-line {
@@ -141,11 +262,13 @@
             background: #764ba2;
             transform: translateY(-1px);
         }
-        
+
+        .action-btn.access { background: #f39c12; }
         .action-btn.view { background: #667eea; }
         .action-btn.raw { background: #28a745; }
         .action-btn.download { background: #ff6b6b; }
         
+        .action-btn.access:hover { background: #e67e22; }
         .action-btn.view:hover { background: #5568d3; }
         .action-btn.raw:hover { background: #218838; }
         .action-btn.download:hover { background: #ee5a52; }
@@ -164,6 +287,18 @@
             border-radius: 8px;
             border-left: 4px solid #c33;
             white-space: pre-wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
         
         a {
@@ -334,13 +469,50 @@
     <div class="container">
         <header>
             <h1>
-                <span>📦</span>
-                <span>aliridof-trial</span>
+                <span>🔍</span>
+                <span>GitHub Repository Explorer</span>
             </h1>
-            <p class="subtitle">Struktur Repository - Auto Generated dengan Raw Links</p>
+            <p class="subtitle">Explore any public GitHub repository structure with direct access links</p>
         </header>
 
-        <div class="stats">
+        <!-- Repository Selector -->
+        <div class="repo-selector">
+            <h2>
+                <span>📦</span>
+                <span>Select Repository</span>
+            </h2>
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="username">GitHub Username</label>
+                    <input type="text" id="username" value="aliridof">
+                </div>
+                <div class="input-field">
+                    <label for="repository">Repository Name</label>
+                    <input type="text" id="repository" value="-">
+                </div>
+                <div class="input-field">
+                    <label for="branch">Branch</label>
+                    <input type="text" id="branch" value="main">
+                </div>
+                <button class="load-btn" onclick="loadRepository()">
+                    <span>🚀</span>
+                    <span>Load Repository</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Repository Info -->
+        <div class="current-repo" id="currentRepo" style="display: none;">
+            <div>📁</div>
+            <div class="current-repo-info">
+                <div class="current-repo-label">Currently viewing:</div>
+                <div class="current-repo-name">
+                    <a id="repoLink" href="" target="_blank"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer" style="display: none;">
             <div class="stat-item">
                 <strong id="fileCount">-</strong>
                 <span>Total Files</span>
@@ -355,41 +527,42 @@
             </div>
         </div>
 
-        <div class="legend">
+        <div class="legend" id="legendContainer" style="display: none;">
+            <div class="legend-item">
+                <span class="action-btn access" style="opacity: 1;">🌐 Access</span>
+                <span>Direct GitHub Pages access</span>
+            </div>
             <div class="legend-item">
                 <span class="action-btn view" style="opacity: 1;">📄 View</span>
-                <span>Lihat file di GitHub</span>
+                <span>View file on GitHub</span>
             </div>
             <div class="legend-item">
                 <span class="action-btn raw" style="opacity: 1;">📋 Raw</span>
-                <span>Link raw file (copy URL)</span>
+                <span>Copy raw file URL</span>
             </div>
             <div class="legend-item">
                 <span class="action-btn download" style="opacity: 1;">📥 Download</span>
-                <span>Download file langsung</span>
+                <span>Download file directly</span>
             </div>
         </div>
 
-        <div class="controls">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Cari file atau folder...">
-            <button onclick="loadTree()">🔄 Refresh</button>
+        <div class="controls" id="controlsContainer" style="display: none;">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search files or folders...">
+            <button onclick="loadRepository()">🔄 Refresh</button>
             <button onclick="copyAllRawLinks()">📋 Copy All Raw Links</button>
         </div>
 
-        <div id="tree" class="loading">
-            Memuat struktur repository...
-            <div class="progress" id="progress"></div>
+        <div id="tree" class="empty-state">
+            <div class="icon">📂</div>
+            <div>Enter a GitHub username and repository name above to explore its structure</div>
         </div>
 
         <footer>
             <p>
-                Generated automatically from 
-                <a href="https://github.com/aliridof/aliridof-trial" target="_blank">
-                    github.com/aliridof/aliridof-trial
-                </a>
+                GitHub Repository Explorer - View any public repository structure
             </p>
             <p style="margin-top: 10px; font-size: 0.9em;">
-                Last generated: <span id="genTime"></span>
+                Last generated: <span id="genTime">-</span>
             </p>
         </footer>
     </div>
@@ -406,23 +579,75 @@
     </div>
 
     <script>
-        const OWNER = 'aliridof';
-        const REPO = 'aliridof-trial';
-        const BRANCH = 'main'; // Ganti ke 'master' jika perlu
+        let OWNER = '';
+        let REPO = '';
+        let BRANCH = 'main';
         
         let treeStructure = {};
         let allFiles = [];
 
+        // Load from URL parameters on start
+        window.addEventListener('DOMContentLoaded', function() {
+            // Check if there's URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramUser = urlParams.get('user');
+            const paramRepo = urlParams.get('repo');
+            const paramBranch = urlParams.get('branch');
+            
+            if (paramUser) document.getElementById('username').value = paramUser;
+            if (paramRepo) document.getElementById('repository').value = paramRepo;
+            if (paramBranch) document.getElementById('branch').value = paramBranch;
+            
+            // Auto-load if parameters are present
+            if (paramUser && paramRepo) {
+                loadRepository();
+            }
+        });
+
+        async function loadRepository() {
+            // Get values from inputs
+            OWNER = document.getElementById('username').value.trim();
+            REPO = document.getElementById('repository').value.trim();
+            BRANCH = document.getElementById('branch').value.trim() || 'main';
+            
+            if (!OWNER || !REPO) {
+                alert('Please enter both username and repository name');
+                return;
+            }
+            
+            // Update URL
+            const newUrl = `${window.location.pathname}?user=${OWNER}&repo=${REPO}&branch=${BRANCH}`;
+            window.history.replaceState({}, '', newUrl);
+            
+            // Update current repo display
+            const repoLink = document.getElementById('repoLink');
+            repoLink.textContent = `${OWNER}/${REPO}`;
+            repoLink.href = `https://github.com/${OWNER}/${REPO}`;
+            document.getElementById('currentRepo').style.display = 'flex';
+            
+            // Show controls
+            document.getElementById('statsContainer').style.display = 'flex';
+            document.getElementById('legendContainer').style.display = 'flex';
+            document.getElementById('controlsContainer').style.display = 'flex';
+            
+            // Load tree
+            await loadTree();
+        }
+
         async function loadTree() {
             const treeDiv = document.getElementById('tree');
-            const progressDiv = document.getElementById('progress');
             treeDiv.className = 'loading';
-            treeDiv.innerHTML = 'Memuat struktur repository...<div class="progress" id="progress"></div>';
+            treeDiv.innerHTML = 'Loading repository structure...<div class="progress" id="progress"></div>';
             
             try {
-                progressDiv.textContent = 'Mengambil data dari GitHub...';
+                const progressDiv = document.getElementById('progress');
+                progressDiv.textContent = 'Fetching data from GitHub...';
                 
-                // Metode alternatif: scan folder secara rekursif
+                // Reset data
+                allFiles = [];
+                treeStructure = {};
+                
+                // Scan directory
                 const tree = await scanDirectory('');
                 
                 allFiles = tree;
@@ -436,24 +661,22 @@
                 treeDiv.className = 'error';
                 treeDiv.innerHTML = `❌ Error loading repository structure
 
-Detail: ${error.message}
+Repository: ${OWNER}/${REPO}
+Branch: ${BRANCH}
+Error: ${error.message}
 
-💡 Solusi yang bisa dicoba:
+💡 Possible solutions:
 
-1. Pastikan repository "${REPO}" adalah PUBLIC
-2. Cek nama repository sudah benar
-3. Cek branch name: "${BRANCH}" (coba ganti ke "master" jika perlu)
-4. Tunggu beberapa menit (mungkin rate limit GitHub)
-5. Buka Console (F12) untuk lihat detail error
-
-Atau gunakan metode alternatif:
-• Gunakan GitHub Actions untuk generate static list
-• Buat manual list di repository`;
+1. Check if repository "${REPO}" is PUBLIC
+2. Verify username "${OWNER}" is correct  
+3. Check if branch "${BRANCH}" exists (try "master" instead of "main")
+4. Wait a few minutes if GitHub rate limit is reached
+5. Make sure the repository exists`;
             }
         }
 
         async function scanDirectory(path) {
-            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}${path ? '' : '?ref=' + BRANCH}`;
             const progressDiv = document.getElementById('progress');
             
             try {
@@ -462,8 +685,11 @@ Atau gunakan metode alternatif:
                 const response = await fetch(url);
                 
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`Repository not found or private. Check username and repository name.`);
+                    }
                     if (response.status === 403) {
-                        throw new Error('GitHub API Rate Limit tercapai. Silakan coba lagi dalam 1 jam atau gunakan Personal Access Token.');
+                        throw new Error('GitHub API rate limit reached. Please try again in 1 hour.');
                     }
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -482,13 +708,17 @@ Atau gunakan metode alternatif:
                         name: item.name
                     });
                     
-                    // Recursive scan untuk folder (dengan limit)
-                    if (item.type === 'dir' && files.length < 100) {
-                        const subFiles = await scanDirectory(item.path);
-                        files = files.concat(subFiles);
-                        
-                        // Delay untuk menghindari rate limit
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                    // Recursive scan for folders (with limit)
+                    if (item.type === 'dir' && files.length < 500) {
+                        try {
+                            const subFiles = await scanDirectory(item.path);
+                            files = files.concat(subFiles);
+                            
+                            // Small delay to avoid rate limit
+                            await new Promise(resolve => setTimeout(resolve, 50));
+                        } catch (subError) {
+                            console.warn(`Skipping folder ${item.path}:`, subError.message);
+                        }
                     }
                 }
                 
@@ -585,13 +815,21 @@ Atau gunakan metode alternatif:
                 const actions = document.createElement('span');
                 actions.className = 'file-actions';
                 
+                // Access button (GitHub Pages direct access)
+                const accessBtn = document.createElement('a');
+                accessBtn.href = getAccessUrl(data.path);
+                accessBtn.target = '_blank';
+                accessBtn.className = 'action-btn access';
+                accessBtn.innerHTML = '🌐 Access';
+                accessBtn.title = 'Direct GitHub Pages access';
+                
                 // View button
                 const viewBtn = document.createElement('a');
                 viewBtn.href = getViewUrl(data.path);
                 viewBtn.target = '_blank';
                 viewBtn.className = 'action-btn view';
                 viewBtn.innerHTML = '📄 View';
-                viewBtn.title = 'Lihat file di GitHub';
+                viewBtn.title = 'View file on GitHub';
                 
                 // Raw button
                 const rawBtn = document.createElement('button');
@@ -608,6 +846,7 @@ Atau gunakan metode alternatif:
                 downloadBtn.innerHTML = '📥 Download';
                 downloadBtn.title = 'Download file';
                 
+                actions.appendChild(accessBtn);
                 actions.appendChild(viewBtn);
                 actions.appendChild(rawBtn);
                 actions.appendChild(downloadBtn);
@@ -619,6 +858,20 @@ Atau gunakan metode alternatif:
             line.appendChild(itemDiv);
             
             return line;
+        }
+        
+        function getAccessUrl(path) {
+            // GitHub Pages URL format
+            // Asumsi: username.github.io/repository-name/path
+            const isGithubIO = REPO.endsWith('.github.io');
+            
+            if (isGithubIO) {
+                // Jika repo adalah username.github.io
+                return `https://${OWNER}.github.io/${path}`;
+            } else {
+                // Jika repo biasa
+                return `https://${OWNER}.github.io/${REPO}/${path}`;
+            }
         }
         
         function getViewUrl(path) {
@@ -664,6 +917,11 @@ Atau gunakan metode alternatif:
         
         function copyAllRawLinks() {
             const files = allFiles.filter(f => f.type === 'blob');
+            if (files.length === 0) {
+                alert('No files loaded yet!');
+                return;
+            }
+            
             const rawLinks = files.map(f => getRawUrl(f.path)).join('\n');
             
             const textarea = document.createElement('textarea');
@@ -673,7 +931,7 @@ Atau gunakan metode alternatif:
             document.execCommand('copy');
             document.body.removeChild(textarea);
             
-            alert(`✅ ${files.length} raw links berhasil di-copy ke clipboard!`);
+            alert(`✅ ${files.length} raw links copied to clipboard!`);
         }
         
         function getIcon(filename, type) {
@@ -729,6 +987,19 @@ Atau gunakan metode alternatif:
             });
         });
         
+        // Enter key support
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loadRepository();
+        });
+        
+        document.getElementById('repository').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loadRepository();
+        });
+        
+        document.getElementById('branch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loadRepository();
+        });
+        
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('rawModal');
@@ -736,9 +1007,6 @@ Atau gunakan metode alternatif:
                 closeModal();
             }
         }
-        
-        // Load tree on page load
-        loadTree();
     </script>
 </body>
 </html>
