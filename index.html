@@ -1,1012 +1,440 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Repository Explorer</title>
-    <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-        }
-        
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GitHub Explorer Minimal</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 
-        /* Repository Selector */
-        .repo-selector {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+<style>
+  :root{
+    --bg:#0f1115; --panel:#16191f; --fg:#e8e8e8; --muted:#a5a7ab; --bd:#2a2f38;
+    --btn:#1b1f27; --btn-hover:#222733;
+  }
+  body.light{
+    --bg:#ffffff; --panel:#f5f6f7; --fg:#111111; --muted:#666666; --bd:#dedede;
+    --btn:#f0f0f0; --btn-hover:#e6e6e6;
+  }
 
-        .repo-selector h2 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto}
+  a{color:var(--fg);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1100px;margin:auto;padding:16px}
 
-        .input-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: end;
-        }
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .title{display:flex;align-items:center;gap:8px}
+  .title .material-icons{font-size:22px;color:var(--muted)}
+  .theme{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:6px 10px;cursor:pointer}
+  .theme:hover{background:var(--btn-hover)}
 
-        .input-field {
-            flex: 1;
-            min-width: 200px;
-        }
+  .tabs{display:flex;gap:8px;margin:8px 0}
+  .tab{flex:1;border:1px solid var(--bd);background:var(--panel);color:var(--muted);border-radius:6px;padding:10px;cursor:pointer;text-align:center}
+  .tab.active{color:var(--fg);font-weight:600}
 
-        .input-field label {
-            display: block;
-            color: white;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
+  .panel{border:1px solid var(--bd);background:var(--panel);border-radius:8px;padding:12px;margin-bottom:10px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .row.cols-3{grid-template-columns:1fr 1fr auto}
+  input,select,button{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:10px}
+  select:disabled,button:disabled{opacity:.5;cursor:not-allowed}
+  button{cursor:pointer}
+  button:hover{background:var(--btn-hover)}
+  .help{color:var(--muted);margin-top:6px;font-size:12px}
 
-        .input-field input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            transition: all 0.3s;
-        }
+  .repo{display:none;align-items:center;gap:10px;border:1px solid var(--bd);background:var(--panel);border-radius:6px;padding:10px;margin:10px 0}
+  .repo .material-icons{color:var(--muted)}
 
-        .input-field input:focus {
-            outline: none;
-            border-color: #ffd700;
-            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
-        }
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0}
+  .card{border:1px solid var(--bd);background:var(--panel);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center}
+  .card .material-icons{color:var(--muted)}
+  .small{font-size:12px;color:var(--muted)}
 
-        .load-btn {
-            padding: 12px 30px;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 44px;
-        }
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .tools .grow{flex:1;min-width:220px;position:relative}
+  .tools .grow input{width:100%;padding-left:36px}
+  .tools .grow .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
 
-        .load-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .load-btn:active {
-            transform: translateY(0);
-        }
-
-        .load-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .current-repo {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-left: 4px solid #667eea;
-        }
-
-        .current-repo-info {
-            flex: 1;
-        }
-
-        .current-repo-label {
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .current-repo-name {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .current-repo-name a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .current-repo-name a:hover {
-            text-decoration: underline;
-        }
-        
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .stat-item strong {
-            display: block;
-            font-size: 1.5em;
-            color: #667eea;
-        }
-        
-        .stat-item span {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        #tree {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 10px;
-            font-family: 'Courier New', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 2.2;
-            overflow-x: auto;
-            border: 2px solid #e9ecef;
-            min-height: 200px;
-        }
-        
-        .tree-line {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 2px 0;
-        }
-        
-        .tree-prefix {
-            white-space: pre;
-            color: #999;
-        }
-        
-        .tree-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
-        
-        .file-name {
-            color: #2c3e50;
-        }
-        
-        .folder {
-            color: #667eea;
-            font-weight: 600;
-        }
-        
-        .file-actions {
-            display: inline-flex;
-            gap: 5px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .tree-line:hover .file-actions {
-            opacity: 1;
-        }
-        
-        .action-btn {
-            padding: 3px 8px;
-            font-size: 11px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-        }
-        
-        .action-btn:hover {
-            background: #764ba2;
-            transform: translateY(-1px);
-        }
-
-        .action-btn.access { background: #f39c12; }
-        .action-btn.view { background: #667eea; }
-        .action-btn.raw { background: #28a745; }
-        .action-btn.download { background: #ff6b6b; }
-        
-        .action-btn.access:hover { background: #e67e22; }
-        .action-btn.view:hover { background: #5568d3; }
-        .action-btn.raw:hover { background: #218838; }
-        .action-btn.download:hover { background: #ee5a52; }
-        
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-            font-size: 1.2em;
-        }
-        
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #c33;
-            white-space: pre-wrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-        }
-
-        .empty-state .icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        a {
-            color: #667eea;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        a:hover {
-            color: #764ba2;
-        }
-        
-        footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e9ecef;
-            text-align: center;
-            color: #666;
-        }
-        
-        footer a {
-            color: #667eea;
-            font-weight: 600;
-        }
-        
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-        }
-        
-        button:hover {
-            background: #764ba2;
-        }
-        
-        .search-box {
-            padding: 10px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 14px;
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .search-box:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 600px;
-            width: 90%;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .modal-close:hover {
-            color: #333;
-        }
-
-        .url-box {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 13px;
-            background: #f8f9fa;
-        }
-
-        .copy-btn {
-            width: 100%;
-            padding: 12px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .copy-btn:hover {
-            background: #218838;
-        }
-
-        .copy-btn.copied {
-            background: #667eea;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading::before {
-            content: "⏳";
-            display: inline-block;
-            animation: spin 2s linear infinite;
-            margin-right: 10px;
-        }
-
-        .legend {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            font-size: 12px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .progress {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #666;
-        }
-    </style>
+  .tree{border:1px solid var(--bd);background:var(--panel);border-radius:8px;max-height:70vh;overflow:auto;padding:12px;font-family:Consolas,Monaco,monospace}
+  .line{display:flex;gap:8px;align-items:center;padding:2px 0;border-radius:4px}
+  .line:hover{background:var(--btn)}
+  .pre{white-space:pre;color:var(--muted)}
+  .name.folder{font-weight:600}
+  .size{color:var(--muted);font-size:12px;margin-left:6px}
+  .acts{margin-left:auto;display:flex;gap:6px;opacity:0;transition:opacity .12s}
+  .line:hover .acts{opacity:1}
+  .btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;border:1px solid var(--bd);background:var(--btn);color:var(--fg);font-size:12px;text-decoration:none}
+  .btn:hover{background:var(--btn-hover)}
+  .icon{color:var(--muted)}
+  @media (max-width:720px){.row.cols-3{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>
-                <span>🔍</span>
-                <span>GitHub Repository Explorer</span>
-            </h1>
-            <p class="subtitle">Explore any public GitHub repository structure with direct access links</p>
-        </header>
-
-        <!-- Repository Selector -->
-        <div class="repo-selector">
-            <h2>
-                <span>📦</span>
-                <span>Select Repository</span>
-            </h2>
-            <div class="input-group">
-                <div class="input-field">
-                    <label for="username">GitHub Username</label>
-                    <input type="text" id="username" value="aliridof">
-                </div>
-                <div class="input-field">
-                    <label for="repository">Repository Name</label>
-                    <input type="text" id="repository" value="-">
-                </div>
-                <div class="input-field">
-                    <label for="branch">Branch</label>
-                    <input type="text" id="branch" value="main">
-                </div>
-                <button class="load-btn" onclick="loadRepository()">
-                    <span>🚀</span>
-                    <span>Load Repository</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Current Repository Info -->
-        <div class="current-repo" id="currentRepo" style="display: none;">
-            <div>📁</div>
-            <div class="current-repo-info">
-                <div class="current-repo-label">Currently viewing:</div>
-                <div class="current-repo-name">
-                    <a id="repoLink" href="" target="_blank"></a>
-                </div>
-            </div>
-        </div>
-
-        <div class="stats" id="statsContainer" style="display: none;">
-            <div class="stat-item">
-                <strong id="fileCount">-</strong>
-                <span>Total Files</span>
-            </div>
-            <div class="stat-item">
-                <strong id="folderCount">-</strong>
-                <span>Folders</span>
-            </div>
-            <div class="stat-item">
-                <strong id="lastUpdate">-</strong>
-                <span>Last Updated</span>
-            </div>
-        </div>
-
-        <div class="legend" id="legendContainer" style="display: none;">
-            <div class="legend-item">
-                <span class="action-btn access" style="opacity: 1;">🌐 Access</span>
-                <span>Direct GitHub Pages access</span>
-            </div>
-            <div class="legend-item">
-                <span class="action-btn view" style="opacity: 1;">📄 View</span>
-                <span>View file on GitHub</span>
-            </div>
-            <div class="legend-item">
-                <span class="action-btn raw" style="opacity: 1;">📋 Raw</span>
-                <span>Copy raw file URL</span>
-            </div>
-            <div class="legend-item">
-                <span class="action-btn download" style="opacity: 1;">📥 Download</span>
-                <span>Download file directly</span>
-            </div>
-        </div>
-
-        <div class="controls" id="controlsContainer" style="display: none;">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search files or folders...">
-            <button onclick="loadRepository()">🔄 Refresh</button>
-            <button onclick="copyAllRawLinks()">📋 Copy All Raw Links</button>
-        </div>
-
-        <div id="tree" class="empty-state">
-            <div class="icon">📂</div>
-            <div>Enter a GitHub username and repository name above to explore its structure</div>
-        </div>
-
-        <footer>
-            <p>
-                GitHub Repository Explorer - View any public repository structure
-            </p>
-            <p style="margin-top: 10px; font-size: 0.9em;">
-                Last generated: <span id="genTime">-</span>
-            </p>
-        </footer>
+  <div class="wrap">
+    <div class="header">
+      <div class="title"><span class="material-icons">source</span><strong>GitHub Explorer Minimal</strong></div>
+      <button class="theme" id="themeBtn" title="Toggle Light/Dark">Toggle Theme</button>
     </div>
 
-    <!-- Modal for Raw URL -->
-    <div id="rawModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2 style="margin-bottom: 15px; color: #667eea;">📋 Raw File URL</h2>
-            <p style="color: #666; margin-bottom: 10px;">File: <strong id="modalFileName"></strong></p>
-            <input type="text" id="rawUrlBox" class="url-box" readonly>
-            <button class="copy-btn" onclick="copyRawUrl()">📋 Copy URL</button>
-        </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="manual">Manual</button>
+      <button class="tab" data-tab="url">Dari URL</button>
     </div>
 
-    <script>
-        let OWNER = '';
-        let REPO = '';
-        let BRANCH = 'main';
-        
-        let treeStructure = {};
-        let allFiles = [];
+    <!-- Manual -->
+    <div class="panel tab-pane" id="manual" style="display:block">
+      <div class="row">
+        <input id="username" value="aliridof"/>
+        <button id="fetchReposBtn"><span class="material-icons icon" style="vertical-align:middle">search</span> Ambil Repos</button>
+      </div>
+      <div class="row cols-3" style="margin-top:8px">
+        <select id="repoSel" disabled><option value="">Pilih Repository</option></select>
+        <select id="branchSel" disabled><option value="">Pilih Branch</option></select>
+        <button id="loadBtn" disabled><span class="material-icons icon" style="vertical-align:middle">rocket_launch</span> Muat</button>
+      </div>
+      <div class="help" id="manualMsg">Masukkan username lalu klik Ambil Repos.</div>
+    </div>
 
-        // Load from URL parameters on start
-        window.addEventListener('DOMContentLoaded', function() {
-            // Check if there's URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramUser = urlParams.get('user');
-            const paramRepo = urlParams.get('repo');
-            const paramBranch = urlParams.get('branch');
-            
-            if (paramUser) document.getElementById('username').value = paramUser;
-            if (paramRepo) document.getElementById('repository').value = paramRepo;
-            if (paramBranch) document.getElementById('branch').value = paramBranch;
-            
-            // Auto-load if parameters are present
-            if (paramUser && paramRepo) {
-                loadRepository();
-            }
-        });
+    <!-- From URL -->
+    <div class="panel tab-pane" id="url" style="display:none">
+      <div class="row">
+        <input id="repoUrl" placeholder="Tempel URL GitHub (mis: https://github.com/facebook/react/tree/main)"/>
+        <button id="parseBtn"><span class="material-icons icon" style="vertical-align:middle">check_circle</span> Muat</button>
+      </div>
+      <div class="help" id="urlMsg">Dukungan: owner/repo, github.com/owner/repo, .../tree/branch, .../blob/branch/path</div>
+    </div>
 
-        async function loadRepository() {
-            // Get values from inputs
-            OWNER = document.getElementById('username').value.trim();
-            REPO = document.getElementById('repository').value.trim();
-            BRANCH = document.getElementById('branch').value.trim() || 'main';
-            
-            if (!OWNER || !REPO) {
-                alert('Please enter both username and repository name');
-                return;
-            }
-            
-            // Update URL
-            const newUrl = `${window.location.pathname}?user=${OWNER}&repo=${REPO}&branch=${BRANCH}`;
-            window.history.replaceState({}, '', newUrl);
-            
-            // Update current repo display
-            const repoLink = document.getElementById('repoLink');
-            repoLink.textContent = `${OWNER}/${REPO}`;
-            repoLink.href = `https://github.com/${OWNER}/${REPO}`;
-            document.getElementById('currentRepo').style.display = 'flex';
-            
-            // Show controls
-            document.getElementById('statsContainer').style.display = 'flex';
-            document.getElementById('legendContainer').style.display = 'flex';
-            document.getElementById('controlsContainer').style.display = 'flex';
-            
-            // Load tree
-            await loadTree();
-        }
+    <!-- Current Repo -->
+    <div class="repo" id="repoInfo">
+      <span class="material-icons">folder_special</span>
+      <div>
+        <div><a id="repoLink" target="_blank" rel="noopener"></a></div>
+        <div class="small" id="repoDesc"></div>
+      </div>
+    </div>
 
-        async function loadTree() {
-            const treeDiv = document.getElementById('tree');
-            treeDiv.className = 'loading';
-            treeDiv.innerHTML = 'Loading repository structure...<div class="progress" id="progress"></div>';
-            
-            try {
-                const progressDiv = document.getElementById('progress');
-                progressDiv.textContent = 'Fetching data from GitHub...';
-                
-                // Reset data
-                allFiles = [];
-                treeStructure = {};
-                
-                // Scan directory
-                const tree = await scanDirectory('');
-                
-                allFiles = tree;
-                treeStructure = buildStructure(tree);
-                renderFullTree();
-                
-                updateStats(tree);
-                updateGenerationTime();
-            } catch (error) {
-                console.error('Error:', error);
-                treeDiv.className = 'error';
-                treeDiv.innerHTML = `❌ Error loading repository structure
+    <!-- Stats -->
+    <div class="stats" id="stats" style="display:none">
+      <div class="card"><span class="material-icons">description</span><div><div id="fileCount">0</div><div class="small">Files</div></div></div>
+      <div class="card"><span class="material-icons">folder</span><div><div id="folderCount">0</div><div class="small">Folders</div></div></div>
+      <div class="card"><span class="material-icons">storage</span><div><div id="totalSize">0 B</div><div class="small">Total Size</div></div></div>
+      <div class="card"><span class="material-icons">schedule</span><div><div id="lastUpdate">-</div><div class="small">Last Scan</div></div></div>
+    </div>
 
-Repository: ${OWNER}/${REPO}
-Branch: ${BRANCH}
-Error: ${error.message}
+    <!-- Tools -->
+    <div class="tools" id="tools" style="display:none">
+      <div class="grow">
+        <span class="material-icons icon">search</span>
+        <input id="search" placeholder="Cari file/folder..."/>
+      </div>
+      <button id="refreshBtn"><span class="material-icons icon">refresh</span> Refresh</button>
+      <button id="copyAllBtn"><span class="material-icons icon">content_copy</span> Copy Raw Links</button>
+    </div>
 
-💡 Possible solutions:
+    <!-- Tree -->
+    <div class="tree" id="tree"><div class="small">Belum ada data. Muat repo terlebih dahulu.</div></div>
+  </div>
 
-1. Check if repository "${REPO}" is PUBLIC
-2. Verify username "${OWNER}" is correct  
-3. Check if branch "${BRANCH}" exists (try "master" instead of "main")
-4. Wait a few minutes if GitHub rate limit is reached
-5. Make sure the repository exists`;
-            }
-        }
+<script>
+(() => {
+  // State
+  let OWNER='', REPO='', BRANCH='';
+  let allFiles=[]; // [{path,name,size}]
+  let rootTree={}; // nested
+  let totalBytes=0;
 
-        async function scanDirectory(path) {
-            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}${path ? '' : '?ref=' + BRANCH}`;
-            const progressDiv = document.getElementById('progress');
-            
-            try {
-                progressDiv.textContent = `Scanning: ${path || 'root'}...`;
-                
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error(`Repository not found or private. Check username and repository name.`);
-                    }
-                    if (response.status === 403) {
-                        throw new Error('GitHub API rate limit reached. Please try again in 1 hour.');
-                    }
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                let files = [];
-                
-                for (const item of data) {
-                    // Skip hidden files
-                    if (item.name.startsWith('.')) continue;
-                    if (item.name === 'node_modules') continue;
-                    
-                    files.push({
-                        path: item.path,
-                        type: item.type === 'dir' ? 'tree' : 'blob',
-                        name: item.name
-                    });
-                    
-                    // Recursive scan for folders (with limit)
-                    if (item.type === 'dir' && files.length < 500) {
-                        try {
-                            const subFiles = await scanDirectory(item.path);
-                            files = files.concat(subFiles);
-                            
-                            // Small delay to avoid rate limit
-                            await new Promise(resolve => setTimeout(resolve, 50));
-                        } catch (subError) {
-                            console.warn(`Skipping folder ${item.path}:`, subError.message);
-                        }
-                    }
-                }
-                
-                return files;
-            } catch (error) {
-                console.error('Scan error:', error);
-                throw error;
-            }
+  // Shortcuts
+  const $ = s => document.querySelector(s);
+  const el = (t,c,txt) => { const e=document.createElement(t); if(c) e.className=c; if(txt!=null) e.textContent=txt; return e; };
+  const fmt = n => {
+    if(!n) return '0 B';
+    const k=1024, u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(n)/Math.log(k));
+    return (n/Math.pow(k,i)).toFixed(n<k?0:2)+' '+u[i];
+  };
+  const api = async (url) => {
+    const r = await fetch(url, {headers:{'Accept':'application/vnd.github+json'}});
+    if(!r.ok){
+      if(r.status===403) throw new Error('Rate limit GitHub tercapai. Coba lagi nanti.');
+      if(r.status===404) throw new Error('Tidak ditemukan (404).');
+      throw new Error(`HTTP ${r.status} ${r.statusText}`);
+    }
+    return r.json();
+  };
+
+  // Theme toggle
+  const themeBtn = $('#themeBtn');
+  themeBtn.onclick = () => {
+    document.body.classList.toggle('light');
+    localStorage.setItem('ghx_theme', document.body.classList.contains('light') ? 'light' : 'dark');
+  };
+  (function bootTheme(){
+    const t=localStorage.getItem('ghx_theme'); if(t==='light') document.body.classList.add('light');
+  })();
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.onclick = () => {
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.style.display='none');
+      btn.classList.add('active');
+      $('#'+btn.dataset.tab).style.display='block';
+    };
+  });
+
+  // Manual flow
+  $('#fetchReposBtn').onclick = async () => {
+    const user = $('#username').value.trim();
+    if(!user){ setHelp('#manualMsg','Username tidak boleh kosong', true); return; }
+    setHelp('#manualMsg','Mengambil repositories...');
+    $('#repoSel').disabled=true; $('#branchSel').disabled=true; $('#loadBtn').disabled=true;
+    $('#repoSel').innerHTML='<option value="">Pilih Repository</option>';
+    try{
+      const repos = await api(`https://api.github.com/users/${user}/repos?per_page=100&sort=updated`);
+      const pubs = repos.filter(r=>!r.private);
+      if(!pubs.length) throw new Error('Tidak ada public repository.');
+      for(const r of pubs){
+        const o=document.createElement('option');
+        o.value=r.name; o.textContent=r.name; o.dataset.default=r.default_branch||'main'; o.dataset.desc=r.description||'';
+        $('#repoSel').appendChild(o);
+      }
+      $('#repoSel').disabled=false;
+      setHelp('#manualMsg',`Ditemukan ${pubs.length} repository. Pilih salah satu.`);
+    }catch(e){ setHelp('#manualMsg',e.message,true); }
+  };
+
+  $('#repoSel').onchange = async () => {
+    const user=$('#username').value.trim(), repo=$('#repoSel').value;
+    $('#branchSel').innerHTML='<option value="">Memuat branch...</option>'; $('#branchSel').disabled=true; $('#loadBtn').disabled=true;
+    if(!repo) return;
+    try{
+      const branches = await api(`https://api.github.com/repos/${user}/${repo}/branches?per_page=100`);
+      $('#branchSel').innerHTML='<option value="">Pilih Branch</option>';
+      const def=$('#repoSel').selectedOptions[0].dataset.default;
+      for(const b of branches){
+        const o=document.createElement('option'); o.value=b.name; o.textContent=b.name+(b.name===def?' (default)':'');
+        $('#branchSel').appendChild(o);
+      }
+      $('#branchSel').value=def; $('#branchSel').disabled=false; $('#loadBtn').disabled=false;
+      setHelp('#manualMsg',`Ditemukan ${branches.length} branch. Siap dimuat.`);
+    }catch(e){ setHelp('#manualMsg',e.message,true); }
+  };
+
+  $('#loadBtn').onclick = () => {
+    OWNER=$('#username').value.trim();
+    REPO=$('#repoSel').value;
+    BRANCH=$('#branchSel').value || $('#repoSel').selectedOptions[0]?.dataset.default || 'main';
+    if(OWNER && REPO && BRANCH) loadRepo();
+  };
+
+  // URL flow
+  $('#parseBtn').onclick = async () => {
+    const raw=$('#repoUrl').value.trim();
+    if(!raw){ setHelp('#urlMsg','URL tidak boleh kosong', true); return; }
+    const parsed=parseGitHubUrl(raw); if(!parsed){ setHelp('#urlMsg','Format URL tidak valid',true); return; }
+    OWNER=parsed.owner; REPO=parsed.repo; BRANCH=parsed.branch||'';
+    try{
+      const info=await api(`https://api.github.com/repos/${OWNER}/${REPO}`);
+      if(!BRANCH) BRANCH=info.default_branch||'main';
+      setHelp('#urlMsg',`Memuat ${OWNER}/${REPO} (${BRANCH})...`);
+      loadRepo();
+    }catch(e){ setHelp('#urlMsg',e.message,true); }
+  };
+
+  function parseGitHubUrl(u){
+    const s=u.replace(/^(https?:\/\/)?(www\.)?/,'').replace(/\/$/,'');
+    let m=s.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\/(?:tree|blob)\/([^\/]+))?/);
+    if(m) return {owner:m[1], repo:m[2].replace(/\.git$/,''), branch:m[3]};
+    m=s.match(/^([^\/]+)\/([^\/]+)$/); if(m) return {owner:m[1], repo:m[2].replace(/\.git$/,'')};
+    return null;
+  }
+
+  // Core loader (Trees API)
+  async function loadRepo(){
+    // Update UI
+    history.replaceState({},'',`${location.pathname}?user=${OWNER}&repo=${REPO}&branch=${BRANCH}`);
+    $('#repoLink').textContent=`${OWNER}/${REPO} (${BRANCH})`;
+    $('#repoLink').href=`https://github.com/${OWNER}/${REPO}/tree/${BRANCH}`;
+    $('#repoDesc').textContent='Memindai struktur...';
+    $('#repoInfo').style.display='flex';
+    $('#stats').style.display='grid';
+    $('#tools').style.display='flex';
+    setTreeMessage('Memuat struktur repo...');
+
+    try{
+      const tree = await fetchTree(OWNER, REPO, BRANCH);
+      const skip = p => p.split('/').some(seg=>seg.startsWith('.')) || p.includes('node_modules/');
+      allFiles = tree.filter(n=>n.type==='blob' && !skip(n.path))
+                     .map(n=>({path:n.path, name:n.path.split('/').pop(), size:n.size||0}));
+
+      const built = buildTree(allFiles);
+      rootTree = built.children; totalBytes=built.size;
+
+      renderTree(rootTree);
+      const folders=countFolders(rootTree);
+      $('#fileCount').textContent=allFiles.length;
+      $('#folderCount').textContent=folders;
+      $('#totalSize').textContent=fmt(totalBytes);
+      $('#lastUpdate').textContent=new Date().toLocaleTimeString();
+      $('#repoDesc').textContent=`${allFiles.length} file, ${folders} folder • ${fmt(totalBytes)}`;
+    }catch(e){
+      setTreeMessage('Gagal memuat: '+e.message);
+      $('#repoDesc').textContent='Gagal memuat';
+    }
+  }
+
+  // Try tree by branch; fallback to resolve sha first
+  async function fetchTree(owner, repo, branch){
+    const tryDirect = async () => api(`https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`).then(j=>j.tree||[]);
+    try{
+      return await tryDirect();
+    }catch(_){
+      const br = await api(`https://api.github.com/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`);
+      const treeSha = br?.commit?.commit?.tree?.sha || br?.commit?.sha;
+      if(!treeSha) throw new Error('Gagal resolve tree SHA');
+      const t = await api(`https://api.github.com/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`);
+      return t.tree||[];
+    }
+  }
+
+  // Build tree + aggregate folder sizes
+  function buildTree(files){
+    const root = {type:'tree', path:'', size:0, children:{}};
+    for(const f of files){
+      const parts=f.path.split('/'); let cur=root; let acc='';
+      for(let i=0;i<parts.length;i++){
+        const part=parts[i]; acc = acc ? `${acc}/${part}` : part; const last=i===parts.length-1;
+        if(!cur.children[part]){
+          cur.children[part] = last ? {type:'blob', path:acc, size:f.size} : {type:'tree', path:acc, size:0, children:{}};
         }
-        
-        function buildStructure(files) {
-            const tree = {};
-            
-            files.forEach(file => {
-                const parts = file.path.split('/');
-                let current = tree;
-                
-                parts.forEach((part, i) => {
-                    if (!current[part]) {
-                        current[part] = {
-                            type: i === parts.length - 1 ? file.type : 'tree',
-                            path: file.path,
-                            children: {}
-                        };
-                    }
-                    current = current[part].children;
-                });
-            });
-            
-            return tree;
-        }
-        
-        function renderFullTree() {
-            const treeDiv = document.getElementById('tree');
-            treeDiv.className = '';
-            treeDiv.innerHTML = '';
-            
-            // Root
-            const rootLine = createTreeLine('', `${REPO}/`, null, true, true);
-            treeDiv.appendChild(rootLine);
-            
-            // Children
-            renderTreeNode(treeStructure, '', true, treeDiv);
-        }
-        
-        function renderTreeNode(node, prefix, isRoot, container) {
-            const entries = Object.entries(node).sort((a, b) => {
-                if (a[1].type === 'tree' && b[1].type !== 'tree') return -1;
-                if (a[1].type !== 'tree' && b[1].type === 'tree') return 1;
-                return a[0].localeCompare(b[0]);
-            });
-            
-            entries.forEach(([name, data], index) => {
-                const isLast = index === entries.length - 1;
-                const connector = isLast ? '└── ' : '├── ';
-                const icon = getIcon(name, data.type);
-                
-                const line = createTreeLine(
-                    prefix + connector,
-                    icon + ' ' + name + (data.type === 'tree' ? '/' : ''),
-                    data,
-                    data.type === 'tree',
-                    false
-                );
-                
-                container.appendChild(line);
-                
-                if (Object.keys(data.children).length > 0) {
-                    const newPrefix = prefix + (isLast ? '    ' : '│   ');
-                    renderTreeNode(data.children, newPrefix, false, container);
-                }
-            });
-        }
-        
-        function createTreeLine(prefix, text, data, isFolder, isRoot) {
-            const line = document.createElement('div');
-            line.className = 'tree-line';
-            
-            const prefixSpan = document.createElement('span');
-            prefixSpan.className = 'tree-prefix';
-            prefixSpan.textContent = prefix;
-            
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'tree-item';
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.className = isFolder ? 'folder' : 'file-name';
-            nameSpan.textContent = text;
-            
-            itemDiv.appendChild(nameSpan);
-            
-            // Add action buttons for files
-            if (data && data.type === 'blob') {
-                const actions = document.createElement('span');
-                actions.className = 'file-actions';
-                
-                // Access button (GitHub Pages direct access)
-                const accessBtn = document.createElement('a');
-                accessBtn.href = getAccessUrl(data.path);
-                accessBtn.target = '_blank';
-                accessBtn.className = 'action-btn access';
-                accessBtn.innerHTML = '🌐 Access';
-                accessBtn.title = 'Direct GitHub Pages access';
-                
-                // View button
-                const viewBtn = document.createElement('a');
-                viewBtn.href = getViewUrl(data.path);
-                viewBtn.target = '_blank';
-                viewBtn.className = 'action-btn view';
-                viewBtn.innerHTML = '📄 View';
-                viewBtn.title = 'View file on GitHub';
-                
-                // Raw button
-                const rawBtn = document.createElement('button');
-                rawBtn.className = 'action-btn raw';
-                rawBtn.innerHTML = '📋 Raw';
-                rawBtn.title = 'Copy raw URL';
-                rawBtn.onclick = () => showRawModal(data.path, text);
-                
-                // Download button
-                const downloadBtn = document.createElement('a');
-                downloadBtn.href = getRawUrl(data.path);
-                downloadBtn.download = text;
-                downloadBtn.className = 'action-btn download';
-                downloadBtn.innerHTML = '📥 Download';
-                downloadBtn.title = 'Download file';
-                
-                actions.appendChild(accessBtn);
-                actions.appendChild(viewBtn);
-                actions.appendChild(rawBtn);
-                actions.appendChild(downloadBtn);
-                
-                itemDiv.appendChild(actions);
-            }
-            
-            line.appendChild(prefixSpan);
-            line.appendChild(itemDiv);
-            
-            return line;
-        }
-        
-        function getAccessUrl(path) {
-            // GitHub Pages URL format
-            // Asumsi: username.github.io/repository-name/path
-            const isGithubIO = REPO.endsWith('.github.io');
-            
-            if (isGithubIO) {
-                // Jika repo adalah username.github.io
-                return `https://${OWNER}.github.io/${path}`;
-            } else {
-                // Jika repo biasa
-                return `https://${OWNER}.github.io/${REPO}/${path}`;
-            }
-        }
-        
-        function getViewUrl(path) {
-            return `https://github.com/${OWNER}/${REPO}/blob/${BRANCH}/${path}`;
-        }
-        
-        function getRawUrl(path) {
-            return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path}`;
-        }
-        
-        function showRawModal(path, filename) {
-            const modal = document.getElementById('rawModal');
-            const fileNameSpan = document.getElementById('modalFileName');
-            const urlBox = document.getElementById('rawUrlBox');
-            
-            fileNameSpan.textContent = filename;
-            urlBox.value = getRawUrl(path);
-            
-            modal.classList.add('show');
-        }
-        
-        function closeModal() {
-            const modal = document.getElementById('rawModal');
-            modal.classList.remove('show');
-        }
-        
-        function copyRawUrl() {
-            const urlBox = document.getElementById('rawUrlBox');
-            urlBox.select();
-            document.execCommand('copy');
-            
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '✅ Copied!';
-            btn.classList.add('copied');
-            
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('copied');
-                closeModal();
-            }, 1500);
-        }
-        
-        function copyAllRawLinks() {
-            const files = allFiles.filter(f => f.type === 'blob');
-            if (files.length === 0) {
-                alert('No files loaded yet!');
-                return;
-            }
-            
-            const rawLinks = files.map(f => getRawUrl(f.path)).join('\n');
-            
-            const textarea = document.createElement('textarea');
-            textarea.value = rawLinks;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            alert(`✅ ${files.length} raw links copied to clipboard!`);
-        }
-        
-        function getIcon(filename, type) {
-            if (type === 'tree') return '📁';
-            
-            const ext = filename.split('.').pop().toLowerCase();
-            const icons = {
-                'md': '📝', 'txt': '📄', 'pdf': '📕', 'doc': '📘', 'docx': '📘',
-                'html': '🌐', 'htm': '🌐', 'css': '🎨', 'scss': '🎨', 'sass': '🎨',
-                'js': '⚡', 'ts': '💠', 'jsx': '⚛️', 'tsx': '⚛️', 'vue': '💚',
-                'json': '📋', 'xml': '📋', 'yml': '⚙️', 'yaml': '⚙️', 'csv': '📊',
-                'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🎞️', 'svg': '🎨',
-                'ico': '🎯', 'webp': '🖼️',
-                'py': '🐍', 'java': '☕', 'cpp': '⚙️', 'c': '⚙️', 'go': '🐹',
-                'rs': '🦀', 'php': '🐘', 'rb': '💎',
-                'zip': '📦', 'tar': '📦', 'gz': '📦', 'sh': '🔧', 'bat': '🔧'
-            };
-            
-            return icons[ext] || '📄';
-        }
-        
-        function updateStats(files) {
-            const fileCount = files.filter(f => f.type === 'blob').length;
-            const folderCount = files.filter(f => f.type === 'tree').length;
-            
-            document.getElementById('fileCount').textContent = fileCount;
-            document.getElementById('folderCount').textContent = folderCount;
-            document.getElementById('lastUpdate').textContent = 'Just now';
-        }
-        
-        function updateGenerationTime() {
-            const now = new Date().toLocaleString('id-ID', {
-                dateStyle: 'medium',
-                timeStyle: 'short'
-            });
-            document.getElementById('genTime').textContent = now;
-        }
-        
-        // Search functionality
-        document.getElementById('searchBox').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const treeDiv = document.getElementById('tree');
-            const lines = treeDiv.querySelectorAll('.tree-line');
-            
-            if (!searchTerm) {
-                lines.forEach(line => line.style.display = 'flex');
-                return;
-            }
-            
-            lines.forEach(line => {
-                const text = line.textContent.toLowerCase();
-                line.style.display = text.includes(searchTerm) ? 'flex' : 'none';
-            });
-        });
-        
-        // Enter key support
-        document.getElementById('username').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadRepository();
-        });
-        
-        document.getElementById('repository').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadRepository();
-        });
-        
-        document.getElementById('branch').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadRepository();
-        });
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('rawModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-    </script>
+        if(!last){ cur.children[part].size += f.size; cur = cur.children[part]; }
+        else { cur.children[part].size = f.size; }
+      }
+      root.size += f.size;
+    }
+    return root;
+  }
+  function countFolders(node){
+    let n=0; for(const k in node){ if(node[k].type==='tree'){ n++; n+=countFolders(node[k].children); } } return n;
+  }
+
+  // Render
+  function setTreeMessage(msg){ $('#tree').innerHTML = `<div class="small">${msg}</div>`; }
+  function renderTree(treeData){
+    const cont=$('#tree'); cont.innerHTML='';
+    cont.appendChild(makeLine('', `${REPO}/`, {type:'tree', path:'', size: totalBytes}));
+    renderNode(treeData, '', cont);
+  }
+  function renderNode(node, prefix, cont){
+    const entries=Object.entries(node).sort((a,b)=>{
+      if(a[1].type!==b[1].type) return a[1].type==='tree'?-1:1;
+      return a[0].localeCompare(b[0]);
+    });
+    for(let i=0;i<entries.length;i++){
+      const [name,data]=entries[i]; const last=i===entries.length-1;
+      const connector = last ? '└── ' : '├── ';
+      const dispName = name + (data.type==='tree' ? '/' : '');
+      cont.appendChild(makeLine(prefix+connector, dispName, data));
+      if(data.type==='tree') renderNode(data.children, prefix + (last?'    ':'│   '), cont);
+    }
+  }
+  function makeLine(preText, name, data){
+    const line=el('div','line');
+    const pre=el('span','pre',preText);
+    const icon=el('span','material-icons icon', data.type==='tree'?'folder':fileIcon(name));
+    const nm=el('span','name '+(data.type==='tree'?'folder':''), name);
+    const size=el('span','size', fmt(data.size||0));
+    const acts=el('div','acts');
+
+    line.append(pre,icon,nm,size);
+
+    // Pages for all (file/folder/root)
+    acts.append(actionLink('public','Pages', getPagesUrl(data.path||'', data.type==='tree')));
+    if(data.type==='tree'){
+      acts.append(actionLink('open_in_new','View', getTreeViewUrl(data.path||'')));
+    } else {
+      acts.append(actionLink('open_in_new','View', getViewUrl(data.path)));
+      acts.append(actionBtn('link','Raw', ()=>copyText(getRawUrl(data.path))));
+      acts.append(actionLink('download','Download', getRawUrl(data.path), true));
+    }
+    line.appendChild(acts);
+    return line;
+  }
+
+  function actionLink(icon,label,href,dl=false){
+    const a=el('a','btn'); a.href=href; a.target='_blank'; a.rel='noopener'; if(dl) a.download='';
+    a.append(el('span','material-icons icon',icon), document.createTextNode(label)); return a;
+  }
+  function actionBtn(icon,label,onClick){
+    const b=el('button','btn'); b.type='button';
+    b.append(el('span','material-icons icon',icon), document.createTextNode(label));
+    b.onclick=onClick; return b;
+  }
+
+  // Icons & URLs
+  function fileIcon(name){
+    const base=name.endsWith('/')?name.slice(0,-1):name;
+    const ext=(base.split('.').pop()||'').toLowerCase();
+    const map={js:'javascript',ts:'javascript',json:'data_object',html:'html',htm:'html',css:'css',md:'description',txt:'description',
+      xml:'code',yml:'settings',yaml:'settings',png:'image',jpg:'image',jpeg:'image',gif:'image',svg:'image',webp:'image',
+      pdf:'picture_as_pdf',zip:'folder_zip',gz:'folder_zip',tar:'folder_zip',py:'code',java:'code',cpp:'code',c:'code',
+      rs:'code',go:'code',rb:'code',php:'code',sh:'terminal'
+    };
+    return map[ext]||'insert_drive_file';
+  }
+  function getPagesUrl(path='', isDir=false){
+    const base = REPO.endsWith('.github.io') ? `https://${OWNER}.github.io` : `https://${OWNER}.github.io/${REPO}`;
+    if(!path) return base+'/';
+    const p = isDir ? (path.endsWith('/')?path:path+'/') : path;
+    return `${base}/${p}`;
+  }
+  const getTreeViewUrl = (path='') => path
+    ? `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}/${path}`
+    : `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}`;
+  const getViewUrl = (path) => `https://github.com/${OWNER}/${REPO}/blob/${BRANCH}/${path}`;
+  const getRawUrl  = (path) => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path}`;
+
+  // Clipboard
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && location.protocol.startsWith('http')) await navigator.clipboard.writeText(text);
+      else { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+      notify('Disalin ke clipboard');
+    }catch{ notify('Gagal menyalin'); }
+  }
+  function notify(msg){
+    // Notifikasi kecil sederhana (monokrom)
+    const n=el('div','small',msg);
+    Object.assign(n.style,{position:'fixed',bottom:'16px',left:'50%',transform:'translateX(-50%)',background:'var(--panel)',border:'1px solid var(--bd)',padding:'8px 12px',borderRadius:'6px',zIndex:9999});
+    document.body.appendChild(n); setTimeout(()=>n.remove(),1600);
+  }
+
+  // Tools
+  $('#refreshBtn').onclick = ()=> loadRepo();
+  $('#copyAllBtn').onclick = async ()=>{
+    if(!allFiles.length) return;
+    const links = allFiles.map(f=>getRawUrl(f.path)).join('\n');
+    copyText(links);
+  };
+  $('#search').addEventListener('input', (e)=>{
+    const q=e.target.value.toLowerCase();
+    document.querySelectorAll('#tree .line').forEach(line=>{
+      line.style.display = line.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+  });
+
+  // Helpers
+  function setHelp(id, msg, err=false){ const n=$(id); n.textContent=msg; n.style.color = err ? 'inherit' : 'var(--muted)'; }
+
+  // Enter keys
+  $('#username').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#fetchReposBtn').click(); });
+  $('#repoUrl').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#parseBtn').click(); });
+
+  // Boot via query
+  (function bootFromQuery(){
+    const p=new URLSearchParams(location.search);
+    const u=p.get('user'), r=p.get('repo'), b=p.get('branch');
+    if(u && r){ OWNER=u; REPO=r; BRANCH=b||'main'; loadRepo(); }
+  })();
+})();
+</script>
 </body>
 </html>
