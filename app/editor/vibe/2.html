@@ -1451,6 +1451,10 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     const computed = getComputedStyle(elem);
     const rect = elem.getBoundingClientRect();
     const tag = elem.tagName.toLowerCase();
+    const idx = elem.id ? ' id="' + elem.id + '"' : '';
+    const cls = elem.className ? ' class="' + elem.className + '"' : '';
+    const txt = elem.textContent.trim().substring(0, 60);
+    const html = elem.outerHTML.substring(0, 300);
     
     let attrs = [];
     for (const attr of elem.attributes) {
@@ -1513,7 +1517,7 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     elem.style.outline = tempOutline;
     elem.style.outlineOffset = tempOutlineOffset;
     
-    return { tag, attributes, visual, content, accessibility, inlineStyle };
+    return { tag, attributes, idx, cls, txt, html, visual, content, accessibility, inlineStyle };
   }
 
   function copyToChat(info) {
@@ -1528,8 +1532,7 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     const text = `📍 Selected Element:
 <${info.tag} ${info.attributes}> 
 
-${info.tag}
-${info.id}
+${info.idx}
 ${info.cls}
 ${info.txt}
 ${info.html}
