@@ -648,6 +648,32 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     el.logMessages.insertBefore(div, el.logMessages.firstChild);
   }
 
+  function rgbToHex(rgb) {
+    if (!rgb || !rgb.startsWith('rgb')) {
+      return ''; // Not a color string we can convert
+    }
+    if (rgb === 'rgba(0, 0, 0, 0)') {
+      return 'transparent';
+    }
+    const parts = rgb.match(/\d+/g);
+    if (!parts || parts.length < 3) {
+      return '';
+    }
+    const r = parseInt(parts[0], 10);
+    const g = parseInt(parts[1], 10);
+    const b = parseInt(parts[2], 10);
+    const toHex = (c) => ('0' + c.toString(16)).slice(-2);
+    let hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    if (parts.length === 4) {
+      const a = parseFloat(parts[3]);
+      if (a < 1) {
+        const alphaHex = Math.round(a * 255).toString(16).padStart(2, '0');
+        hex += alphaHex;
+      }
+    }
+    return hex;
+  }
+
   // ==============================================
   // 4. CORE MODULES
   // ==============================================
@@ -1149,14 +1175,17 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     const outerHTML = elem.outerHTML;
     elem.style.outline = tempOutline;
 
+    const colorHex = rgbToHex(computed.color);
+    const bgHex = rgbToHex(computed.backgroundColor);
+
     return `📍 Selected Element: <${elem.tagName.toLowerCase()}>
 
 - ID: ${elem.id || '(none)'}
 - Classes: ${elem.className || '(none)'}
 - Text Content: "${elem.textContent.trim().substring(0, 100)}"
 - Size: ${Math.round(rect.width)}px × ${Math.round(rect.height)}px
-- Color: ${computed.color}
-- Background: ${computed.backgroundColor}
+- Color: ${computed.color} ${colorHex ? `[${colorHex}]` : ''}
+- Background: ${computed.backgroundColor} ${bgHex ? `[${bgHex}]` : ''}
 - Font: ${computed.fontSize} ${computed.fontFamily.split(',')[0]}
 
 - Outer HTML:
