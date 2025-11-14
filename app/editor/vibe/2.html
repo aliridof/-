@@ -1526,7 +1526,13 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
     }
 
     const text = `📍 Selected Element:
-<${info.tag} ${info.attributes}>
+<${info.tag} ${info.attributes}> 
+
+${info.tag}
+${info.id}
+${info.cls}
+${info.txt}
+${info.html}
 
 Visual
 - Background: ${info.visual.background.raw} / ${info.visual.background.hex}
