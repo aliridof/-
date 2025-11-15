@@ -1,4 +1,4 @@
-# 🔧 Prompt Refactoring Aplikasi - Versi Optimasi
+# 🔧 Prompt Rebuild Aplikasi - Versi Optimasi
 
 ## 📋 **KONTEKS & TUJUAN**
 Lakukan analisis mendalam dan refactor aplikasi yang telah kamu buat untuk menghasilkan versi yang lebih optimal dengan mempertahankan semua fungsionalitas existing.
