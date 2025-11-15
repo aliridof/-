@@ -4,33 +4,24 @@
 Lakukan analisis mendalam dan refactor aplikasi yang telah kamu buat untuk menghasilkan versi yang lebih optimal dengan mempertahankan semua fungsionalitas existing.
 
 ## 🎯 **DELIVERABLES**
-Hasilkan **1 file HTML tunggal** yang berisi:
-- HTML struktur yang semantic
-- CSS internal (dalam tag `<style>`)
-- JavaScript internal (dalam tag `<script>`)
-- Semua fungsionalitas dari aplikasi original
 
-Tambahkan fitur berikut: 
+1. Hasilkan **1 file HTML tunggal** yang berisi:
+   - HTML struktur yang semantic
+   - CSS internal (dalam tag `<style>`)
+   - JavaScript internal (dalam tag `<script>`)
+   - Semua fungsionalitas dari aplikasi original
 
-- Rate Limit Monitoring
- - Display sisa request yang tersisa
- - Update otomatis setelah setiap request
+2. **[ADD]** Tambah berbagai hal sebagai berikut:  
+   - X
 
-- GitHub Token Support
- - Rate limit display dengan indikator
- - Input token di kedua tab dengan default contoh *php_q32AzzKThqBXLTqtZ1EMkNCWapbQiQ1KlCeP
+3. **[REMOVE/DELETE/PURGE]** Hapus dan bersihkan segala keterkaitan berbagai hal sebagai berikut:
+   - X
 
-- Caching System
- - Cache untuk repositori, branches, dan tree structure
- - TTL (Time To Live) 5-10 menit
- - Tombol "Clear Cache" untuk refresh data
+4. **[CHANGE/EDIT]** Ubah berbagai hal sebagai berikut:
+   - X
 
-- Optimasi Performance
- - Menggunakan cache untuk mengurangi API calls
- - Fallback strategies ketika rate limit tercapai
- - Error handling yang lebih baik
- 
-
+5. **[MODIFY]** Modifikasi berbagai hal sebagai berikut: 
+   - X
 
 ## ⚙️ **SPESIFIKASI TEKNIS**
 
