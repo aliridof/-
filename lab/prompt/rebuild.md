@@ -10,6 +10,28 @@ Hasilkan **1 file HTML tunggal** yang berisi:
 - JavaScript internal (dalam tag `<script>`)
 - Semua fungsionalitas dari aplikasi original
 
+Tambahkan fitur berikut: 
+
+- Rate Limit Monitoring
+ - Display sisa request yang tersisa
+ - Update otomatis setelah setiap request
+
+- GitHub Token Support
+ - Rate limit display dengan indikator
+ - Input token di kedua tab dengan default contoh *php_q32AzzKThqBXLTqtZ1EMkNCWapbQiQ1KlCeP
+
+- Caching System
+ - Cache untuk repositori, branches, dan tree structure
+ - TTL (Time To Live) 5-10 menit
+ - Tombol "Clear Cache" untuk refresh data
+
+- Optimasi Performance
+ - Menggunakan cache untuk mengurangi API calls
+ - Fallback strategies ketika rate limit tercapai
+ - Error handling yang lebih baik
+ 
+
+
 ## ⚙️ **SPESIFIKASI TEKNIS**
 
 ### **A. Arsitektur & Struktur**
@@ -23,7 +45,7 @@ Hasilkan **1 file HTML tunggal** yang berisi:
 ### **B. UI/UX Requirements**
 - **Tema Warna:**
   - Implementasi dual theme (dark/light mode) dengan toggle
-  - Palet warna STRICT: Hanya dark, dan light, tanpa warna lain. 
+  - Palet warna STRICT: Hanya black #000, dan white #fff, tanpa warna lain. 
   - Transisi smooth antar mode
 - **Desain:** Optimalisasi UI dan UX. 
 - **Icons:** Google Material Icons
