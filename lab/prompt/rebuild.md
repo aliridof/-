@@ -23,7 +23,7 @@ Hasilkan **1 file HTML tunggal** yang berisi:
 ### **B. UI/UX Requirements**
 - **Tema Warna:**
   - Implementasi dual theme (dark/light mode) dengan toggle
-  - Palet warna STRICT: Hanya hitam (#000), putih (#FFF), dan gradasi abu-abu
+  - Palet warna STRICT: Hanya dark, dan light, tanpa warna lain. 
   - Transisi smooth antar mode
 - **Desain:** Optimalisasi UI dan UX. 
 - **Icons:** Google Material Icons
