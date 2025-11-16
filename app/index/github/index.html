@@ -142,6 +142,10 @@
   let rootTree={}; // nested
   let totalBytes=0;
 
+  // GitHub API Token
+  const GITHUB_TOKEN = 'xxx_xxxxxxxxxxxxxxxxxxxxxx';
+  //https://github.com/settings/tokens/new
+
   // Shortcuts
   const $ = s => document.querySelector(s);
   const el = (t,c,txt) => { const e=document.createElement(t); if(c) e.className=c; if(txt!=null) e.textContent=txt; return e; };
@@ -151,10 +155,16 @@
     return (n/Math.pow(k,i)).toFixed(n<k?0:2)+' '+u[i];
   };
   const api = async (url) => {
-    const r = await fetch(url, {headers:{'Accept':'application/vnd.github+json'}});
+    const headers = {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': `Bearer ${GITHUB_TOKEN}`
+    };
+    
+    const r = await fetch(url, { headers });
     if(!r.ok){
       if(r.status===403) throw new Error('Rate limit GitHub tercapai. Coba lagi nanti.');
       if(r.status===404) throw new Error('Tidak ditemukan (404).');
+      if(r.status===401) throw new Error('Token API tidak valid atau kedaluwarsa.');
       throw new Error(`HTTP ${r.status} ${r.statusText}`);
     }
     return r.json();
