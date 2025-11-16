@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GitHub Repository Explorer - Token Required">
-<title>GitHub Explorer Pro</title>
+<meta name="description" content="GitHub Repository Explorer - Token-Only Access">
+<title>GitHub Explorer Token</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <style>
 /* ============================================
@@ -20,9 +20,6 @@
   --input-bg: #0a0a0a;
   --shadow: rgba(255,255,255,0.1);
   --accent: #fff;
-  --success: #fff;
-  --error: #fff;
-  --warning: #fff;
 }
 
 body.light {
@@ -35,9 +32,6 @@ body.light {
   --input-bg: #fafafa;
   --shadow: rgba(0,0,0,0.1);
   --accent: #000;
-  --success: #000;
-  --error: #000;
-  --warning: #000;
 }
 
 /* ============================================
@@ -55,6 +49,9 @@ body {
   color: var(--fg);
   transition: background 0.3s, color 0.3s;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ============================================
@@ -62,8 +59,10 @@ body {
    ============================================ */
 .container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 20px;
+  flex: 1;
 }
 
 /* ============================================
@@ -119,20 +118,130 @@ body {
 }
 
 .rate-limit--low {
-  border-color: var(--error);
+  border-color: var(--accent);
+  animation: pulse 1s ease infinite;
 }
 
-.rate-limit--medium {
-  border-color: var(--warning);
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-.rate-limit--high {
-  border-color: var(--success);
-}
-
-.rate-limit--token {
+/* ============================================
+   TOKEN SETUP CARD
+   ============================================ */
+.token-card {
   background: var(--panel);
-  border-color: var(--success);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.token-card__icon {
+  font-size: 56px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.token-card__title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.token-card__desc {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.token-card__input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.token-card__input {
+  width: 100%;
+  padding: 14px 50px 14px 18px;
+  background: var(--input-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  transition: all 0.2s;
+}
+
+.token-card__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--shadow);
+}
+
+.token-card__input::placeholder {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.token-card__toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.token-card__toggle:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+
+.token-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--input-bg);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.token-card__status--hidden {
+  display: none;
+}
+
+.token-card__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.token-card__link {
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.token-card__link:hover {
+  color: var(--fg);
+  text-decoration: underline;
 }
 
 /* ============================================
@@ -141,10 +250,10 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: 8px;
+  padding: 12px 20px;
   background: var(--panel);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 8px;
   color: var(--fg);
   font-size: 14px;
@@ -168,139 +277,54 @@ body {
 .btn--primary {
   background: var(--accent);
   color: var(--bg);
+  border-color: var(--accent);
 }
 
 .btn--primary:hover:not(:disabled) {
   background: var(--fg);
+  border-color: var(--fg);
 }
 
 .btn--small {
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-size: 12px;
 }
 
 .btn .material-icons {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 /* ============================================
-   TOKEN SETUP SECTION
+   TABS
    ============================================ */
-.token-setup {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
+.tabs {
+  display: flex;
+  gap: 8px;
   margin-bottom: 20px;
-  text-align: center;
+  border-bottom: 2px solid var(--border);
 }
 
-.token-setup__icon {
-  font-size: 48px;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-
-.token-setup__title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.token-setup__desc {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.token-setup__input-group {
-  position: relative;
-  max-width: 500px;
-  margin: 0 auto 12px;
-}
-
-.token-setup__input {
-  width: 100%;
-  padding: 12px 50px 12px 16px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 14px;
-  font-family: 'Courier New', monospace;
-  transition: all 0.2s;
-}
-
-.token-setup__input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--shadow);
-}
-
-.token-setup__input::placeholder {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.token-setup__toggle {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 6px;
+.tabs__item {
+  flex: 1;
+  padding: 12px 16px;
   background: transparent;
   border: none;
+  border-bottom: 2px solid transparent;
   color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-}
-
-.token-setup__toggle:hover {
-  background: var(--hover);
-  color: var(--fg);
-}
-
-.token-setup__toggle .material-icons {
-  font-size: 20px;
-}
-
-.token-setup__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--input-bg);
-  border: 1px solid var(--success);
-  border-radius: 8px;
-  color: var(--success);
   font-size: 14px;
-  margin-bottom: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
 }
 
-.token-setup__status .material-icons {
-  font-size: 18px;
-}
-
-.token-setup__actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.token-setup__link {
-  color: var(--muted);
-  font-size: 13px;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.token-setup__link:hover {
+.tabs__item:hover {
   color: var(--fg);
-  text-decoration: underline;
+}
+
+.tabs__item--active {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
 }
 
 /* ============================================
@@ -311,7 +335,11 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.panel--hidden {
+  display: none;
 }
 
 /* ============================================
@@ -321,10 +349,6 @@ body {
   margin-bottom: 16px;
 }
 
-.form-group:last-child {
-  margin-bottom: 0;
-}
-
 .form-row {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -332,9 +356,13 @@ body {
   align-items: center;
 }
 
+.form-row--triple {
+  grid-template-columns: 1fr 1fr auto;
+}
+
 .input, .select {
   width: 100%;
-  padding: 11px 14px;
+  padding: 12px 16px;
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -349,14 +377,15 @@ body {
   box-shadow: 0 0 0 3px var(--shadow);
 }
 
-.input::placeholder {
-  color: var(--muted);
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .form-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
@@ -367,11 +396,42 @@ body {
 }
 
 .form-hint--success {
-  color: var(--success);
+  color: var(--accent);
 }
 
 .form-hint--error {
-  color: var(--error);
+  color: var(--accent);
+}
+
+/* URL Preview */
+.url-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.url-preview__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.url-preview__label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.url-preview__value {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
 }
 
 /* ============================================
@@ -380,12 +440,12 @@ body {
 .repo-info {
   display: none;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 16px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .repo-info--visible {
@@ -393,7 +453,12 @@ body {
 }
 
 .repo-info__icon {
-  font-size: 32px;
+  font-size: 36px;
+  color: var(--muted);
+}
+
+.repo-info__details {
+  flex: 1;
 }
 
 .repo-info__name {
@@ -423,7 +488,7 @@ body {
   display: none;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .stats--visible {
@@ -444,15 +509,19 @@ body {
 .stat-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .stat-card__icon {
   font-size: 32px;
+  color: var(--muted);
+}
+
+.stat-card__content {
+  flex: 1;
 }
 
 .stat-card__value {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
 }
 
@@ -464,32 +533,6 @@ body {
 }
 
 /* ============================================
-   CACHE INFO
-   ============================================ */
-.cache-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 13px;
-}
-
-.cache-info__status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-}
-
-.cache-info__icon {
-  font-size: 18px;
-}
-
-/* ============================================
    TOOLBAR
    ============================================ */
 .toolbar {
@@ -497,7 +540,7 @@ body {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .toolbar--visible {
@@ -512,7 +555,7 @@ body {
 
 .toolbar__search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
@@ -521,7 +564,33 @@ body {
 }
 
 .toolbar__search .input {
-  padding-left: 44px;
+  padding-left: 48px;
+}
+
+/* ============================================
+   CACHE INFO
+   ============================================ */
+.cache-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.cache-info__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.cache-info--hidden {
+  display: none;
 }
 
 /* ============================================
@@ -610,7 +679,7 @@ body {
 .tree-line__action {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   padding: 4px 8px;
   background: var(--input-bg);
   border: 1px solid var(--border);
@@ -669,6 +738,10 @@ body {
   margin-bottom: 16px;
 }
 
+.empty-state__message {
+  font-size: 14px;
+}
+
 /* ============================================
    TOAST NOTIFICATION
    ============================================ */
@@ -682,7 +755,7 @@ body {
   gap: 12px;
   padding: 12px 20px;
   background: var(--panel);
-  border: 2px solid var(--border);
+  border: 2px solid var(--accent);
   border-radius: 8px;
   box-shadow: 0 8px 24px var(--shadow);
   z-index: 9999;
@@ -704,33 +777,25 @@ body {
   font-size: 20px;
 }
 
-.toast--success {
-  border-color: var(--success);
-}
-
-.toast--error {
-  border-color: var(--error);
-}
-
 /* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
+  .form-row--triple {
+    grid-template-columns: 1fr;
+  }
+  
   .header {
     flex-direction: column;
     align-items: stretch;
   }
   
   .header__actions {
-    flex-direction: column;
-  }
-  
-  .rate-limit {
     justify-content: center;
   }
   
   .stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
   
   .toolbar {
@@ -739,6 +804,10 @@ body {
   
   .toolbar__search {
     width: 100%;
+  }
+  
+  .token-card {
+    padding: 24px 16px;
   }
 }
 
@@ -756,11 +825,6 @@ body {
 .text-center {
   text-align: center;
 }
-
-.mt-1 { margin-top: 8px; }
-.mt-2 { margin-top: 16px; }
-.mb-1 { margin-bottom: 8px; }
-.mb-2 { margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -769,79 +833,146 @@ body {
   <header class="header">
     <h1 class="header__title">
       <span class="material-icons">source</span>
-      GitHub Explorer Pro
+      GitHub Explorer Token
     </h1>
     <div class="header__actions">
       <div class="rate-limit" id="rateLimit">
         <span class="material-icons rate-limit__icon">api</span>
         <span class="rate-limit__value" id="rateLimitValue">--</span>
-        <span class="text-muted">/ 5000</span>
+        <span class="text-muted">/ <span id="rateLimitMax">5000</span></span>
       </div>
-      <div class="rate-limit rate-limit--token" id="tokenMonitor" style="display:none">
-        <span class="material-icons rate-limit__icon">vpn_key</span>
-        <span class="rate-limit__value" id="tokenStatus">Active</span>
-      </div>
-      <button class="btn" id="themeToggle" title="Toggle Theme">
+      <button class="btn btn--small" id="themeToggle" title="Toggle Theme">
         <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
     </div>
   </header>
 
-  <!-- TOKEN SETUP SECTION -->
-  <div class="token-setup" id="tokenSetup">
-    <div class="material-icons token-setup__icon">vpn_key</div>
-    <h2 class="token-setup__title">GitHub Personal Access Token</h2>
-    <p class="token-setup__desc">
-      Token meningkatkan rate limit dari 60 menjadi 5000 request per jam.<br>
-      Masukkan token Anda untuk mengakses private repos dan menghindari rate limit.
+  <!-- TOKEN SETUP CARD -->
+  <div class="token-card" id="tokenCard">
+    <div class="material-icons token-card__icon">vpn_key</div>
+    <h2 class="token-card__title">GitHub Personal Access Token</h2>
+    <p class="token-card__desc">
+      Aplikasi ini memerlukan GitHub token untuk mengakses API.<br>
+      Token memberikan rate limit 5000 request per jam dan akses ke private repositories.
     </p>
-    <div class="token-setup__input-group">
-      <input type="password" class="token-setup__input" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-      <button class="token-setup__toggle" id="toggleToken">
+    
+    <div class="token-card__input-group">
+      <input 
+        type="password" 
+        class="token-card__input" 
+        id="tokenInput" 
+        placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        autocomplete="off"
+      >
+      <button class="token-card__toggle" id="toggleVisibility" title="Toggle visibility">
         <span class="material-icons">visibility</span>
       </button>
     </div>
-    <div class="token-setup__status" id="tokenStatusDiv" style="display:none">
+    
+    <div class="token-card__status token-card__status--hidden" id="tokenStatus">
       <span class="material-icons">check_circle</span>
-      <span id="tokenStatusText">Token aktif - Rate limit: 5000 request/jam</span>
+      <span>Token aktif - Rate limit: 5000 request/jam</span>
     </div>
-    <div class="token-setup__actions">
+    
+    <div class="token-card__actions">
       <button class="btn btn--primary" id="saveToken">
         <span class="material-icons">check_circle</span>
         Gunakan Token
       </button>
-      <button class="btn" id="cancelToken">
-        <span class="material-icons">close</span>
-        Batalkan
+      <button class="btn" id="clearToken">
+        <span class="material-icons">delete</span>
+        Hapus Token
       </button>
     </div>
-    <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" class="token-setup__link">
+    
+    <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" class="token-card__link">
       Belum punya token? Buat di GitHub →
     </a>
   </div>
 
-  <!-- URL INPUT -->
-  <div class="panel">
+  <!-- TABS -->
+  <div class="tabs" id="mainTabs" style="display:none">
+    <button class="tabs__item tabs__item--active" data-tab="manual">
+      <span class="material-icons" style="vertical-align:middle;font-size:18px;margin-right:4px">edit</span>
+      Manual Input
+    </button>
+    <button class="tabs__item" data-tab="url">
+      <span class="material-icons" style="vertical-align:middle;font-size:18px;margin-right:4px">link</span>
+      Dari URL
+    </button>
+  </div>
+
+  <!-- MANUAL TAB -->
+  <div class="panel panel--hidden" id="manualTab">
     <div class="form-group">
       <div class="form-row">
-        <input type="text" class="input" id="repoUrl" placeholder="GitHub URL atau owner/repo (contoh: facebook/react)">
-        <button class="btn btn--primary" id="parseUrl">
+        <input type="text" class="input" id="username" placeholder="GitHub Username (contoh: facebook, vercel)">
+        <button class="btn btn--primary" id="fetchRepos">
+          <span class="material-icons">search</span>
+          Cari Repos
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-row form-row--triple">
+        <select class="select" id="repoSelect" disabled>
+          <option value="">Pilih Repository</option>
+        </select>
+        <select class="select" id="branchSelect" disabled>
+          <option value="">Pilih Branch</option>
+        </select>
+        <button class="btn btn--primary" id="loadManual" disabled>
           <span class="material-icons">rocket_launch</span>
-          Muat Repository
+          Muat
+        </button>
+      </div>
+    </div>
+
+    <div class="form-hint" id="manualHint">
+      <span class="material-icons">info</span>
+      <span>Masukkan username untuk memulai</span>
+    </div>
+  </div>
+
+  <!-- URL TAB -->
+  <div class="panel panel--hidden" id="urlTab">
+    <div class="form-group">
+      <div class="form-row">
+        <input type="text" class="input" id="repoUrl" placeholder="Paste URL GitHub (contoh: https://github.com/facebook/react)">
+        <button class="btn btn--primary" id="parseUrl">
+          <span class="material-icons">check_circle</span>
+          Parse & Muat
         </button>
       </div>
     </div>
 
     <div class="form-hint" id="urlHint">
       <span class="material-icons">help_outline</span>
-      Format: owner/repo, github.com/owner/repo, .../tree/branch
+      <span>Format: owner/repo, github.com/owner/repo, .../tree/branch</span>
+    </div>
+    
+    <!-- URL Parse Preview -->
+    <div class="url-preview hidden" id="urlPreview">
+      <div class="url-preview__item">
+        <span class="url-preview__label">Owner:</span>
+        <span class="url-preview__value" id="previewOwner">-</span>
+      </div>
+      <div class="url-preview__item">
+        <span class="url-preview__label">Repo:</span>
+        <span class="url-preview__value" id="previewRepo">-</span>
+      </div>
+      <div class="url-preview__item">
+        <span class="url-preview__label">Branch:</span>
+        <span class="url-preview__value" id="previewBranch">-</span>
+      </div>
     </div>
   </div>
 
   <!-- REPOSITORY INFO -->
   <div class="repo-info" id="repoInfo">
     <span class="material-icons repo-info__icon">folder_special</span>
-    <div>
+    <div class="repo-info__details">
       <div class="repo-info__name">
         <a class="repo-info__link" id="repoLink" target="_blank" rel="noopener"></a>
       </div>
@@ -849,49 +980,39 @@ body {
     </div>
   </div>
 
-  <!-- CACHE INFO -->
-  <div class="cache-info hidden" id="cacheInfo">
-    <div class="cache-info__status">
-      <span class="material-icons cache-info__icon">storage</span>
-      <span id="cacheStatus">Cache kosong</span>
-    </div>
-    <button class="btn btn--small" id="clearCache">
-      <span class="material-icons">delete</span>
-      Clear Cache
-    </button>
-  </div>
-
   <!-- STATISTICS -->
   <div class="stats" id="stats">
     <div class="stat-card">
       <span class="material-icons stat-card__icon">description</span>
-      <div>
+      <div class="stat-card__content">
         <div class="stat-card__value" id="fileCount">0</div>
         <div class="stat-card__label">Files</div>
       </div>
     </div>
     <div class="stat-card">
       <span class="material-icons stat-card__icon">folder</span>
-      <div>
+      <div class="stat-card__content">
         <div class="stat-card__value" id="folderCount">0</div>
         <div class="stat-card__label">Folders</div>
       </div>
     </div>
     <div class="stat-card">
       <span class="material-icons stat-card__icon">storage</span>
-      <div>
+      <div class="stat-card__content">
         <div class="stat-card__value" id="totalSize">0 B</div>
         <div class="stat-card__label">Total Size</div>
       </div>
     </div>
     <div class="stat-card">
       <span class="material-icons stat-card__icon">schedule</span>
-      <div>
+      <div class="stat-card__content">
         <div class="stat-card__value" id="lastUpdate">--</div>
         <div class="stat-card__label">Last Scan</div>
       </div>
     </div>
   </div>
+
+
 
   <!-- TOOLBAR -->
   <div class="toolbar" id="toolbar">
@@ -917,14 +1038,14 @@ body {
   <div class="tree" id="tree">
     <div class="empty-state">
       <div class="material-icons empty-state__icon">folder_open</div>
-      <div>Masukkan token dan GitHub URL untuk memulai.</div>
+      <div class="empty-state__message">Masukkan token untuk memulai</div>
     </div>
   </div>
 </div>
 
 <script>
 /* ============================================
-   GITHUB EXPLORER PRO - TOKEN REQUIRED
+   GITHUB EXPLORER TOKEN - OPTIMIZED VERSION
    ============================================ */
 
 // ============================================
@@ -936,111 +1057,49 @@ const CONFIG = {
   API_BASE: 'https://api.github.com',
   RAW_BASE: 'https://raw.githubusercontent.com',
   GITHUB_BASE: 'https://github.com',
-  RATE_LIMIT_THRESHOLD_LOW: 10,
-  RATE_LIMIT_THRESHOLD_MEDIUM: 30
+  RATE_LIMIT_THRESHOLD_LOW: 100
 };
 
-const ICONS = {
+const FILE_ICONS = {
   js: 'javascript', jsx: 'javascript', ts: 'javascript', tsx: 'javascript',
   py: 'code', java: 'code', cpp: 'code', c: 'code', cs: 'code',
   rs: 'code', go: 'code', rb: 'code', php: 'code', swift: 'code',
-  html: 'html', htm: 'html', css: 'css', scss: 'css',
-  json: 'data_object', xml: 'code',
+  html: 'html', htm: 'html', css: 'css', scss: 'css', sass: 'css',
+  json: 'data_object', xml: 'code', yaml: 'settings', yml: 'settings',
   md: 'description', txt: 'description', pdf: 'picture_as_pdf',
-  yml: 'settings', yaml: 'settings', toml: 'settings',
   png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', svg: 'image',
   zip: 'folder_zip', gz: 'folder_zip', tar: 'folder_zip',
-  sh: 'terminal', bash: 'terminal'
+  sh: 'terminal', bash: 'terminal', bat: 'terminal',
+  dockerfile: 'settings', env: 'settings', gitignore: 'settings'
 };
 
 // ============================================
 // 2. STATE MANAGEMENT
 // ============================================
 const state = {
+  token: '',
   owner: '',
   repo: '',
   branch: '',
-  token: '',
-  tokenMode: 'no-token',
   files: [],
   tree: {},
   totalSize: 0,
   rateLimit: { remaining: null, limit: null, reset: null },
-  isExpanded: false
+  isExpanded: false,
+  isTokenValid: false
 };
 
-// ============================================
-// 3. CACHE MANAGEMENT
-// ============================================
-class CacheManager {
-  static set(key, value, ttl = CONFIG.CACHE_TTL) {
-    const item = {
-      value,
-      timestamp: Date.now(),
-      ttl
-    };
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(item));
-    this.updateCacheUI();
-  }
 
-  static get(key) {
-    const item = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
-    if (!item) return null;
-
-    const { value, timestamp, ttl } = JSON.parse(item);
-    if (Date.now() - timestamp > ttl) {
-      this.delete(key);
-      return null;
-    }
-    return value;
-  }
-
-  static delete(key) {
-    localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
-    this.updateCacheUI();
-  }
-
-  static clear() {
-    Object.keys(localStorage)
-      .filter(key => key.startsWith(CONFIG.STORAGE_PREFIX))
-      .forEach(key => localStorage.removeItem(key));
-    this.updateCacheUI();
-    showToast('Cache berhasil dibersihkan', 'success');
-  }
-
-  static getCacheSize() {
-    return Object.keys(localStorage)
-      .filter(key => key.startsWith(CONFIG.STORAGE_PREFIX))
-      .length;
-  }
-
-  static updateCacheUI() {
-    const size = this.getCacheSize();
-    const cacheInfo = $('#cacheInfo');
-    const cacheStatus = $('#cacheStatus');
-    
-    if (size > 0) {
-      cacheInfo.classList.remove('hidden');
-      cacheStatus.textContent = `${size} item cached`;
-    } else {
-      cacheInfo.classList.add('hidden');
-    }
-  }
-}
 
 // ============================================
 // 4. API MANAGEMENT
 // ============================================
 class GitHubAPI {
   static async fetch(endpoint) {
-    const headers = { 'Accept': 'application/vnd.github+json' };
-    
-    // REQUIRE TOKEN
-    if (!state.token) {
-      throw new Error('Token diperlukan untuk mengakses GitHub API. Silakan masukkan token terlebih dahulu.');
-    }
-    
-    headers['Authorization'] = `token ${state.token}`;
+    const headers = { 
+      'Accept': 'application/vnd.github+json',
+      'Authorization': `token ${state.token}`
+    };
 
     const response = await fetch(`${CONFIG.API_BASE}${endpoint}`, { headers });
     
@@ -1048,18 +1107,18 @@ class GitHubAPI {
     this.updateRateLimit(response.headers);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Token tidak valid atau expired');
+      }
       if (response.status === 403) {
         const reset = response.headers.get('X-RateLimit-Reset');
-        const resetDate = reset ? new Date(reset * 1000).toLocaleTimeString() : 'nanti';
-        throw new Error(`Rate limit tercapai. Reset pada ${resetDate}.`);
+        const resetDate = reset ? new Date(reset * 1000).toLocaleTimeString() : 'soon';
+        throw new Error(`Rate limit tercapai. Reset pada ${resetDate}`);
       }
       if (response.status === 404) {
-        throw new Error('Repository atau branch tidak ditemukan (404).');
+        throw new Error('Repository atau resource tidak ditemukan');
       }
-      if (response.status === 401) {
-        throw new Error('Token tidak valid. Periksa kembali token Anda.');
-      }
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
     return response.json();
@@ -1082,61 +1141,59 @@ class GitHubAPI {
 
   static updateRateLimitUI() {
     const { remaining, limit } = state.rateLimit;
-    const rateLimitEl = $('#rateLimit');
-    const valueEl = $('#rateLimitValue');
+    const rateLimitEl = document.getElementById('rateLimit');
+    const valueEl = document.getElementById('rateLimitValue');
+    const maxEl = document.getElementById('rateLimitMax');
 
     if (remaining !== null) {
       valueEl.textContent = remaining;
+      maxEl.textContent = limit;
       
-      // Update limit display
-      const limitText = rateLimitEl.querySelector('.text-muted');
-      limitText.textContent = `/ ${limit}`;
-      
-      // Update color based on threshold
-      rateLimitEl.classList.remove('rate-limit--low', 'rate-limit--medium', 'rate-limit--high');
-      
-      if (remaining < CONFIG.RATE_LIMIT_THRESHOLD_LOW) {
-        rateLimitEl.classList.add('rate-limit--low');
-      } else if (remaining < CONFIG.RATE_LIMIT_THRESHOLD_MEDIUM) {
-        rateLimitEl.classList.add('rate-limit--medium');
-      } else {
-        rateLimitEl.classList.add('rate-limit--high');
-      }
+      // Update visual indicator
+      rateLimitEl.classList.toggle('rate-limit--low', remaining < CONFIG.RATE_LIMIT_THRESHOLD_LOW);
     }
   }
 
-  static async getTree(owner, repo, branch) {
-    const cacheKey = `tree_${owner}_${repo}_${branch}`;
-    const cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
+  static async validateToken(token) {
+    try {
+      const headers = { 
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `token ${token}`
+      };
+      const response = await fetch(`${CONFIG.API_BASE}/user`, { headers });
+      this.updateRateLimit(response.headers);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
 
-    let data;
+  static async getRepos(username) {
+    return await this.fetch(`/users/${username}/repos?per_page=100&sort=updated`);
+  }
+
+  static async getBranches(owner, repo) {
+    return await this.fetch(`/repos/${owner}/${repo}/branches?per_page=100`);
+  }
+
+  static async getTree(owner, repo, branch) {
     try {
       const response = await this.fetch(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`);
-      data = response.tree || [];
+      return response.tree || [];
     } catch (error) {
       // Fallback: resolve branch to SHA first
       const branchData = await this.fetch(`/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`);
       const treeSha = branchData?.commit?.commit?.tree?.sha || branchData?.commit?.sha;
       
-      if (!treeSha) throw new Error('Gagal resolve tree SHA dari branch');
+      if (!treeSha) throw new Error('Failed to resolve tree SHA');
       
       const treeData = await this.fetch(`/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`);
-      data = treeData.tree || [];
+      return treeData.tree || [];
     }
-
-    CacheManager.set(cacheKey, data);
-    return data;
   }
 
   static async getRepoInfo(owner, repo) {
-    const cacheKey = `repoinfo_${owner}_${repo}`;
-    const cached = CacheManager.get(cacheKey);
-    if (cached) return cached;
-
-    const data = await this.fetch(`/repos/${owner}/${repo}`);
-    CacheManager.set(cacheKey, data);
-    return data;
+    return await this.fetch(`/repos/${owner}/${repo}`);
   }
 }
 
@@ -1176,25 +1233,56 @@ const debounce = (func, wait) => {
 };
 
 const parseGitHubUrl = (url) => {
-  const sanitized = url.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '');
+  const sanitized = url.trim().replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '');
   
-  // Pattern: github.com/owner/repo/tree/branch
-  let match = sanitized.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\/(?:tree|blob)\/([^\/]+))?/);
-  if (match) {
-    return {
-      owner: match[1],
-      repo: match[2].replace(/\.git$/, ''),
-      branch: match[3]
-    };
-  }
-  
-  // Pattern: owner/repo
-  match = sanitized.match(/^([^\/]+)\/([^\/]+)$/);
-  if (match) {
-    return {
-      owner: match[1],
-      repo: match[2].replace(/\.git$/, '')
-    };
+  // Enhanced parsing with multiple patterns
+  const patterns = [
+    // Full GitHub URLs with various paths
+    {
+      regex: /github\.com\/([^\/]+)\/([^\/\?#]+?)(?:\.git)?(?:\/(?:tree|blob|commits?|releases|issues|pull)\/([^\/\?#]+))?(?:\/(.+))?/,
+      handler: (m) => ({
+        owner: m[1],
+        repo: m[2],
+        branch: m[3] || null,
+        path: m[4] || null
+      })
+    },
+    // Short format: owner/repo or owner/repo/tree/branch
+    {
+      regex: /^([^\/\s]+)\/([^\/\s]+?)(?:\.git)?(?:\/tree\/([^\/\s]+))?$/,
+      handler: (m) => ({
+        owner: m[1],
+        repo: m[2],
+        branch: m[3] || null
+      })
+    },
+    // Clone URLs (https/ssh)
+    {
+      regex: /(?:git@|https:\/\/)github\.com[:\\/]([^\/]+)\/([^\/\s]+?)(?:\.git)?$/,
+      handler: (m) => ({
+        owner: m[1],
+        repo: m[2]
+      })
+    },
+    // Raw githubusercontent URLs
+    {
+      regex: /raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)/,
+      handler: (m) => ({
+        owner: m[1],
+        repo: m[2],
+        branch: m[3]
+      })
+    }
+  ];
+
+  for (const pattern of patterns) {
+    const match = sanitized.match(pattern.regex);
+    if (match) {
+      const result = pattern.handler(match);
+      // Clean up the repo name
+      result.repo = result.repo.replace(/\.git$/, '').replace(/\/$/, '');
+      return result;
+    }
   }
   
   return null;
@@ -1202,12 +1290,13 @@ const parseGitHubUrl = (url) => {
 
 const getFileIcon = (filename) => {
   const ext = filename.split('.').pop().toLowerCase();
-  return ICONS[ext] || 'insert_drive_file';
+  return FILE_ICONS[ext] || 'insert_drive_file';
 };
 
 const shouldSkipPath = (path) => {
   const segments = path.split('/');
-  return segments.some(seg => seg.startsWith('.')) || path.includes('node_modules/');
+  return segments.some(seg => seg.startsWith('.') && seg !== '.github') || 
+         path.includes('node_modules/');
 };
 
 // ============================================
@@ -1310,7 +1399,7 @@ const renderTreeNode = (node, prefix, container) => {
     
     container.appendChild(createTreeLine(prefix + connector, displayName, data));
 
-    if (data.type === 'tree') {
+    if (data.type === 'tree' && (state.isExpanded || data.children)) {
       const newPrefix = prefix + (isLast ? '    ' : '│   ');
       renderTreeNode(data.children, newPrefix, container);
     }
@@ -1373,7 +1462,7 @@ const setTreeLoading = () => {
   $('#tree').innerHTML = `
     <div class="empty-state">
       <div class="spinner spinner--large" style="margin:0 auto 16px"></div>
-      <div>Memuat struktur repository...</div>
+      <div class="empty-state__message">Memuat struktur repository...</div>
     </div>
   `;
 };
@@ -1381,8 +1470,8 @@ const setTreeLoading = () => {
 const setTreeError = (message) => {
   $('#tree').innerHTML = `
     <div class="empty-state">
-      <div class="material-icons empty-state__icon" style="color:var(--error)">error_outline</div>
-      <div style="color:var(--error)">${message}</div>
+      <div class="material-icons empty-state__icon">error_outline</div>
+      <div class="empty-state__message">${message}</div>
     </div>
   `;
 };
@@ -1407,10 +1496,8 @@ const showRepoInfo = () => {
 // 9. CORE FUNCTIONS
 // ============================================
 const loadRepository = async () => {
-  // Check token first
-  if (!state.token) {
-    setHint('#urlHint', 'Token diperlukan! Silakan masukkan token terlebih dahulu.', 'error');
-    showToast('Token diperlukan untuk mengakses API', 'error');
+  if (!state.isTokenValid) {
+    showToast('Token tidak valid atau belum diset', 'error');
     return;
   }
 
@@ -1447,7 +1534,7 @@ const loadRepository = async () => {
     const folderCount = countFolders(state.tree);
     $('#repoDesc').textContent = `${formatNumber(state.files.length)} files • ${formatNumber(folderCount)} folders • ${formatBytes(state.totalSize)}`;
     
-    showToast('Repository berhasil dimuat!', 'success');
+    showToast('Repository berhasil dimuat!');
   } catch (error) {
     setTreeError(error.message);
     $('#repoDesc').textContent = 'Gagal memuat';
@@ -1456,57 +1543,220 @@ const loadRepository = async () => {
 };
 
 // ============================================
-// 10. TOKEN MODE MANAGEMENT
+// 10. TOKEN MANAGEMENT
 // ============================================
-const updateTokenUI = () => {
-  const tokenStatusDiv = $('#tokenStatusDiv');
-  const tokenMonitor = $('#tokenMonitor');
-  const tokenStatusText = $('#tokenStatusText');
-  const tokenStatus = $('#tokenStatus');
+const validateAndSaveToken = async () => {
+  const token = $('#tokenInput').value.trim();
   
-  if (state.token) {
-    // Show status in setup section
-    tokenStatusDiv.style.display = 'inline-flex';
-    tokenStatusText.textContent = 'Token aktif - Rate limit: 5000 request/jam';
+  if (!token) {
+    showToast('Token tidak boleh kosong', 'error');
+    return;
+  }
+  
+  if (!token.startsWith('ghp_') && !token.startsWith('gho_') && !token.startsWith('github_pat_')) {
+    showToast('Format token tidak valid', 'error');
+    return;
+  }
+
+  // Show loading
+  const saveBtn = $('#saveToken');
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<div class="spinner"></div> Validating...';
+
+  try {
+    const isValid = await GitHubAPI.validateToken(token);
     
-    // Show monitor in header
-    tokenMonitor.style.display = 'flex';
-    tokenStatus.textContent = 'Active';
-    
-    state.tokenMode = 'with-token';
-  } else {
-    // Hide all token indicators
-    tokenStatusDiv.style.display = 'none';
-    tokenMonitor.style.display = 'none';
-    
-    state.tokenMode = 'no-token';
+    if (isValid) {
+      state.token = token;
+      state.isTokenValid = true;
+      
+      // Save to localStorage
+      localStorage.setItem(CONFIG.STORAGE_PREFIX + 'token', token);
+      
+      // Update UI
+      $('#tokenStatus').classList.remove('token-card__status--hidden');
+      $('#mainTabs').style.display = 'flex';
+      $('#manualTab').classList.remove('panel--hidden');
+      
+      showToast('Token berhasil divalidasi!');
+    } else {
+      showToast('Token tidak valid', 'error');
+    }
+  } catch (error) {
+    showToast('Gagal memvalidasi token', 'error');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<span class="material-icons">check_circle</span> Gunakan Token';
   }
 };
 
-const purgeToken = () => {
-  // Clear token from state
+const clearToken = () => {
+  if (!confirm('Hapus token?')) return;
+  
+  // Clear state
   state.token = '';
-  state.tokenMode = 'no-token';
+  state.isTokenValid = false;
   
-  // Clear input
-  $('#tokenInput').value = '';
-  
-  // Update UI
-  updateTokenUI();
-  
-  // Clear from localStorage
+  // Clear storage
   localStorage.removeItem(CONFIG.STORAGE_PREFIX + 'token');
-  localStorage.removeItem(CONFIG.STORAGE_PREFIX + 'tokenMode');
   
-  // Clear all cache since it might have token-based data
-  CacheManager.clear();
+  // Reset UI
+  $('#tokenInput').value = '';
+  $('#tokenStatus').classList.add('token-card__status--hidden');
+  $('#mainTabs').style.display = 'none';
+  $('#manualTab').classList.add('panel--hidden');
+  $('#urlTab').classList.add('panel--hidden');
+  $('#repoInfo').classList.remove('repo-info--visible');
+  $('#stats').classList.remove('stats--visible');
+  $('#toolbar').classList.remove('toolbar--visible');
+  $('#tree').innerHTML = `
+    <div class="empty-state">
+      <div class="material-icons empty-state__icon">folder_open</div>
+      <div class="empty-state__message">Masukkan token untuk memulai</div>
+    </div>
+  `;
   
-  showToast('Token dan cache telah dihapus', 'success');
+  showToast('Token berhasil dihapus');
 };
 
 // ============================================
-// 11. EVENT HANDLERS
+// 11. HELPER FUNCTIONS
 // ============================================
+const setHint = (selector, message, status = '') => {
+  const hint = $(selector);
+  const icon = hint.querySelector('.material-icons');
+  const textNode = hint.querySelector('span:last-child');
+  
+  hint.className = `form-hint ${status ? 'form-hint--' + status : ''}`;
+  
+  if (status === 'loading') {
+    icon.className = 'spinner';
+    icon.textContent = '';
+  } else {
+    icon.className = 'material-icons';
+    icon.textContent = status === 'error' ? 'error' : 
+                       status === 'success' ? 'check_circle' : 'info';
+  }
+  
+  textNode.textContent = message;
+};
+
+const copyToClipboard = async (text) => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+    showToast('Disalin ke clipboard!');
+  } catch (error) {
+    showToast('Gagal menyalin', 'error');
+  }
+};
+
+const showToast = (message, type = 'success') => {
+  const existing = $('.toast');
+  if (existing) existing.remove();
+  
+  const toast = createElement('div', 'toast');
+  const icon = createElement('span', 'material-icons toast__icon', 
+    type === 'error' ? 'error' : 'check_circle');
+  toast.append(icon, document.createTextNode(message));
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+};
+
+// ============================================
+// 12. EVENT HANDLERS
+// ============================================
+const handleFetchRepos = async () => {
+  const username = $('#username').value.trim();
+  if (!username) {
+    setHint('#manualHint', 'Username tidak boleh kosong', 'error');
+    return;
+  }
+
+  setHint('#manualHint', 'Mengambil repositories...', 'loading');
+  $('#repoSelect').disabled = true;
+  $('#branchSelect').disabled = true;
+  $('#loadManual').disabled = true;
+
+  try {
+    const repos = await GitHubAPI.getRepos(username);
+    
+    if (!repos.length) {
+      throw new Error('Tidak ada repository ditemukan');
+    }
+
+    const repoSelect = $('#repoSelect');
+    repoSelect.innerHTML = '<option value="">Pilih Repository</option>';
+    
+    repos.forEach(repo => {
+      const option = document.createElement('option');
+      option.value = repo.name;
+      option.textContent = `${repo.name}${repo.private ? ' 🔒' : ''}${repo.stargazers_count ? ' ⭐' + repo.stargazers_count : ''}`;
+      option.dataset.default = repo.default_branch || 'main';
+      option.dataset.desc = repo.description || '';
+      repoSelect.appendChild(option);
+    });
+
+    repoSelect.disabled = false;
+    setHint('#manualHint', `Ditemukan ${repos.length} repository`, 'success');
+  } catch (error) {
+    setHint('#manualHint', error.message, 'error');
+  }
+};
+
+const handleRepoChange = async () => {
+  const username = $('#username').value.trim();
+  const repo = $('#repoSelect').value;
+  
+  if (!repo) return;
+
+  const branchSelect = $('#branchSelect');
+  branchSelect.innerHTML = '<option value="">Loading branches...</option>';
+  branchSelect.disabled = true;
+  $('#loadManual').disabled = true;
+
+  try {
+    const branches = await GitHubAPI.getBranches(username, repo);
+    branchSelect.innerHTML = '<option value="">Pilih Branch</option>';
+    
+    const defaultBranch = $('#repoSelect').selectedOptions[0].dataset.default;
+    
+    branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch.name;
+      option.textContent = branch.name + (branch.name === defaultBranch ? ' (default)' : '');
+      branchSelect.appendChild(option);
+    });
+
+    branchSelect.value = defaultBranch;
+    branchSelect.disabled = false;
+    $('#loadManual').disabled = false;
+    setHint('#manualHint', `Ditemukan ${branches.length} branch. Siap dimuat!`, 'success');
+  } catch (error) {
+    setHint('#manualHint', error.message, 'error');
+  }
+};
+
+const handleLoadManual = () => {
+  state.owner = $('#username').value.trim();
+  state.repo = $('#repoSelect').value;
+  state.branch = $('#branchSelect').value || $('#repoSelect').selectedOptions[0]?.dataset.default || 'main';
+  
+  if (state.owner && state.repo && state.branch) {
+    loadRepository();
+  }
+};
+
 const handleParseUrl = async () => {
   const rawUrl = $('#repoUrl').value.trim();
   
@@ -1515,15 +1765,9 @@ const handleParseUrl = async () => {
     return;
   }
 
-  if (!state.token) {
-    setHint('#urlHint', 'Token diperlukan! Masukkan token terlebih dahulu.', 'error');
-    showToast('Silakan masukkan token terlebih dahulu', 'error');
-    return;
-  }
-
   const parsed = parseGitHubUrl(rawUrl);
   if (!parsed) {
-    setHint('#urlHint', 'Format URL tidak valid. Periksa kembali URL Anda.', 'error');
+    setHint('#urlHint', 'Format URL tidak valid', 'error');
     return;
   }
 
@@ -1539,7 +1783,7 @@ const handleParseUrl = async () => {
       state.branch = repoInfo.default_branch || 'main';
     }
 
-    setHint('#urlHint', `✓ Loading ${state.owner}/${state.repo} (${state.branch})...`, 'success');
+    setHint('#urlHint', `Loading ${state.owner}/${state.repo} (${state.branch})...`, 'success');
     loadRepository();
   } catch (error) {
     setHint('#urlHint', error.message, 'error');
@@ -1563,12 +1807,12 @@ const handleExpandAll = () => {
   if (state.isExpanded) {
     icon.textContent = 'unfold_less';
     btn.childNodes[1].textContent = ' Collapse All';
-    $$('.tree-line').forEach(line => line.style.display = 'flex');
   } else {
     icon.textContent = 'unfold_more';
     btn.childNodes[1].textContent = ' Expand All';
-    renderTree(state.tree);
   }
+  
+  renderTree(state.tree);
 };
 
 const handleCopyAllRaw = () => {
@@ -1581,64 +1825,10 @@ const handleCopyAllRaw = () => {
 };
 
 // ============================================
-// 12. HELPER FUNCTIONS
-// ============================================
-const setHint = (selector, message, status = '') => {
-  const hint = $(selector);
-  const icon = hint.querySelector('.material-icons');
-  
-  hint.className = `form-hint ${status ? 'form-hint--' + status : ''}`;
-  
-  if (status === 'loading') {
-    icon.className = 'spinner';
-    icon.textContent = '';
-  } else {
-    icon.className = 'material-icons';
-    icon.textContent = status === 'error' ? 'error' : 
-                       status === 'success' ? 'check_circle' : 'help_outline';
-  }
-  
-  // Update text
-  while (hint.childNodes.length > 1) {
-    hint.removeChild(hint.lastChild);
-  }
-  hint.appendChild(document.createTextNode(message));
-};
-
-const copyToClipboard = async (text) => {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
-    }
-    showToast('Disalin ke clipboard!', 'success');
-  } catch (error) {
-    showToast('Gagal menyalin ke clipboard', 'error');
-  }
-};
-
-const showToast = (message, type = 'success') => {
-  const toast = createElement('div', `toast toast--${type}`);
-  const icon = createElement('span', 'material-icons toast__icon', 
-    type === 'success' ? 'check_circle' : 'error');
-  toast.append(icon, document.createTextNode(message));
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-};
-
-// ============================================
 // 13. INITIALIZATION
 // ============================================
 const init = () => {
-  // Theme toggle
+  // Theme
   const savedTheme = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'theme');
   if (savedTheme === 'light') {
     document.body.classList.add('light');
@@ -1652,48 +1842,9 @@ const init = () => {
   };
 
   // Token Management
-  $('#saveToken').onclick = () => {
-    const token = $('#tokenInput').value.trim();
-    
-    if (!token) {
-      showToast('Token tidak boleh kosong', 'error');
-      return;
-    }
-    
-    if (!token.startsWith('ghp_') && !token.startsWith('gho_') && !token.startsWith('github_pat_')) {
-      showToast('Format token tidak valid. Token harus dimulai dengan ghp_, gho_, atau github_pat_', 'error');
-      return;
-    }
-    
-    // Save token to state
-    state.token = token;
-    state.tokenMode = 'with-token';
-    
-    // Save to localStorage
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'token', token);
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'tokenMode', 'with-token');
-    
-    // Update UI
-    updateTokenUI();
-    
-    showToast('Token berhasil disimpan! Rate limit: 5000/jam', 'success');
-  };
-  
-  $('#cancelToken').onclick = () => {
-    if (state.token) {
-      if (confirm('Apakah Anda yakin ingin menghapus token dan membersihkan cache?')) {
-        purgeToken();
-      }
-    } else {
-      $('#tokenInput').value = '';
-      showToast('Token dibatalkan', 'success');
-    }
-  };
-  
-  // Token visibility toggle
-  $('#toggleToken').onclick = () => {
+  $('#toggleVisibility').onclick = () => {
     const input = $('#tokenInput');
-    const icon = $('#toggleToken').querySelector('.material-icons');
+    const icon = $('#toggleVisibility .material-icons');
     
     if (input.type === 'password') {
       input.type = 'text';
@@ -1703,58 +1854,89 @@ const init = () => {
       icon.textContent = 'visibility';
     }
   };
-  
-  // Token input real-time validation
-  $('#tokenInput').addEventListener('input', (e) => {
-    const token = e.target.value.trim();
-    
-    if (token && (token.startsWith('ghp_') || token.startsWith('gho_') || token.startsWith('github_pat_'))) {
-      $('#saveToken').querySelector('.material-icons').textContent = 'check_circle';
-    } else {
-      $('#saveToken').querySelector('.material-icons').textContent = 'check_circle';
-    }
-  });
 
-  // Restore saved token
+  $('#saveToken').onclick = validateAndSaveToken;
+  $('#clearToken').onclick = clearToken;
+
+  // Check for saved token
   const savedToken = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'token');
   if (savedToken) {
     $('#tokenInput').value = savedToken;
-    state.token = savedToken;
-    state.tokenMode = 'with-token';
-    updateTokenUI();
+    validateAndSaveToken();
   }
 
+  // Tabs
+  $$('.tabs__item').forEach(btn => {
+    btn.onclick = () => {
+      $$('.tabs__item').forEach(b => b.classList.remove('tabs__item--active'));
+      btn.classList.add('tabs__item--active');
+      
+      if (btn.dataset.tab === 'manual') {
+        $('#manualTab').classList.remove('panel--hidden');
+        $('#urlTab').classList.add('panel--hidden');
+      } else {
+        $('#manualTab').classList.add('panel--hidden');
+        $('#urlTab').classList.remove('panel--hidden');
+      }
+    };
+  });
+
   // Event listeners
+  $('#fetchRepos').onclick = handleFetchRepos;
+  $('#repoSelect').onchange = handleRepoChange;
+  $('#loadManual').onclick = handleLoadManual;
   $('#parseUrl').onclick = handleParseUrl;
   $('#searchTree').oninput = handleSearch;
   $('#refreshBtn').onclick = () => loadRepository();
   $('#expandAll').onclick = handleExpandAll;
   $('#copyAllRaw').onclick = handleCopyAllRaw;
-  $('#clearCache').onclick = () => CacheManager.clear();
-
   // Enter key support
+  $('#username').addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleFetchRepos();
+  });
+  
+  // Live URL preview
+  $('#repoUrl').addEventListener('input', debounce((e) => {
+    const url = e.target.value.trim();
+    if (!url) {
+      $('#urlPreview').classList.add('hidden');
+      return;
+    }
+    
+    const parsed = parseGitHubUrl(url);
+    if (parsed) {
+      $('#previewOwner').textContent = parsed.owner || '-';
+      $('#previewRepo').textContent = parsed.repo || '-';
+      $('#previewBranch').textContent = parsed.branch || 'default';
+      $('#urlPreview').classList.remove('hidden');
+    } else {
+      $('#urlPreview').classList.add('hidden');
+    }
+  }, 200));
+  
   $('#repoUrl').addEventListener('keypress', e => {
     if (e.key === 'Enter') handleParseUrl();
   });
+  
+  $('#tokenInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') validateAndSaveToken();
+  });
 
-  // Initialize cache UI
-  CacheManager.updateCacheUI();
-
-  // Boot from query params
+  // Boot from query params if token exists
   const params = new URLSearchParams(location.search);
   const user = params.get('user');
   const repo = params.get('repo');
   const branch = params.get('branch');
 
-  if (user && repo) {
+  if (savedToken && user && repo) {
     state.owner = user;
     state.repo = repo;
     state.branch = branch || 'main';
-    loadRepository();
+    // Will load after token validation
   }
 };
 
-// Start the application
+// Start application
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
