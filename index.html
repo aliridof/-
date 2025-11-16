@@ -1,1774 +1,575 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GitHub Repository Explorer - Token-Only Access">
-<title>GitHub Explorer Pro</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GitHub Explorer Minimal</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
 <style>
-:root {
-  --bg: #000;
-  --panel: #1a1a1a;
-  --fg: #fff;
-  --muted: #999;
-  --border: #333;
-  --hover: #2a2a2a;
-  --input-bg: #0a0a0a;
-  --shadow: rgba(255,255,255,0.1);
-  --accent: #fff;
-}
-
-body.light {
-  --bg: #fff;
-  --panel: #f5f5f5;
-  --fg: #000;
-  --muted: #666;
-  --border: #ddd;
-  --hover: #e8e8e8;
-  --input-bg: #fafafa;
-  --shadow: rgba(0,0,0,0.1);
-  --accent: #000;
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font: 14px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-  transition: background 0.3s, color 0.3s;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.container {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-  flex: 1;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.header__title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.header__title .material-icons {
-  font-size: 28px;
-}
-
-.header__actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.rate-limit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.rate-limit__icon {
-  font-size: 18px;
-}
-
-.rate-limit__value {
-  font-weight: 600;
-}
-
-.rate-limit--low {
-  border-color: var(--accent);
-  animation: pulse 1s ease infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.token-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 32px;
-  margin-bottom: 24px;
-  text-align: center;
-  max-width: 100%;
-}
-
-.token-card__icon {
-  font-size: 56px;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-
-.token-card__title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.token-card__desc {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.token-card__input-group {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.token-card__input {
-  width: 100%;
-  padding: 14px 50px 14px 18px;
-  background: var(--input-bg);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 14px;
-  font-family: 'Courier New', monospace;
-  transition: all 0.2s;
-}
-
-.token-card__input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--shadow);
-}
-
-.token-card__input::placeholder {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.token-card__toggle {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 6px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.token-card__toggle:hover {
-  background: var(--hover);
-  color: var(--fg);
-}
-
-.token-card__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: var(--input-bg);
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 20px;
-}
-
-.token-card__status--hidden {
-  display: none;
-}
-
-.token-card__actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.token-card__link {
-  color: var(--muted);
-  font-size: 13px;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.token-card__link:hover {
-  color: var(--fg);
-  text-decoration: underline;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.btn:hover:not(:disabled) {
-  background: var(--hover);
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn--primary {
-  background: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
-}
-
-.btn--primary:hover:not(:disabled) {
-  background: var(--fg);
-  border-color: var(--fg);
-}
-
-.btn--small {
-  padding: 8px 12px;
-  font-size: 12px;
-}
-
-.btn .material-icons {
-  font-size: 20px;
-}
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid var(--border);
-}
-
-.tabs__item {
-  flex: 1;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: -2px;
-}
-
-.tabs__item:hover {
-  color: var(--fg);
-}
-
-.tabs__item--active {
-  color: var(--fg);
-  border-bottom-color: var(--accent);
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.panel--hidden {
-  display: none;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
-}
-
-.form-row--triple {
-  grid-template-columns: 1fr 1fr auto;
-}
-
-.input, .select {
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.input:focus, .select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--shadow);
-}
-
-.select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.form-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.form-hint .material-icons {
-  font-size: 16px;
-}
-
-.form-hint--success {
-  color: var(--accent);
-}
-
-.form-hint--error {
-  color: var(--accent);
-}
-
-.repo-info {
-  display: none;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.repo-info--visible {
-  display: flex;
-}
-
-.repo-info__icon {
-  font-size: 36px;
-  color: var(--muted);
-}
-
-.repo-info__details {
-  flex: 1;
-}
-
-.repo-info__name {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.repo-info__desc {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.repo-info__link {
-  color: var(--fg);
-  text-decoration: none;
-}
-
-.repo-info__link:hover {
-  text-decoration: underline;
-}
-
-.stats {
-  display: none;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.stats--visible {
-  display: grid;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  transition: all 0.2s;
-}
-
-.stat-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-
-.stat-card__icon {
-  font-size: 32px;
-  color: var(--muted);
-}
-
-.stat-card__content {
-  flex: 1;
-}
-
-.stat-card__value {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.stat-card__label {
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.toolbar {
-  display: none;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.toolbar--visible {
-  display: flex;
-}
-
-.toolbar__search {
-  position: relative;
-  flex: 1;
-  min-width: 240px;
-}
-
-.toolbar__search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 20px;
-  pointer-events: none;
-}
-
-.toolbar__search .input {
-  padding-left: 48px;
-}
-
-.tree {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  max-height: 70vh;
-  overflow: auto;
-  font-family: 'Courier New', Consolas, Monaco, monospace;
-  font-size: 13px;
-}
-
-.tree::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.tree::-webkit-scrollbar-track {
-  background: var(--panel);
-}
-
-.tree::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 5px;
-}
-
-.tree::-webkit-scrollbar-thumb:hover {
-  background: var(--hover);
-}
-
-.tree-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-
-.tree-line:hover {
-  background: var(--hover);
-}
-
-.tree-line__prefix {
-  color: var(--muted);
-  white-space: pre;
-  font-size: 12px;
-}
-
-.tree-line__icon {
-  font-size: 18px;
-  color: var(--muted);
-}
-
-.tree-line__name {
-  flex: 1;
-  word-break: break-all;
-}
-
-.tree-line__name--folder {
-  font-weight: 600;
-}
-
-.tree-line__size {
-  color: var(--muted);
-  font-size: 11px;
-  min-width: 70px;
-  text-align: right;
-}
-
-.tree-line__actions {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.tree-line:hover .tree-line__actions {
-  opacity: 1;
-}
-
-.tree-line__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--fg);
-  font-size: 11px;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.tree-line__action:hover {
-  background: var(--accent);
-  color: var(--bg);
-  transform: scale(1.05);
-}
-
-.tree-line__action .material-icons {
-  font-size: 14px;
-}
-
-.spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.spinner--large {
-  width: 40px;
-  height: 40px;
-  border-width: 4px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--muted);
-}
-
-.empty-state__icon {
-  font-size: 64px;
-  opacity: 0.3;
-  margin-bottom: 16px;
-}
-
-.empty-state__message {
-  font-size: 14px;
-}
-
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
-  background: var(--panel);
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px var(--shadow);
-  z-index: 9999;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from {
-    bottom: 0;
-    opacity: 0;
+  :root{
+    --bg:#0f1115; --panel:#16191f; --fg:#e8e8e8; --muted:#a5a7ab; --bd:#2a2f38;
+    --btn:#1b1f27; --btn-hover:#222733; --success:#22c55e; --error:#ef4444; --warning:#f59e0b;
   }
-  to {
-    bottom: 24px;
-    opacity: 1;
+  body.light{
+    --bg:#ffffff; --panel:#f5f6f7; --fg:#111111; --muted:#666666; --bd:#dedede;
+    --btn:#f0f0f0; --btn-hover:#e6e6e6;
   }
-}
 
-.toast__icon {
-  font-size: 20px;
-}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto}
+  a{color:var(--fg);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1100px;margin:auto;padding:16px}
 
-@media (max-width: 768px) {
-  .form-row--triple {
-    grid-template-columns: 1fr;
-  }
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+  .title{display:flex;align-items:center;gap:8px}
+  .title .material-icons{font-size:22px;color:var(--muted)}
+  .header-actions{display:flex;gap:8px;align-items:center}
+  .theme{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px}
+  .theme:hover{background:var(--btn-hover)}
+  .token-status{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .token-status.valid{background:var(--success)}
+  .token-status.invalid{background:var(--error)}
+
+  .tabs{display:flex;gap:8px;margin:8px 0}
+  .tab{flex:1;border:1px solid var(--bd);background:var(--panel);color:var(--muted);border-radius:6px;padding:10px;cursor:pointer;text-align:center}
+  .tab.active{color:var(--fg);font-weight:600}
+
+  .panel{border:1px solid var(--bd);background:var(--panel);border-radius:8px;padding:12px;margin-bottom:10px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .row.cols-3{grid-template-columns:1fr 1fr auto}
+  input,select,button{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:10px}
+  select:disabled,button:disabled{opacity:.5;cursor:not-allowed}
+  button{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  button:hover:not(:disabled){background:var(--btn-hover)}
+  .help{color:var(--muted);margin-top:6px;font-size:12px}
+
+  .token-panel{display:none;margin-bottom:10px}
+  .token-panel.show{display:block}
+  .token-input-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-bottom:8px}
+  .token-info{background:var(--btn);border:1px solid var(--bd);border-radius:6px;padding:10px;font-size:12px}
+  .token-info a{color:var(--fg);text-decoration:underline}
+  .token-info .material-icons{font-size:16px;vertical-align:middle;margin-right:4px}
+  .token-valid{color:var(--success)}
+  .token-invalid{color:var(--error)}
+  .token-warning{color:var(--warning)}
+
+  .repo{display:none;align-items:center;gap:10px;border:1px solid var(--bd);background:var(--panel);border-radius:6px;padding:10px;margin:10px 0}
+  .repo .material-icons{color:var(--muted)}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0}
+  .card{border:1px solid var(--bd);background:var(--panel);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center}
+  .card .material-icons{color:var(--muted)}
+  .small{font-size:12px;color:var(--muted)}
+
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .tools .grow{flex:1;min-width:220px;position:relative}
+  .tools .grow input{width:100%;padding-left:36px}
+  .tools .grow .material-icons{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+
+  .tree{border:1px solid var(--bd);background:var(--panel);border-radius:8px;max-height:70vh;overflow:auto;padding:12px;font-family:Consolas,Monaco,monospace}
+  .line{display:flex;gap:8px;align-items:center;padding:2px 0;border-radius:4px}
+  .line:hover{background:var(--btn)}
+  .pre{white-space:pre;color:var(--muted)}
+  .name.folder{font-weight:600}
+  .size{color:var(--muted);font-size:12px;margin-left:6px}
+  .acts{margin-left:auto;display:flex;gap:6px;opacity:0;transition:opacity .12s}
+  .line:hover .acts{opacity:1}
+  .btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;border:1px solid var(--bd);background:var(--btn);color:var(--fg);font-size:12px;text-decoration:none}
+  .btn:hover{background:var(--btn-hover)}
+  .icon{color:var(--muted)}
   
-  .header {
-    flex-direction: column;
-    align-items: stretch;
+  @media (max-width:720px){
+    .row.cols-3{grid-template-columns:1fr}
+    .token-input-row{grid-template-columns:1fr;gap:6px}
   }
-  
-  .header__actions {
-    justify-content: center;
-  }
-  
-  .stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .toolbar {
-    flex-direction: column;
-  }
-  
-  .toolbar__search {
-    width: 100%;
-  }
-  
-  .token-card {
-    padding: 24px 16px;
-  }
-}
-
-.hidden {
-  display: none !important;
-}
-
-.text-muted {
-  color: var(--muted);
-}
-
-.text-center {
-  text-align: center;
-}
 </style>
 </head>
 <body>
-<div class="container">
-  <header class="header">
-    <h1 class="header__title">
-      <span class="material-icons">source</span>
-      GitHub Explorer Pro
-    </h1>
-    <div class="header__actions">
-      <div class="rate-limit" id="rateLimit">
-        <span class="material-icons rate-limit__icon">api</span>
-        <span class="rate-limit__value" id="rateLimitValue">--</span>
-        <span class="text-muted">/ <span id="rateLimitMax">5000</span></span>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">
+        <span class="material-icons">source</span>
+        <strong>GitHub Explorer Minimal</strong>
       </div>
-      <button class="btn btn--small" id="themeToggle" title="Toggle Theme">
-        <span class="material-icons" id="themeIcon">light_mode</span>
-      </button>
-    </div>
-  </header>
-
-  <div class="token-card" id="tokenCard">
-    <div class="material-icons token-card__icon">vpn_key</div>
-    <h2 class="token-card__title">GitHub Personal Access Token</h2>
-    <p class="token-card__desc">
-      Aplikasi ini memerlukan GitHub token untuk mengakses API.<br>
-      Token memberikan rate limit 5000 request per jam dan akses ke private repositories.
-    </p>
-    
-    <div class="token-card__input-group">
-      <input 
-        type="password" 
-        class="token-card__input" 
-        id="tokenInput" 
-        placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        autocomplete="off"
-      >
-      <button class="token-card__toggle" id="toggleVisibility" title="Toggle visibility">
-        <span class="material-icons">visibility</span>
-      </button>
-    </div>
-    
-    <div class="token-card__status token-card__status--hidden" id="tokenStatus">
-      <span class="material-icons">check_circle</span>
-      <span>Token memberikan rate limit 5000 request per jam dan akses ke private repositories.</span>
-      <!-- XXXXXX_pat_11AKCUSSI00WaAV9kcksR7_4z1E6eSypeoz5De3hdhMSLTQT9LqRuoCoEUr2l54LbQJ6OWAPTKE4Zq1lLr -->
-    </div>
-
-    <div class="token-card__actions">
-      <button class="btn btn--primary" id="saveToken">
-        <span class="material-icons">check_circle</span>
-        Gunakan Token
-      </button>
-      <button class="btn" id="clearToken">
-        <span class="material-icons">delete</span>
-        Hapus Token
-      </button>
-    </div>
-    
-    <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" class="token-card__link">
-      Belum punya token? Buat di GitHub →
-    </a>
-  </div>
-
-  <div class="tabs" id="mainTabs" style="display:none">
-    <button class="tabs__item tabs__item--active" data-tab="manual">
-      <span class="material-icons" style="vertical-align:middle;font-size:18px;margin-right:4px">edit</span>
-      Manual Input
-    </button>
-    <button class="tabs__item" data-tab="url">
-      <span class="material-icons" style="vertical-align:middle;font-size:18px;margin-right:4px">link</span>
-      Dari URL
-    </button>
-  </div>
-
-  <div class="panel panel--hidden" id="manualTab">
-    <div class="form-group">
-      <div class="form-row">
-        <input type="text" class="input" id="username" placeholder="GitHub Username (contoh: facebook, vercel)">
-        <button class="btn btn--primary" id="fetchRepos">
-          <span class="material-icons">search</span>
-          Cari Repos
+      <div class="header-actions">
+        <button class="theme" id="tokenBtn" title="GitHub Token Settings">
+          <span class="token-status" id="tokenStatus"></span>
+          <span class="material-icons" style="font-size:18px">vpn_key</span>
+        </button>
+        <button class="theme" id="themeBtn" title="Toggle Light/Dark">
+          <span class="material-icons" style="font-size:18px">brightness_6</span>
         </button>
       </div>
     </div>
 
-    <div class="form-group">
-      <div class="form-row form-row--triple">
-        <select class="select" id="repoSelect" disabled>
-          <option value="">Pilih Repository</option>
-        </select>
-        <select class="select" id="branchSelect" disabled>
-          <option value="">Pilih Branch</option>
-        </select>
-        <button class="btn btn--primary" id="loadManual" disabled>
-          <span class="material-icons">rocket_launch</span>
-          Muat
+    <!-- Token Panel -->
+    <div class="panel token-panel" id="tokenPanel">
+      <div class="token-input-row">
+        <input type="password" id="tokenInput" placeholder="Masukkan GitHub Personal Access Token (opsional)"/>
+        <button id="saveTokenBtn">
+          <span class="material-icons icon" style="font-size:16px">save</span>
+          Simpan
+        </button>
+        <button id="clearTokenBtn">
+          <span class="material-icons icon" style="font-size:16px">delete</span>
+          Hapus
         </button>
       </div>
-    </div>
-
-    <div class="form-hint" id="manualHint">
-      <span class="material-icons">info</span>
-      <span>Masukkan username untuk memulai</span>
-    </div>
-  </div>
-
-  <div class="panel panel--hidden" id="urlTab">
-    <div class="form-group">
-      <div class="form-row">
-        <input type="text" class="input" id="repoUrl" placeholder="github.com/facebook/react atau facebook/react">
-        <button class="btn btn--primary" id="parseUrl">
-          <span class="material-icons">check_circle</span>
-          Parse & Muat
-        </button>
+      <div class="token-info">
+        <div><span class="material-icons">info</span><strong>Tentang GitHub Token:</strong></div>
+        <ul style="margin:8px 0;padding-left:20px">
+          <li>Token diperlukan untuk menghindari rate limit (60 req/jam tanpa token → 5000 req/jam dengan token)</li>
+          <li>Buat token di: <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+          <li>Scope minimal: <strong>public_repo</strong> atau <strong>repo</strong></li>
+          <li>Token disimpan di localStorage browser Anda (tidak dikirim ke server lain)</li>
+          <li>Tanpa token, aplikasi tetap berfungsi dengan rate limit lebih rendah</li>
+          <li>Contoh Token: xxxxx_pat_11AKCUSSI00WaAV9kcksR7_4z1E6eSypeoz5De3hdhMSLTQT9LqRuoCoEUr2l54LbQJ6OWAPTKE4Zq1lLr </li>
+        </ul>
+        <div id="tokenStatusText" class="small" style="margin-top:8px">Status: <span class="token-warning">Belum diatur</span></div>
       </div>
     </div>
 
-    <div class="form-hint" id="urlHint">
-      <span class="material-icons">help_outline</span>
-      <span>Format: owner/repo, github.com/owner/repo, atau .../tree/branch</span>
+    <div class="tabs">
+      <button class="tab active" data-tab="manual">Manual</button>
+      <button class="tab" data-tab="url">Dari URL</button>
     </div>
-  </div>
 
-  <div class="repo-info" id="repoInfo">
-    <span class="material-icons repo-info__icon">folder_special</span>
-    <div class="repo-info__details">
-      <div class="repo-info__name">
-        <a class="repo-info__link" id="repoLink" target="_blank" rel="noopener"></a>
+    <!-- Manual -->
+    <div class="panel tab-pane" id="manual" style="display:block">
+      <div class="row">
+        <input id="username" placeholder="GitHub Username (mis: vercel, facebook)"/>
+        <button id="fetchReposBtn"><span class="material-icons icon" style="vertical-align:middle">search</span> Ambil Repos</button>
       </div>
-      <div class="repo-info__desc" id="repoDesc"></div>
+      <div class="row cols-3" style="margin-top:8px">
+        <select id="repoSel" disabled><option value="">Pilih Repository</option></select>
+        <select id="branchSel" disabled><option value="">Pilih Branch</option></select>
+        <button id="loadBtn" disabled><span class="material-icons icon" style="vertical-align:middle">rocket_launch</span> Muat</button>
+      </div>
+      <div class="help" id="manualMsg">Masukkan username lalu klik Ambil Repos.</div>
     </div>
-  </div>
 
-  <div class="stats" id="stats">
-    <div class="stat-card">
-      <span class="material-icons stat-card__icon">description</span>
-      <div class="stat-card__content">
-        <div class="stat-card__value" id="fileCount">0</div>
-        <div class="stat-card__label">Files</div>
+    <!-- From URL -->
+    <div class="panel tab-pane" id="url" style="display:none">
+      <div class="row">
+        <input id="repoUrl" placeholder="Tempel URL GitHub (mis: https://github.com/facebook/react/tree/main)"/>
+        <button id="parseBtn"><span class="material-icons icon" style="vertical-align:middle">check_circle</span> Muat</button>
       </div>
+      <div class="help" id="urlMsg">Dukungan: owner/repo, github.com/owner/repo, .../tree/branch, .../blob/branch/path</div>
     </div>
-    <div class="stat-card">
-      <span class="material-icons stat-card__icon">folder</span>
-      <div class="stat-card__content">
-        <div class="stat-card__value" id="folderCount">0</div>
-        <div class="stat-card__label">Folders</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <span class="material-icons stat-card__icon">storage</span>
-      <div class="stat-card__content">
-        <div class="stat-card__value" id="totalSize">0 B</div>
-        <div class="stat-card__label">Total Size</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <span class="material-icons stat-card__icon">schedule</span>
-      <div class="stat-card__content">
-        <div class="stat-card__value" id="lastUpdate">--</div>
-        <div class="stat-card__label">Last Scan</div>
-      </div>
-    </div>
-  </div>
 
-  <div class="toolbar" id="toolbar">
-    <div class="toolbar__search">
-      <span class="material-icons toolbar__search-icon">search</span>
-      <input type="text" class="input" id="searchTree" placeholder="Cari file atau folder...">
+    <!-- Current Repo -->
+    <div class="repo" id="repoInfo">
+      <span class="material-icons">folder_special</span>
+      <div>
+        <div><a id="repoLink" target="_blank" rel="noopener"></a></div>
+        <div class="small" id="repoDesc"></div>
+      </div>
     </div>
-    <button class="btn" id="refreshBtn">
-      <span class="material-icons">refresh</span>
-      Refresh
-    </button>
-    <button class="btn" id="expandAll">
-      <span class="material-icons">unfold_more</span>
-      Expand All
-    </button>
-    <button class="btn" id="copyAllRaw">
-      <span class="material-icons">content_copy</span>
-      Copy All Raw
-    </button>
-  </div>
 
-  <div class="tree" id="tree">
-    <div class="empty-state">
-      <div class="material-icons empty-state__icon">folder_open</div>
-      <div class="empty-state__message">Masukkan token untuk memulai</div>
+    <!-- Stats -->
+    <div class="stats" id="stats" style="display:none">
+      <div class="card"><span class="material-icons">description</span><div><div id="fileCount">0</div><div class="small">Files</div></div></div>
+      <div class="card"><span class="material-icons">folder</span><div><div id="folderCount">0</div><div class="small">Folders</div></div></div>
+      <div class="card"><span class="material-icons">storage</span><div><div id="totalSize">0 B</div><div class="small">Total Size</div></div></div>
+      <div class="card"><span class="material-icons">schedule</span><div><div id="lastUpdate">-</div><div class="small">Last Scan</div></div></div>
     </div>
+
+    <!-- Tools -->
+    <div class="tools" id="tools" style="display:none">
+      <div class="grow">
+        <span class="material-icons icon">search</span>
+        <input id="search" placeholder="Cari file/folder..."/>
+      </div>
+      <button id="refreshBtn"><span class="material-icons icon">refresh</span> Refresh</button>
+      <button id="copyAllBtn"><span class="material-icons icon">content_copy</span> Copy Raw Links</button>
+    </div>
+
+    <!-- Tree -->
+    <div class="tree" id="tree"><div class="small">Belum ada data. Muat repo terlebih dahulu.</div></div>
   </div>
-</div>
 
 <script>
-// ============================================
-// CONFIGURATION & CONSTANTS
-// ============================================
-const CONFIG = {
-  STORAGE_PREFIX: 'ghx_',
-  API_BASE: 'https://api.github.com',
-  RAW_BASE: 'https://raw.githubusercontent.com',
-  GITHUB_BASE: 'https://github.com',
-  RATE_LIMIT_THRESHOLD_LOW: 100
-};
+(() => {
+  // State
+  let OWNER='', REPO='', BRANCH='';
+  let allFiles=[]; // [{path,name,size}]
+  let rootTree={}; // nested
+  let totalBytes=0;
+  let GITHUB_TOKEN = '';
 
-const FILE_ICONS = {
-  js: 'javascript', jsx: 'javascript', ts: 'javascript', tsx: 'javascript',
-  py: 'code', java: 'code', cpp: 'code', c: 'code', cs: 'code',
-  rs: 'code', go: 'code', rb: 'code', php: 'code', swift: 'code',
-  html: 'html', htm: 'html', css: 'css', scss: 'css', sass: 'css',
-  json: 'data_object', xml: 'code', yaml: 'settings', yml: 'settings',
-  md: 'description', txt: 'description', pdf: 'picture_as_pdf',
-  png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', svg: 'image',
-  zip: 'folder_zip', gz: 'folder_zip', tar: 'folder_zip',
-  sh: 'terminal', bash: 'terminal', bat: 'terminal',
-  dockerfile: 'settings', env: 'settings', gitignore: 'settings'
-};
-
-// ============================================
-// STATE MANAGEMENT
-// ============================================
-const state = {
-  token: '',
-  owner: '',
-  repo: '',
-  branch: '',
-  files: [],
-  tree: {},
-  totalSize: 0,
-  rateLimit: { remaining: null, limit: null, reset: null },
-  isExpanded: false,
-  isTokenValid: false
-};
-
-// ============================================
-// API MANAGEMENT
-// ============================================
-class GitHubAPI {
-  static async fetch(endpoint) {
-    const headers = { 
-      'Accept': 'application/vnd.github+json',
-      'Authorization': `token ${state.token}`
-    };
-
-    const response = await fetch(`${CONFIG.API_BASE}${endpoint}`, { headers });
-    this.updateRateLimit(response.headers);
-
-    if (!response.ok) {
-      if (response.status === 401) throw new Error('Token tidak valid atau expired');
-      if (response.status === 403) {
-        const reset = response.headers.get('X-RateLimit-Reset');
-        const resetDate = reset ? new Date(reset * 1000).toLocaleTimeString() : 'soon';
-        throw new Error(`Rate limit tercapai. Reset pada ${resetDate}`);
-      }
-      if (response.status === 404) throw new Error('Repository atau resource tidak ditemukan');
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  static updateRateLimit(headers) {
-    const remaining = headers.get('X-RateLimit-Remaining');
-    const limit = headers.get('X-RateLimit-Limit');
-    const reset = headers.get('X-RateLimit-Reset');
-
-    if (remaining !== null) {
-      state.rateLimit = {
-        remaining: parseInt(remaining),
-        limit: parseInt(limit),
-        reset: reset ? new Date(reset * 1000) : null
-      };
-      this.updateRateLimitUI();
-    }
-  }
-
-  static updateRateLimitUI() {
-    const { remaining, limit } = state.rateLimit;
-    const rateLimitEl = document.getElementById('rateLimit');
-    const valueEl = document.getElementById('rateLimitValue');
-    const maxEl = document.getElementById('rateLimitMax');
-
-    if (remaining !== null) {
-      valueEl.textContent = remaining;
-      maxEl.textContent = limit;
-      rateLimitEl.classList.toggle('rate-limit--low', remaining < CONFIG.RATE_LIMIT_THRESHOLD_LOW);
-    }
-  }
-
-  static async validateToken(token) {
-    try {
-      const headers = { 
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `token ${token}`
-      };
-      const response = await fetch(`${CONFIG.API_BASE}/user`, { headers });
-      this.updateRateLimit(response.headers);
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  static async getRepos(username) {
-    return await this.fetch(`/users/${username}/repos?per_page=100&sort=updated`);
-  }
-
-  static async getBranches(owner, repo) {
-    return await this.fetch(`/repos/${owner}/${repo}/branches?per_page=100`);
-  }
-
-  static async getTree(owner, repo, branch) {
-    try {
-      const response = await this.fetch(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`);
-      return response.tree || [];
-    } catch (error) {
-      const branchData = await this.fetch(`/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`);
-      const treeSha = branchData?.commit?.commit?.tree?.sha || branchData?.commit?.sha;
-      
-      if (!treeSha) throw new Error('Failed to resolve tree SHA');
-      
-      const treeData = await this.fetch(`/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`);
-      return treeData.tree || [];
-    }
-  }
-
-  static async getRepoInfo(owner, repo) {
-    return await this.fetch(`/repos/${owner}/${repo}`);
-  }
-}
-
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-const $ = selector => document.querySelector(selector);
-const $$ = selector => document.querySelectorAll(selector);
-
-const createElement = (tag, className = '', content = '') => {
-  const el = document.createElement(tag);
-  if (className) el.className = className;
-  if (content) el.textContent = content;
-  return el;
-};
-
-const formatBytes = (bytes) => {
-  if (!bytes || bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return (bytes / Math.pow(k, i)).toFixed(bytes < k ? 0 : 2) + ' ' + sizes[i];
-};
-
-const formatNumber = (num) => num.toLocaleString('id-ID');
-
-const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+  // Shortcuts
+  const $ = s => document.querySelector(s);
+  const el = (t,c,txt) => { const e=document.createElement(t); if(c) e.className=c; if(txt!=null) e.textContent=txt; return e; };
+  const fmt = n => {
+    if(!n) return '0 B';
+    const k=1024, u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(n)/Math.log(k));
+    return (n/Math.pow(k,i)).toFixed(n<k?0:2)+' '+u[i];
   };
-};
 
-// ============================================
-// URL PARSER - COMPLETELY REDESIGNED
-// ============================================
-const parseGitHubUrl = (input) => {
-  // Remove leading/trailing whitespace
-  const trimmed = input.trim();
-  
-  if (!trimmed) return null;
-  
-  // Remove protocol and www
-  let cleaned = trimmed
-    .replace(/^https?:\/\//, '')
-    .replace(/^www\./, '')
-    .replace(/\/$/, '');  // Remove trailing slash
-  
-  // Pattern 1: Full GitHub URL with branch
-  // github.com/facebook/react/tree/main
-  // github.com/facebook/react/blob/main/README.md
-  let match = cleaned.match(/^github\.com\/([^\/]+)\/([^\/]+)\/(?:tree|blob)\/([^\/]+)/);
-  if (match) {
-    return {
-      owner: match[1],
-      repo: match[2].replace(/\.git$/, ''),
-      branch: match[3]
-    };
-  }
-  
-  // Pattern 2: GitHub URL without branch
-  // github.com/facebook/react
-  match = cleaned.match(/^github\.com\/([^\/]+)\/([^\/]+)$/);
-  if (match) {
-    return {
-      owner: match[1],
-      repo: match[2].replace(/\.git$/, ''),
-      branch: null
-    };
-  }
-  
-  // Pattern 3: Short format with slash
-  // facebook/react
-  match = cleaned.match(/^([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_.-]+)$/);
-  if (match) {
-    return {
-      owner: match[1],
-      repo: match[2].replace(/\.git$/, ''),
-      branch: null
-    };
-  }
-  
-  // No match found
-  return null;
-};
-
-// ============================================
-// TREE BUILDING ALGORITHMS
-// ============================================
-const getFileIcon = (filename) => {
-  const ext = filename.split('.').pop().toLowerCase();
-  return FILE_ICONS[ext] || 'insert_drive_file';
-};
-
-const shouldSkipPath = (path) => {
-  const segments = path.split('/');
-  return segments.some(seg => seg.startsWith('.') && seg !== '.github') || 
-         path.includes('node_modules/');
-};
-
-const buildTree = (files) => {
-  const root = { type: 'tree', path: '', size: 0, children: {} };
-
-  files.forEach(file => {
-    const segments = file.path.split('/');
-    let current = root;
-    let accPath = '';
-
-    segments.forEach((segment, index) => {
-      accPath = accPath ? `${accPath}/${segment}` : segment;
-      const isLast = index === segments.length - 1;
-
-      if (!current.children[segment]) {
-        current.children[segment] = isLast
-          ? { type: 'blob', path: accPath, size: file.size }
-          : { type: 'tree', path: accPath, size: 0, children: {} };
+  // API with token
+  const api = async (url) => {
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if(GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+    
+    const r = await fetch(url, { headers });
+    if(!r.ok){
+      if(r.status===403) {
+        const remaining = r.headers.get('X-RateLimit-Remaining');
+        if(remaining === '0') throw new Error('Rate limit GitHub tercapai. Tambahkan token atau coba lagi nanti.');
+        throw new Error('Akses ditolak (403).');
       }
+      if(r.status===404) throw new Error('Tidak ditemukan (404).');
+      if(r.status===401) throw new Error('Token API tidak valid atau kedaluwarsa.');
+      throw new Error(`HTTP ${r.status} ${r.statusText}`);
+    }
+    return r.json();
+  };
 
-      if (!isLast) {
-        current.children[segment].size += file.size;
-        current = current.children[segment];
-      } else {
-        current.children[segment].size = file.size;
-      }
-    });
-
-    root.size += file.size;
-  });
-
-  return root;
-};
-
-const countFolders = (node) => {
-  let count = 0;
-  for (const key in node) {
-    if (node[key].type === 'tree') {
-      count++;
-      count += countFolders(node[key].children);
+  // Token Management
+  function loadToken(){
+    const saved = localStorage.getItem('ghx_token');
+    if(saved){
+      GITHUB_TOKEN = saved;
+      $('#tokenInput').value = saved;
+      updateTokenStatus();
     }
   }
-  return count;
-};
 
-// ============================================
-// URL GENERATORS
-// ============================================
-const getGitHubPagesUrl = (path = '', isDir = false) => {
-  const baseUrl = state.repo.endsWith('.github.io')
-    ? `https://${state.owner}.github.io`
-    : `https://${state.owner}.github.io/${state.repo}`;
-  
-  if (!path) return baseUrl + '/';
-  
-  const finalPath = isDir ? (path.endsWith('/') ? path : path + '/') : path;
-  return `${baseUrl}/${finalPath}`;
-};
-
-const getTreeViewUrl = (path = '') => path
-  ? `${CONFIG.GITHUB_BASE}/${state.owner}/${state.repo}/tree/${state.branch}/${path}`
-  : `${CONFIG.GITHUB_BASE}/${state.owner}/${state.repo}/tree/${state.branch}`;
-
-const getFileViewUrl = (path) => 
-  `${CONFIG.GITHUB_BASE}/${state.owner}/${state.repo}/blob/${state.branch}/${path}`;
-
-const getRawUrl = (path) => 
-  `${CONFIG.RAW_BASE}/${state.owner}/${state.repo}/${state.branch}/${path}`;
-
-// ============================================
-// UI RENDERING
-// ============================================
-const renderTree = (treeData) => {
-  const container = $('#tree');
-  container.innerHTML = '';
-
-  container.appendChild(createTreeLine('', `${state.repo}/`, {
-    type: 'tree',
-    path: '',
-    size: state.totalSize
-  }));
-
-  renderTreeNode(treeData, '', container);
-};
-
-const renderTreeNode = (node, prefix, container) => {
-  const entries = Object.entries(node).sort((a, b) => {
-    if (a[1].type !== b[1].type) return a[1].type === 'tree' ? -1 : 1;
-    return a[0].localeCompare(b[0]);
-  });
-
-  entries.forEach(([name, data], index) => {
-    const isLast = index === entries.length - 1;
-    const connector = isLast ? '└── ' : '├── ';
-    const displayName = name + (data.type === 'tree' ? '/' : '');
-    
-    container.appendChild(createTreeLine(prefix + connector, displayName, data));
-
-    if (data.type === 'tree' && (state.isExpanded || data.children)) {
-      const newPrefix = prefix + (isLast ? '    ' : '│   ');
-      renderTreeNode(data.children, newPrefix, container);
+  function saveToken(){
+    const token = $('#tokenInput').value.trim();
+    if(token){
+      localStorage.setItem('ghx_token', token);
+      GITHUB_TOKEN = token;
+      notify('Token berhasil disimpan');
+      updateTokenStatus();
     }
-  });
-};
-
-const createTreeLine = (prefixText, name, data) => {
-  const line = createElement('div', 'tree-line');
-  
-  const prefix = createElement('span', 'tree-line__prefix', prefixText);
-  const icon = createElement('span', 'material-icons tree-line__icon', 
-    data.type === 'tree' ? 'folder' : getFileIcon(name));
-  const nameEl = createElement('span', 
-    `tree-line__name ${data.type === 'tree' ? 'tree-line__name--folder' : ''}`, name);
-  const size = createElement('span', 'tree-line__size', formatBytes(data.size || 0));
-  const actions = createElement('div', 'tree-line__actions');
-
-  if (data.type === 'tree') {
-    actions.append(
-      createActionLink('public', 'Pages', getGitHubPagesUrl(data.path || '', true)),
-      createActionLink('open_in_new', 'View', getTreeViewUrl(data.path || ''))
-    );
-  } else {
-    actions.append(
-      createActionLink('public', 'Pages', getGitHubPagesUrl(data.path)),
-      createActionLink('open_in_new', 'View', getFileViewUrl(data.path)),
-      createActionButton('link', 'Raw', () => copyToClipboard(getRawUrl(data.path))),
-      createActionLink('download', 'DL', getRawUrl(data.path), true)
-    );
   }
 
-  line.append(prefix, icon, nameEl, size, actions);
-  return line;
-};
-
-const createActionLink = (icon, label, href, download = false) => {
-  const link = createElement('a', 'tree-line__action');
-  link.href = href;
-  link.target = '_blank';
-  link.rel = 'noopener';
-  if (download) link.download = '';
-  
-  const iconEl = createElement('span', 'material-icons', icon);
-  link.append(iconEl, document.createTextNode(label));
-  return link;
-};
-
-const createActionButton = (icon, label, onClick) => {
-  const button = createElement('button', 'tree-line__action');
-  button.type = 'button';
-  
-  const iconEl = createElement('span', 'material-icons', icon);
-  button.append(iconEl, document.createTextNode(label));
-  button.onclick = onClick;
-  return button;
-};
-
-const setTreeLoading = () => {
-  $('#tree').innerHTML = `
-    <div class="empty-state">
-      <div class="spinner spinner--large" style="margin:0 auto 16px"></div>
-      <div class="empty-state__message">Memuat struktur repository...</div>
-    </div>
-  `;
-};
-
-const setTreeError = (message) => {
-  $('#tree').innerHTML = `
-    <div class="empty-state">
-      <div class="material-icons empty-state__icon">error_outline</div>
-      <div class="empty-state__message">${message}</div>
-    </div>
-  `;
-};
-
-const updateStatistics = () => {
-  const folderCount = countFolders(state.tree);
-  $('#fileCount').textContent = formatNumber(state.files.length);
-  $('#folderCount').textContent = formatNumber(folderCount);
-  $('#totalSize').textContent = formatBytes(state.totalSize);
-  $('#lastUpdate').textContent = new Date().toLocaleTimeString('id-ID');
-};
-
-const showRepoInfo = () => {
-  $('#repoLink').textContent = `${state.owner}/${state.repo} (${state.branch})`;
-  $('#repoLink').href = `${CONFIG.GITHUB_BASE}/${state.owner}/${state.repo}/tree/${state.branch}`;
-  $('#repoInfo').classList.add('repo-info--visible');
-  $('#stats').classList.add('stats--visible');
-  $('#toolbar').classList.add('toolbar--visible');
-};
-
-// ============================================
-// CORE FUNCTIONS
-// ============================================
-const loadRepository = async () => {
-  if (!state.isTokenValid) {
-    showToast('Token tidak valid atau belum diset', 'error');
-    return;
+  function clearToken(){
+    localStorage.removeItem('ghx_token');
+    GITHUB_TOKEN = '';
+    $('#tokenInput').value = '';
+    updateTokenStatus();
+    notify('Token berhasil dihapus');
   }
 
-  const params = new URLSearchParams({ 
-    user: state.owner, 
-    repo: state.repo, 
-    branch: state.branch 
-  });
-  history.replaceState({}, '', `${location.pathname}?${params}`);
-
-  showRepoInfo();
-  $('#repoDesc').textContent = 'Memindai struktur repository...';
-  setTreeLoading();
-
-  try {
-    const treeData = await GitHubAPI.getTree(state.owner, state.repo, state.branch);
+  async function updateTokenStatus(){
+    const status = $('#tokenStatus');
+    const statusText = $('#tokenStatusText');
     
-    state.files = treeData
-      .filter(node => node.type === 'blob' && !shouldSkipPath(node.path))
-      .map(node => ({
-        path: node.path,
-        name: node.path.split('/').pop(),
-        size: node.size || 0
-      }));
+    if(!GITHUB_TOKEN){
+      status.className = 'token-status';
+      statusText.innerHTML = 'Status: <span class="token-warning">Tidak ada token (rate limit: 60 req/jam)</span>';
+      return;
+    }
 
-    const builtTree = buildTree(state.files);
-    state.tree = builtTree.children;
-    state.totalSize = builtTree.size;
-
-    renderTree(state.tree);
-    updateStatistics();
-
-    const folderCount = countFolders(state.tree);
-    $('#repoDesc').textContent = `${formatNumber(state.files.length)} files • ${formatNumber(folderCount)} folders • ${formatBytes(state.totalSize)}`;
-    
-    showToast('Repository berhasil dimuat!');
-  } catch (error) {
-    setTreeError(error.message);
-    $('#repoDesc').textContent = 'Gagal memuat';
-    showToast(error.message, 'error');
-  }
-};
-
-// ============================================
-// TOKEN MANAGEMENT
-// ============================================
-const validateAndSaveToken = async () => {
-  const token = $('#tokenInput').value.trim();
-  
-  if (!token) {
-    showToast('Token tidak boleh kosong', 'error');
-    return;
-  }
-  
-  if (!token.startsWith('ghp_') && !token.startsWith('gho_') && !token.startsWith('github_pat_')) {
-    showToast('Format token tidak valid', 'error');
-    return;
-  }
-
-  const saveBtn = $('#saveToken');
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<div class="spinner"></div> Validating...';
-
-  try {
-    const isValid = await GitHubAPI.validateToken(token);
-    
-    if (isValid) {
-      state.token = token;
-      state.isTokenValid = true;
+    // Validate token
+    try{
+      status.className = 'token-status'; // reset
+      statusText.innerHTML = 'Status: <span class="token-warning">Memvalidasi...</span>';
       
-      localStorage.setItem(CONFIG.STORAGE_PREFIX + 'token', token);
+      const user = await api('https://api.github.com/user');
+      const rate = await api('https://api.github.com/rate_limit');
       
-      $('#tokenStatus').classList.remove('token-card__status--hidden');
-      $('#mainTabs').style.display = 'flex';
-      $('#manualTab').classList.remove('panel--hidden');
-      
-      showToast('Token berhasil divalidasi!');
-    } else {
-      showToast('Token tidak valid', 'error');
+      status.className = 'token-status valid';
+      const limit = rate?.rate?.limit || 5000;
+      const remaining = rate?.rate?.remaining || 0;
+      statusText.innerHTML = `Status: <span class="token-valid">✓ Valid (${user.login}) • Rate limit: ${remaining}/${limit}</span>`;
+    }catch(e){
+      status.className = 'token-status invalid';
+      statusText.innerHTML = `Status: <span class="token-invalid">✗ Invalid - ${e.message}</span>`;
     }
-  } catch (error) {
-    showToast('Gagal memvalidasi token', 'error');
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = '<span class="material-icons">check_circle</span> Gunakan Token';
   }
-};
 
-const clearToken = () => {
-  if (!confirm('Hapus token?')) return;
-  
-  state.token = '';
-  state.isTokenValid = false;
-  
-  localStorage.removeItem(CONFIG.STORAGE_PREFIX + 'token');
-  
-  $('#tokenInput').value = '';
-  $('#tokenStatus').classList.add('token-card__status--hidden');
-  $('#mainTabs').style.display = 'none';
-  $('#manualTab').classList.add('panel--hidden');
-  $('#urlTab').classList.add('panel--hidden');
-  $('#repoInfo').classList.remove('repo-info--visible');
-  $('#stats').classList.remove('stats--visible');
-  $('#toolbar').classList.remove('toolbar--visible');
-  $('#tree').innerHTML = `
-    <div class="empty-state">
-      <div class="material-icons empty-state__icon">folder_open</div>
-      <div class="empty-state__message">Masukkan token untuk memulai</div>
-    </div>
-  `;
-  
-  showToast('Token berhasil dihapus');
-};
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-const setHint = (selector, message, status = '') => {
-  const hint = $(selector);
-  const icon = hint.querySelector('.material-icons');
-  const textNode = hint.querySelector('span:last-child');
-  
-  hint.className = `form-hint ${status ? 'form-hint--' + status : ''}`;
-  
-  if (status === 'loading') {
-    icon.className = 'spinner';
-    icon.textContent = '';
-  } else {
-    icon.className = 'material-icons';
-    icon.textContent = status === 'error' ? 'error' : 
-                       status === 'success' ? 'check_circle' : 'info';
-  }
-  
-  textNode.textContent = message;
-};
-
-const copyToClipboard = async (text) => {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
+  // Token Panel Toggle
+  $('#tokenBtn').onclick = () => {
+    $('#tokenPanel').classList.toggle('show');
+    if($('#tokenPanel').classList.contains('show')){
+      updateTokenStatus();
     }
-    showToast('Disalin ke clipboard!');
-  } catch (error) {
-    showToast('Gagal menyalin', 'error');
-  }
-};
+  };
 
-const showToast = (message, type = 'success') => {
-  const existing = $('.toast');
-  if (existing) existing.remove();
-  
-  const toast = createElement('div', 'toast');
-  const icon = createElement('span', 'material-icons toast__icon', 
-    type === 'error' ? 'error' : 'check_circle');
-  toast.append(icon, document.createTextNode(message));
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-};
+  $('#saveTokenBtn').onclick = saveToken;
+  $('#clearTokenBtn').onclick = clearToken;
+  $('#tokenInput').addEventListener('keypress', e=>{ if(e.key==='Enter') saveToken(); });
 
-// ============================================
-// EVENT HANDLERS
-// ============================================
-const handleFetchRepos = async () => {
-  const username = $('#username').value.trim();
-  if (!username) {
-    setHint('#manualHint', 'Username tidak boleh kosong', 'error');
-    return;
-  }
-
-  setHint('#manualHint', 'Mengambil repositories...', 'loading');
-  $('#repoSelect').disabled = true;
-  $('#branchSelect').disabled = true;
-  $('#loadManual').disabled = true;
-
-  try {
-    const repos = await GitHubAPI.getRepos(username);
-    
-    if (!repos.length) {
-      throw new Error('Tidak ada repository ditemukan');
-    }
-
-    const repoSelect = $('#repoSelect');
-    repoSelect.innerHTML = '<option value="">Pilih Repository</option>';
-    
-    repos.forEach(repo => {
-      const option = document.createElement('option');
-      option.value = repo.name;
-      option.textContent = `${repo.name}${repo.private ? ' 🔒' : ''}${repo.stargazers_count ? ' ⭐' + repo.stargazers_count : ''}`;
-      option.dataset.default = repo.default_branch || 'main';
-      option.dataset.desc = repo.description || '';
-      repoSelect.appendChild(option);
-    });
-
-    repoSelect.disabled = false;
-    setHint('#manualHint', `Ditemukan ${repos.length} repository`, 'success');
-  } catch (error) {
-    setHint('#manualHint', error.message, 'error');
-  }
-};
-
-const handleRepoChange = async () => {
-  const username = $('#username').value.trim();
-  const repo = $('#repoSelect').value;
-  
-  if (!repo) return;
-
-  const branchSelect = $('#branchSelect');
-  branchSelect.innerHTML = '<option value="">Loading branches...</option>';
-  branchSelect.disabled = true;
-  $('#loadManual').disabled = true;
-
-  try {
-    const branches = await GitHubAPI.getBranches(username, repo);
-    branchSelect.innerHTML = '<option value="">Pilih Branch</option>';
-    
-    const defaultBranch = $('#repoSelect').selectedOptions[0].dataset.default;
-    
-    branches.forEach(branch => {
-      const option = document.createElement('option');
-      option.value = branch.name;
-      option.textContent = branch.name + (branch.name === defaultBranch ? ' (default)' : '');
-      branchSelect.appendChild(option);
-    });
-
-    branchSelect.value = defaultBranch;
-    branchSelect.disabled = false;
-    $('#loadManual').disabled = false;
-    setHint('#manualHint', `Ditemukan ${branches.length} branch. Siap dimuat!`, 'success');
-  } catch (error) {
-    setHint('#manualHint', error.message, 'error');
-  }
-};
-
-const handleLoadManual = () => {
-  state.owner = $('#username').value.trim();
-  state.repo = $('#repoSelect').value;
-  state.branch = $('#branchSelect').value || $('#repoSelect').selectedOptions[0]?.dataset.default || 'main';
-  
-  if (state.owner && state.repo && state.branch) {
-    loadRepository();
-  }
-};
-
-const handleParseUrl = async () => {
-  const rawUrl = $('#repoUrl').value.trim();
-  
-  if (!rawUrl) {
-    setHint('#urlHint', 'URL tidak boleh kosong', 'error');
-    return;
-  }
-
-  // Check token first
-  if (!state.isTokenValid || !state.token) {
-    setHint('#urlHint', 'Token belum diset atau tidak valid. Gunakan token terlebih dahulu.', 'error');
-    showToast('Masukkan token terlebih dahulu!', 'error');
-    return;
-  }
-
-  setHint('#urlHint', 'Parsing URL...', 'loading');
-  
-  const parsed = parseGitHubUrl(rawUrl);
-  
-  if (!parsed) {
-    setHint('#urlHint', 'Format URL tidak valid. Gunakan: owner/repo atau github.com/owner/repo', 'error');
-    return;
-  }
-
-  state.owner = parsed.owner;
-  state.repo = parsed.repo;
-  state.branch = parsed.branch || '';
-
-  try {
-    setHint('#urlHint', `Validating ${state.owner}/${state.repo}...`, 'loading');
-    
-    const repoInfo = await GitHubAPI.getRepoInfo(state.owner, state.repo);
-    
-    if (!state.branch) {
-      state.branch = repoInfo.default_branch || 'main';
-    }
-
-    setHint('#urlHint', `✓ Parsed: ${state.owner}/${state.repo} (${state.branch})`, 'success');
-    
-    // Auto load after successful parse
-    setTimeout(() => {
-      loadRepository();
-    }, 500);
-    
-  } catch (error) {
-    setHint('#urlHint', `Error: ${error.message}`, 'error');
-    showToast(error.message, 'error');
-  }
-};
-
-const handleSearch = debounce((e) => {
-  const query = e.target.value.toLowerCase().trim();
-  
-  $$('.tree-line').forEach(line => {
-    const text = line.textContent.toLowerCase();
-    line.style.display = text.includes(query) ? 'flex' : 'none';
-  });
-}, 300);
-
-const handleExpandAll = () => {
-  state.isExpanded = !state.isExpanded;
-  const btn = $('#expandAll');
-  const icon = btn.querySelector('.material-icons');
-  
-  if (state.isExpanded) {
-    icon.textContent = 'unfold_less';
-    btn.childNodes[1].textContent = ' Collapse All';
-  } else {
-    icon.textContent = 'unfold_more';
-    btn.childNodes[1].textContent = ' Expand All';
-  }
-  
-  renderTree(state.tree);
-};
-
-const handleCopyAllRaw = () => {
-  if (!state.files.length) {
-    showToast('Tidak ada file untuk disalin', 'error');
-    return;
-  }
-  const allRawLinks = state.files.map(f => getRawUrl(f.path)).join('\n');
-  copyToClipboard(allRawLinks);
-};
-
-// ============================================
-// INITIALIZATION
-// ============================================
-const init = () => {
   // Theme toggle
-  const savedTheme = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'theme');
-  if (savedTheme === 'light') {
-    document.body.classList.add('light');
-    $('#themeIcon').textContent = 'dark_mode';
-  }
-
-  $('#themeToggle').onclick = () => {
-    const isLight = document.body.classList.toggle('light');
-    $('#themeIcon').textContent = isLight ? 'dark_mode' : 'light_mode';
-    localStorage.setItem(CONFIG.STORAGE_PREFIX + 'theme', isLight ? 'light' : 'dark');
+  const themeBtn = $('#themeBtn');
+  themeBtn.onclick = () => {
+    document.body.classList.toggle('light');
+    localStorage.setItem('ghx_theme', document.body.classList.contains('light') ? 'light' : 'dark');
   };
+  (function bootTheme(){
+    const t=localStorage.getItem('ghx_theme'); if(t==='light') document.body.classList.add('light');
+  })();
 
-  // Token visibility toggle
-  $('#toggleVisibility').onclick = () => {
-    const input = $('#tokenInput');
-    const icon = $('#toggleVisibility .material-icons');
-    
-    if (input.type === 'password') {
-      input.type = 'text';
-      icon.textContent = 'visibility_off';
-    } else {
-      input.type = 'password';
-      icon.textContent = 'visibility';
-    }
-  };
-
-  // Token actions
-  $('#saveToken').onclick = validateAndSaveToken;
-  $('#clearToken').onclick = clearToken;
-
-  // Auto-load saved token
-  const savedToken = localStorage.getItem(CONFIG.STORAGE_PREFIX + 'token');
-  if (savedToken) {
-    $('#tokenInput').value = savedToken;
-    validateAndSaveToken();
-  }
-
-  // Tab switching
-  $$('.tabs__item').forEach(btn => {
+  // Tabs
+  document.querySelectorAll('.tab').forEach(btn=>{
     btn.onclick = () => {
-      $$('.tabs__item').forEach(b => b.classList.remove('tabs__item--active'));
-      btn.classList.add('tabs__item--active');
-      
-      if (btn.dataset.tab === 'manual') {
-        $('#manualTab').classList.remove('panel--hidden');
-        $('#urlTab').classList.add('panel--hidden');
-      } else {
-        $('#manualTab').classList.add('panel--hidden');
-        $('#urlTab').classList.remove('panel--hidden');
-      }
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.style.display='none');
+      btn.classList.add('active');
+      $('#'+btn.dataset.tab).style.display='block';
     };
   });
 
-  // Event bindings
-  $('#fetchRepos').onclick = handleFetchRepos;
-  $('#repoSelect').onchange = handleRepoChange;
-  $('#loadManual').onclick = handleLoadManual;
-  $('#parseUrl').onclick = handleParseUrl;
-  $('#searchTree').oninput = handleSearch;
-  $('#refreshBtn').onclick = () => loadRepository();
-  $('#expandAll').onclick = handleExpandAll;
-  $('#copyAllRaw').onclick = handleCopyAllRaw;
+  // Manual flow
+  $('#fetchReposBtn').onclick = async () => {
+    const user = $('#username').value.trim();
+    if(!user){ setHelp('#manualMsg','Username tidak boleh kosong', true); return; }
+    setHelp('#manualMsg','Mengambil repositories...');
+    $('#repoSel').disabled=true; $('#branchSel').disabled=true; $('#loadBtn').disabled=true;
+    $('#repoSel').innerHTML='<option value="">Pilih Repository</option>';
+    try{
+      const repos = await api(`https://api.github.com/users/${user}/repos?per_page=100&sort=updated`);
+      const pubs = repos.filter(r=>!r.private);
+      if(!pubs.length) throw new Error('Tidak ada public repository.');
+      for(const r of pubs){
+        const o=document.createElement('option');
+        o.value=r.name; o.textContent=r.name; o.dataset.default=r.default_branch||'main'; o.dataset.desc=r.description||'';
+        $('#repoSel').appendChild(o);
+      }
+      $('#repoSel').disabled=false;
+      setHelp('#manualMsg',`Ditemukan ${pubs.length} repository. Pilih salah satu.`);
+    }catch(e){ setHelp('#manualMsg',e.message,true); }
+  };
 
-  // Enter key handlers
-  $('#username').addEventListener('keypress', e => {
-    if (e.key === 'Enter') handleFetchRepos();
-  });
-  
-  $('#repoUrl').addEventListener('keypress', e => {
-    if (e.key === 'Enter') handleParseUrl();
-  });
-  
-  $('#tokenInput').addEventListener('keypress', e => {
-    if (e.key === 'Enter') validateAndSaveToken();
-  });
+  $('#repoSel').onchange = async () => {
+    const user=$('#username').value.trim(), repo=$('#repoSel').value;
+    $('#branchSel').innerHTML='<option value="">Memuat branch...</option>'; $('#branchSel').disabled=true; $('#loadBtn').disabled=true;
+    if(!repo) return;
+    try{
+      const branches = await api(`https://api.github.com/repos/${user}/${repo}/branches?per_page=100`);
+      $('#branchSel').innerHTML='<option value="">Pilih Branch</option>';
+      const def=$('#repoSel').selectedOptions[0].dataset.default;
+      for(const b of branches){
+        const o=document.createElement('option'); o.value=b.name; o.textContent=b.name+(b.name===def?' (default)':'');
+        $('#branchSel').appendChild(o);
+      }
+      $('#branchSel').value=def; $('#branchSel').disabled=false; $('#loadBtn').disabled=false;
+      setHelp('#manualMsg',`Ditemukan ${branches.length} branch. Siap dimuat.`);
+    }catch(e){ setHelp('#manualMsg',e.message,true); }
+  };
 
-  // Boot from URL params
-  const params = new URLSearchParams(location.search);
-  const user = params.get('user');
-  const repo = params.get('repo');
-  const branch = params.get('branch');
+  $('#loadBtn').onclick = () => {
+    OWNER=$('#username').value.trim();
+    REPO=$('#repoSel').value;
+    BRANCH=$('#branchSel').value || $('#repoSel').selectedOptions[0]?.dataset.default || 'main';
+    if(OWNER && REPO && BRANCH) loadRepo();
+  };
 
-  if (savedToken && user && repo) {
-    state.owner = user;
-    state.repo = repo;
-    state.branch = branch || 'main';
+  // URL flow
+  $('#parseBtn').onclick = async () => {
+    const raw=$('#repoUrl').value.trim();
+    if(!raw){ setHelp('#urlMsg','URL tidak boleh kosong', true); return; }
+    const parsed=parseGitHubUrl(raw); if(!parsed){ setHelp('#urlMsg','Format URL tidak valid',true); return; }
+    OWNER=parsed.owner; REPO=parsed.repo; BRANCH=parsed.branch||'';
+    try{
+      const info=await api(`https://api.github.com/repos/${OWNER}/${REPO}`);
+      if(!BRANCH) BRANCH=info.default_branch||'main';
+      setHelp('#urlMsg',`Memuat ${OWNER}/${REPO} (${BRANCH})...`);
+      loadRepo();
+    }catch(e){ setHelp('#urlMsg',e.message,true); }
+  };
+
+  function parseGitHubUrl(u){
+    const s=u.replace(/^(https?:\/\/)?(www\.)?/,'').replace(/\/$/,'');
+    let m=s.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\/(?:tree|blob)\/([^\/]+))?/);
+    if(m) return {owner:m[1], repo:m[2].replace(/\.git$/,''), branch:m[3]};
+    m=s.match(/^([^\/]+)\/([^\/]+)$/); if(m) return {owner:m[1], repo:m[2].replace(/\.git$/,'')};
+    return null;
   }
-};
 
-document.addEventListener('DOMContentLoaded', init);
+  // Core loader (Trees API)
+  async function loadRepo(){
+    // Update UI
+    history.replaceState({},'',`${location.pathname}?user=${OWNER}&repo=${REPO}&branch=${BRANCH}`);
+    $('#repoLink').textContent=`${OWNER}/${REPO} (${BRANCH})`;
+    $('#repoLink').href=`https://github.com/${OWNER}/${REPO}/tree/${BRANCH}`;
+    $('#repoDesc').textContent='Memindai struktur...';
+    $('#repoInfo').style.display='flex';
+    $('#stats').style.display='grid';
+    $('#tools').style.display='flex';
+    setTreeMessage('Memuat struktur repo...');
+
+    try{
+      const tree = await fetchTree(OWNER, REPO, BRANCH);
+      const skip = p => p.split('/').some(seg=>seg.startsWith('.')) || p.includes('node_modules/');
+      allFiles = tree.filter(n=>n.type==='blob' && !skip(n.path))
+                     .map(n=>({path:n.path, name:n.path.split('/').pop(), size:n.size||0}));
+
+      const built = buildTree(allFiles);
+      rootTree = built.children; totalBytes=built.size;
+
+      renderTree(rootTree);
+      const folders=countFolders(rootTree);
+      $('#fileCount').textContent=allFiles.length;
+      $('#folderCount').textContent=folders;
+      $('#totalSize').textContent=fmt(totalBytes);
+      $('#lastUpdate').textContent=new Date().toLocaleTimeString();
+      $('#repoDesc').textContent=`${allFiles.length} file, ${folders} folder • ${fmt(totalBytes)}`;
+    }catch(e){
+      setTreeMessage('Gagal memuat: '+e.message);
+      $('#repoDesc').textContent='Gagal memuat';
+    }
+  }
+
+  // Try tree by branch; fallback to resolve sha first
+  async function fetchTree(owner, repo, branch){
+    const tryDirect = async () => api(`https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`).then(j=>j.tree||[]);
+    try{
+      return await tryDirect();
+    }catch(_){
+      const br = await api(`https://api.github.com/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`);
+      const treeSha = br?.commit?.commit?.tree?.sha || br?.commit?.sha;
+      if(!treeSha) throw new Error('Gagal resolve tree SHA');
+      const t = await api(`https://api.github.com/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`);
+      return t.tree||[];
+    }
+  }
+
+  // Build tree + aggregate folder sizes
+  function buildTree(files){
+    const root = {type:'tree', path:'', size:0, children:{}};
+    for(const f of files){
+      const parts=f.path.split('/'); let cur=root; let acc='';
+      for(let i=0;i<parts.length;i++){
+        const part=parts[i]; acc = acc ? `${acc}/${part}` : part; const last=i===parts.length-1;
+        if(!cur.children[part]){
+          cur.children[part] = last ? {type:'blob', path:acc, size:f.size} : {type:'tree', path:acc, size:0, children:{}};
+        }
+        if(!last){ cur.children[part].size += f.size; cur = cur.children[part]; }
+        else { cur.children[part].size = f.size; }
+      }
+      root.size += f.size;
+    }
+    return root;
+  }
+  function countFolders(node){
+    let n=0; for(const k in node){ if(node[k].type==='tree'){ n++; n+=countFolders(node[k].children); } } return n;
+  }
+
+  // Render
+  function setTreeMessage(msg){ $('#tree').innerHTML = `<div class="small">${msg}</div>`; }
+  function renderTree(treeData){
+    const cont=$('#tree'); cont.innerHTML='';
+    cont.appendChild(makeLine('', `${REPO}/`, {type:'tree', path:'', size: totalBytes}));
+    renderNode(treeData, '', cont);
+  }
+  function renderNode(node, prefix, cont){
+    const entries=Object.entries(node).sort((a,b)=>{
+      if(a[1].type!==b[1].type) return a[1].type==='tree'?-1:1;
+      return a[0].localeCompare(b[0]);
+    });
+    for(let i=0;i<entries.length;i++){
+      const [name,data]=entries[i]; const last=i===entries.length-1;
+      const connector = last ? '└── ' : '├── ';
+      const dispName = name + (data.type==='tree' ? '/' : '');
+      cont.appendChild(makeLine(prefix+connector, dispName, data));
+      if(data.type==='tree') renderNode(data.children, prefix + (last?'    ':'│   '), cont);
+    }
+  }
+  function makeLine(preText, name, data){
+    const line=el('div','line');
+    const pre=el('span','pre',preText);
+    const icon=el('span','material-icons icon', data.type==='tree'?'folder':fileIcon(name));
+    const nm=el('span','name '+(data.type==='tree'?'folder':''), name);
+    const size=el('span','size', fmt(data.size||0));
+    const acts=el('div','acts');
+
+    line.append(pre,icon,nm,size);
+
+    // Pages for all (file/folder/root)
+    acts.append(actionLink('public','Pages', getPagesUrl(data.path||'', data.type==='tree')));
+    if(data.type==='tree'){
+      acts.append(actionLink('open_in_new','View', getTreeViewUrl(data.path||'')));
+    } else {
+      acts.append(actionLink('open_in_new','View', getViewUrl(data.path)));
+      acts.append(actionBtn('link','Raw', ()=>copyText(getRawUrl(data.path))));
+      acts.append(actionLink('download','Download', getRawUrl(data.path), true));
+    }
+    line.appendChild(acts);
+    return line;
+  }
+
+  function actionLink(icon,label,href,dl=false){
+    const a=el('a','btn'); a.href=href; a.target='_blank'; a.rel='noopener'; if(dl) a.download='';
+    a.append(el('span','material-icons icon',icon), document.createTextNode(label)); return a;
+  }
+  function actionBtn(icon,label,onClick){
+    const b=el('button','btn'); b.type='button';
+    b.append(el('span','material-icons icon',icon), document.createTextNode(label));
+    b.onclick=onClick; return b;
+  }
+
+  // Icons & URLs
+  function fileIcon(name){
+    const base=name.endsWith('/')?name.slice(0,-1):name;
+    const ext=(base.split('.').pop()||'').toLowerCase();
+    const map={js:'javascript',ts:'javascript',json:'data_object',html:'html',htm:'html',css:'css',md:'description',txt:'description',
+      xml:'code',yml:'settings',yaml:'settings',png:'image',jpg:'image',jpeg:'image',gif:'image',svg:'image',webp:'image',
+      pdf:'picture_as_pdf',zip:'folder_zip',gz:'folder_zip',tar:'folder_zip',py:'code',java:'code',cpp:'code',c:'code',
+      rs:'code',go:'code',rb:'code',php:'code',sh:'terminal'
+    };
+    return map[ext]||'insert_drive_file';
+  }
+  function getPagesUrl(path='', isDir=false){
+    const base = REPO.endsWith('.github.io') ? `https://${OWNER}.github.io` : `https://${OWNER}.github.io/${REPO}`;
+    if(!path) return base+'/';
+    const p = isDir ? (path.endsWith('/')?path:path+'/') : path;
+    return `${base}/${p}`;
+  }
+  const getTreeViewUrl = (path='') => path
+    ? `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}/${path}`
+    : `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}`;
+  const getViewUrl = (path) => `https://github.com/${OWNER}/${REPO}/blob/${BRANCH}/${path}`;
+  const getRawUrl  = (path) => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path}`;
+
+  // Clipboard
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && location.protocol.startsWith('http')) await navigator.clipboard.writeText(text);
+      else { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+      notify('Disalin ke clipboard');
+    }catch{ notify('Gagal menyalin'); }
+  }
+  function notify(msg){
+    const n=el('div','small',msg);
+    Object.assign(n.style,{position:'fixed',bottom:'16px',left:'50%',transform:'translateX(-50%)',background:'var(--panel)',border:'1px solid var(--bd)',padding:'8px 12px',borderRadius:'6px',zIndex:9999});
+    document.body.appendChild(n); setTimeout(()=>n.remove(),1600);
+  }
+
+  // Tools
+  $('#refreshBtn').onclick = ()=> loadRepo();
+  $('#copyAllBtn').onclick = async ()=>{
+    if(!allFiles.length) return;
+    const links = allFiles.map(f=>getRawUrl(f.path)).join('\n');
+    copyText(links);
+  };
+  $('#search').addEventListener('input', (e)=>{
+    const q=e.target.value.toLowerCase();
+    document.querySelectorAll('#tree .line').forEach(line=>{
+      line.style.display = line.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+  });
+
+  // Helpers
+  function setHelp(id, msg, err=false){ const n=$(id); n.textContent=msg; n.style.color = err ? 'inherit' : 'var(--muted)'; }
+
+  // Enter keys
+  $('#username').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#fetchReposBtn').click(); });
+  $('#repoUrl').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#parseBtn').click(); });
+
+  // Boot
+  (function boot(){
+    loadToken();
+    const p=new URLSearchParams(location.search);
+    const u=p.get('user'), r=p.get('repo'), b=p.get('branch');
+    if(u && r){ OWNER=u; REPO=r; BRANCH=b||'main'; loadRepo(); }
+  })();
+})();
 </script>
 </body>
 </html>
