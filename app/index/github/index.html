@@ -9,7 +9,7 @@
 <style>
   :root{
     --bg:#0f1115; --panel:#16191f; --fg:#e8e8e8; --muted:#a5a7ab; --bd:#2a2f38;
-    --btn:#1b1f27; --btn-hover:#222733;
+    --btn:#1b1f27; --btn-hover:#222733; --success:#22c55e; --error:#ef4444; --warning:#f59e0b;
   }
   body.light{
     --bg:#ffffff; --panel:#f5f6f7; --fg:#111111; --muted:#666666; --bd:#dedede;
@@ -22,11 +22,15 @@
   a:hover{text-decoration:underline}
   .wrap{max-width:1100px;margin:auto;padding:16px}
 
-  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
   .title{display:flex;align-items:center;gap:8px}
   .title .material-icons{font-size:22px;color:var(--muted)}
-  .theme{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:6px 10px;cursor:pointer}
+  .header-actions{display:flex;gap:8px;align-items:center}
+  .theme{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px}
   .theme:hover{background:var(--btn-hover)}
+  .token-status{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .token-status.valid{background:var(--success)}
+  .token-status.invalid{background:var(--error)}
 
   .tabs{display:flex;gap:8px;margin:8px 0}
   .tab{flex:1;border:1px solid var(--bd);background:var(--panel);color:var(--muted);border-radius:6px;padding:10px;cursor:pointer;text-align:center}
@@ -37,9 +41,19 @@
   .row.cols-3{grid-template-columns:1fr 1fr auto}
   input,select,button{border:1px solid var(--bd);background:var(--btn);color:var(--fg);border-radius:6px;padding:10px}
   select:disabled,button:disabled{opacity:.5;cursor:not-allowed}
-  button{cursor:pointer}
-  button:hover{background:var(--btn-hover)}
+  button{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  button:hover:not(:disabled){background:var(--btn-hover)}
   .help{color:var(--muted);margin-top:6px;font-size:12px}
+
+  .token-panel{display:none;margin-bottom:10px}
+  .token-panel.show{display:block}
+  .token-input-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-bottom:8px}
+  .token-info{background:var(--btn);border:1px solid var(--bd);border-radius:6px;padding:10px;font-size:12px}
+  .token-info a{color:var(--fg);text-decoration:underline}
+  .token-info .material-icons{font-size:16px;vertical-align:middle;margin-right:4px}
+  .token-valid{color:var(--success)}
+  .token-invalid{color:var(--error)}
+  .token-warning{color:var(--warning)}
 
   .repo{display:none;align-items:center;gap:10px;border:1px solid var(--bd);background:var(--panel);border-radius:6px;padding:10px;margin:10px 0}
   .repo .material-icons{color:var(--muted)}
@@ -65,14 +79,56 @@
   .btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;border:1px solid var(--bd);background:var(--btn);color:var(--fg);font-size:12px;text-decoration:none}
   .btn:hover{background:var(--btn-hover)}
   .icon{color:var(--muted)}
-  @media (max-width:720px){.row.cols-3{grid-template-columns:1fr}}
+  
+  @media (max-width:720px){
+    .row.cols-3{grid-template-columns:1fr}
+    .token-input-row{grid-template-columns:1fr;gap:6px}
+  }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="header">
-      <div class="title"><span class="material-icons">source</span><strong>GitHub Explorer Minimal</strong></div>
-      <button class="theme" id="themeBtn" title="Toggle Light/Dark">Toggle Theme</button>
+      <div class="title">
+        <span class="material-icons">source</span>
+        <strong>GitHub Explorer Minimal</strong>
+      </div>
+      <div class="header-actions">
+        <button class="theme" id="tokenBtn" title="GitHub Token Settings">
+          <span class="token-status" id="tokenStatus"></span>
+          <span class="material-icons" style="font-size:18px">vpn_key</span>
+        </button>
+        <button class="theme" id="themeBtn" title="Toggle Light/Dark">
+          <span class="material-icons" style="font-size:18px">brightness_6</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Token Panel -->
+    <div class="panel token-panel" id="tokenPanel">
+      <div class="token-input-row">
+        <input type="password" id="tokenInput" placeholder="Masukkan GitHub Personal Access Token (opsional)"/>
+        <button id="saveTokenBtn">
+          <span class="material-icons icon" style="font-size:16px">save</span>
+          Simpan
+        </button>
+        <button id="clearTokenBtn">
+          <span class="material-icons icon" style="font-size:16px">delete</span>
+          Hapus
+        </button>
+      </div>
+      <div class="token-info">
+        <div><span class="material-icons">info</span><strong>Tentang GitHub Token:</strong></div>
+        <ul style="margin:8px 0;padding-left:20px">
+          <li>Token diperlukan untuk menghindari rate limit (60 req/jam tanpa token → 5000 req/jam dengan token)</li>
+          <li>Buat token di: <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+          <li>Scope minimal: <strong>public_repo</strong> atau <strong>repo</strong></li>
+          <li>Token disimpan di localStorage browser Anda (tidak dikirim ke server lain)</li>
+          <li>Tanpa token, aplikasi tetap berfungsi dengan rate limit lebih rendah</li>
+          <li>Contoh Token: xxxxx_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx </li>
+        </ul>
+        <div id="tokenStatusText" class="small" style="margin-top:8px">Status: <span class="token-warning">Belum diatur</span></div>
+      </div>
     </div>
 
     <div class="tabs">
@@ -141,10 +197,7 @@
   let allFiles=[]; // [{path,name,size}]
   let rootTree={}; // nested
   let totalBytes=0;
-
-  // GitHub API Token
-  const GITHUB_TOKEN = 'xxx_xxxxxxxxxxxxxxxxxxxxxx';
-  //https://github.com/settings/tokens/new
+  let GITHUB_TOKEN = '';
 
   // Shortcuts
   const $ = s => document.querySelector(s);
@@ -154,21 +207,93 @@
     const k=1024, u=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(n)/Math.log(k));
     return (n/Math.pow(k,i)).toFixed(n<k?0:2)+' '+u[i];
   };
+
+  // API with token
   const api = async (url) => {
-    const headers = {
-      'Accept': 'application/vnd.github+json',
-      'Authorization': `Bearer ${GITHUB_TOKEN}`
-    };
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if(GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
     
     const r = await fetch(url, { headers });
     if(!r.ok){
-      if(r.status===403) throw new Error('Rate limit GitHub tercapai. Coba lagi nanti.');
+      if(r.status===403) {
+        const remaining = r.headers.get('X-RateLimit-Remaining');
+        if(remaining === '0') throw new Error('Rate limit GitHub tercapai. Tambahkan token atau coba lagi nanti.');
+        throw new Error('Akses ditolak (403).');
+      }
       if(r.status===404) throw new Error('Tidak ditemukan (404).');
       if(r.status===401) throw new Error('Token API tidak valid atau kedaluwarsa.');
       throw new Error(`HTTP ${r.status} ${r.statusText}`);
     }
     return r.json();
   };
+
+  // Token Management
+  function loadToken(){
+    const saved = localStorage.getItem('ghx_token');
+    if(saved){
+      GITHUB_TOKEN = saved;
+      $('#tokenInput').value = saved;
+      updateTokenStatus();
+    }
+  }
+
+  function saveToken(){
+    const token = $('#tokenInput').value.trim();
+    if(token){
+      localStorage.setItem('ghx_token', token);
+      GITHUB_TOKEN = token;
+      notify('Token berhasil disimpan');
+      updateTokenStatus();
+    }
+  }
+
+  function clearToken(){
+    localStorage.removeItem('ghx_token');
+    GITHUB_TOKEN = '';
+    $('#tokenInput').value = '';
+    updateTokenStatus();
+    notify('Token berhasil dihapus');
+  }
+
+  async function updateTokenStatus(){
+    const status = $('#tokenStatus');
+    const statusText = $('#tokenStatusText');
+    
+    if(!GITHUB_TOKEN){
+      status.className = 'token-status';
+      statusText.innerHTML = 'Status: <span class="token-warning">Tidak ada token (rate limit: 60 req/jam)</span>';
+      return;
+    }
+
+    // Validate token
+    try{
+      status.className = 'token-status'; // reset
+      statusText.innerHTML = 'Status: <span class="token-warning">Memvalidasi...</span>';
+      
+      const user = await api('https://api.github.com/user');
+      const rate = await api('https://api.github.com/rate_limit');
+      
+      status.className = 'token-status valid';
+      const limit = rate?.rate?.limit || 5000;
+      const remaining = rate?.rate?.remaining || 0;
+      statusText.innerHTML = `Status: <span class="token-valid">✓ Valid (${user.login}) • Rate limit: ${remaining}/${limit}</span>`;
+    }catch(e){
+      status.className = 'token-status invalid';
+      statusText.innerHTML = `Status: <span class="token-invalid">✗ Invalid - ${e.message}</span>`;
+    }
+  }
+
+  // Token Panel Toggle
+  $('#tokenBtn').onclick = () => {
+    $('#tokenPanel').classList.toggle('show');
+    if($('#tokenPanel').classList.contains('show')){
+      updateTokenStatus();
+    }
+  };
+
+  $('#saveTokenBtn').onclick = saveToken;
+  $('#clearTokenBtn').onclick = clearToken;
+  $('#tokenInput').addEventListener('keypress', e=>{ if(e.key==='Enter') saveToken(); });
 
   // Theme toggle
   const themeBtn = $('#themeBtn');
@@ -411,7 +536,6 @@
     }catch{ notify('Gagal menyalin'); }
   }
   function notify(msg){
-    // Notifikasi kecil sederhana (monokrom)
     const n=el('div','small',msg);
     Object.assign(n.style,{position:'fixed',bottom:'16px',left:'50%',transform:'translateX(-50%)',background:'var(--panel)',border:'1px solid var(--bd)',padding:'8px 12px',borderRadius:'6px',zIndex:9999});
     document.body.appendChild(n); setTimeout(()=>n.remove(),1600);
@@ -438,8 +562,9 @@
   $('#username').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#fetchReposBtn').click(); });
   $('#repoUrl').addEventListener('keypress', e=>{ if(e.key==='Enter') $('#parseBtn').click(); });
 
-  // Boot via query
-  (function bootFromQuery(){
+  // Boot
+  (function boot(){
+    loadToken();
     const p=new URLSearchParams(location.search);
     const u=p.get('user'), r=p.get('repo'), b=p.get('branch');
     if(u && r){ OWNER=u; REPO=r; BRANCH=b||'main'; loadRepo(); }
