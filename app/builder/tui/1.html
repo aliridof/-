@@ -413,11 +413,6 @@
     .node__actions {
       display: flex;
       gap: var(--spacing-xs);
-      opacity: 0;
-      transition: opacity var(--transition);
-    }
-
-    .node:hover .node__actions {
       opacity: 1;
     }
 
@@ -842,6 +837,9 @@
       <!-- Canvas -->
       <div class="canvas-wrap">
         <div class="toolbar">
+          <button class="btn btn--icon" id="toggleSidebar" title="Toggle Sidebar">
+            <span class="material-icons btn__icon">menu</span>
+          </button>
           <div class="zoom">
             <button class="btn btn--icon" id="zoomOut" title="Zoom Out">
               <span class="material-icons btn__icon">remove</span>
@@ -858,6 +856,9 @@
             <span class="material-icons" style="font-size: 16px;">info</span>
             <span>Drag to reorder • Click to select • Edit inline</span>
           </div>
+          <button class="btn btn--icon" id="togglePreview" title="Toggle Preview" style="margin-left: auto;">
+            <span class="material-icons btn__icon">visibility</span>
+          </button>
         </div>
         <div class="canvas-container">
           <div class="canvas" id="canvas"></div>
@@ -1336,6 +1337,7 @@
 
       renderPalette() {
         const palette = Utils.$('#palette');
+        const selectedNode = state.selectedId ? NodeOps.find(state.selectedId) : null;
         
         // Universal Node item + properties editor
         palette.innerHTML = `
@@ -1347,7 +1349,7 @@
             <div class="palette__desc">Universal node</div>
           </div>
           
-          ${!state.selectedId ? '' : `
+          ${!selectedNode ? '' : `
             <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); border-top: 2px solid var(--color-border);">
               <div style="font-weight: 600; font-size: var(--font-sm); margin-bottom: var(--spacing-md); text-transform: uppercase; opacity: 0.7;">Node Editor</div>
               
@@ -1355,7 +1357,7 @@
                 <div class="prop-group__label">Type</div>
                 <div class="type-grid">
                   ${Object.entries(NODE_TYPES).map(([k, v]) => `
-                    <div class="type-option ${NodeOps.find(state.selectedId)?.type === k ? 'type-option--active' : ''}" data-type="${k}">
+                    <div class="type-option ${selectedNode.type === k ? 'type-option--active' : ''}" data-type="${k}">
                       <div class="type-option__icon">
                         <span class="material-icons">${v.icon}</span>
                       </div>
@@ -1367,12 +1369,12 @@
               
               <div class="prop-group">
                 <div class="prop-group__label">Title</div>
-                <input type="text" class="prop-input" id="sidebarPropTitle" value="${Utils.esc(NodeOps.find(state.selectedId)?.title || '')}">
+                <input type="text" class="prop-input" id="sidebarPropTitle" value="${Utils.esc(selectedNode.title)}">
               </div>
               
               <div class="prop-group">
                 <div class="prop-group__label">Metadata</div>
-                <textarea class="prop-input prop-input--textarea" id="sidebarPropMeta" placeholder="Commands, notes...">${Utils.esc(NodeOps.find(state.selectedId)?.meta || '')}</textarea>
+                <textarea class="prop-input prop-input--textarea" id="sidebarPropMeta" placeholder="Commands, notes...">${Utils.esc(selectedNode.meta)}</textarea>
               </div>
               
               <div class="prop-group">
@@ -1394,36 +1396,34 @@
         }
         
         // Type selector handlers
-        if (state.selectedId) {
-          const node = NodeOps.find(state.selectedId);
-          if (node) {
-            Utils.$('.type-option').forEach(opt => {
-              opt.onclick = () => {
-                node.type = opt.dataset.type;
-                History.save();
-                this.render();
-              };
-            });
-            
-            const titleInput = Utils.$('#sidebarPropTitle');
-            if (titleInput) {
-              const updateTitle = Utils.debounce((e) => {
-                node.title = e.target.value;
-                History.save();
-                this.render();
-              }, CONFIG.DEBOUNCE_DELAY);
-              titleInput.oninput = updateTitle;
-            }
-            
-            const metaInput = Utils.$('#sidebarPropMeta');
-            if (metaInput) {
-              const updateMeta = Utils.debounce((e) => {
-                node.meta = e.target.value;
-                History.save();
-                this.render();
-              }, CONFIG.DEBOUNCE_DELAY);
-              metaInput.oninput = updateMeta;
-            }
+        if (selectedNode) {
+          const typeOptions = Utils.$$('.type-option');
+          typeOptions.forEach(opt => {
+            opt.onclick = () => {
+              selectedNode.type = opt.dataset.type;
+              History.save();
+              this.render();
+            };
+          });
+          
+          const titleInput = Utils.$('#sidebarPropTitle');
+          if (titleInput) {
+            const updateTitle = Utils.debounce((e) => {
+              selectedNode.title = e.target.value;
+              History.save();
+              this.render();
+            }, CONFIG.DEBOUNCE_DELAY);
+            titleInput.oninput = updateTitle;
+          }
+          
+          const metaInput = Utils.$('#sidebarPropMeta');
+          if (metaInput) {
+            const updateMeta = Utils.debounce((e) => {
+              selectedNode.meta = e.target.value;
+              History.save();
+              this.render();
+            }, CONFIG.DEBOUNCE_DELAY);
+            metaInput.oninput = updateMeta;
           }
         }
       },
@@ -1500,6 +1500,9 @@
                   <span class="material-icons">arrow_downward</span>
                 </button>
               </div>
+              <button class="node__btn" data-action="edit">
+                <span class="material-icons" style="font-size: 16px;">edit</span>
+              </button>
               <button class="node__btn" data-action="child">
                 <span class="material-icons" style="font-size: 16px;">add</span>
                 Child
@@ -1584,8 +1587,10 @@
       },
 
       attachNodeEvents(el) {
+        // Click to select - dengan proteksi terhadap elemen interaktif
         el.onclick = (e) => {
           if (e.target.closest('.node__actions') || 
+              e.target.closest('.node__reorder') ||
               e.target.classList.contains('node__title') ||
               e.target.closest('.node__drag')) return;
           
@@ -1604,7 +1609,7 @@
         
         title.oninput = updateTitle;
         
-        // Fix: Use el.querySelectorAll instead of Utils.$
+        // Fix: Use el.querySelectorAll instead of Utils.$$
         const nodeBtns = el.querySelectorAll('.node__btn');
         nodeBtns.forEach(btn => {
           btn.onclick = (e) => {
@@ -1612,7 +1617,19 @@
             const action = btn.dataset.action;
             const nodeId = el.dataset.id;
             
-            if (action === 'child') {
+            if (action === 'edit') {
+              // Select node and show editor in sidebar
+              state.selectedId = nodeId;
+              this.render();
+              // Ensure sidebar is visible
+              const sidebar = Utils.$('.sidebar');
+              if (sidebar.classList.contains('sidebar--collapsed')) {
+                sidebar.classList.remove('sidebar--collapsed');
+              }
+              // Scroll sidebar to top
+              sidebar.scrollTop = 0;
+              UI.toast('Node editor opened');
+            } else if (action === 'child') {
               History.save();
               const node = NodeOps.find(nodeId);
               if (node) {
@@ -1635,7 +1652,7 @@
           };
         });
         
-        // Fix: Use el.querySelectorAll instead of Utils.$
+        // Fix: Use el.querySelectorAll instead of Utils.$$
         const reorderBtns = el.querySelectorAll('.node__reorder-btn');
         reorderBtns.forEach(btn => {
           btn.onclick = (e) => {
@@ -1667,24 +1684,6 @@
 
       renderProps() {
         const props = Utils.$('#props');
-        
-        if (!state.selectedId) {
-          props.innerHTML = `
-            <div class="preview">
-              <div class="preview__title">ASCII Preview</div>
-              <div class="preview__content">${Exporter.toAscii()}</div>
-            </div>
-          `;
-          return;
-        }
-        
-        const node = NodeOps.find(state.selectedId);
-        if (!node) {
-          state.selectedId = null;
-          this.renderProps();
-          return;
-        }
-        
         props.innerHTML = `
           <div class="preview">
             <div class="preview__title">ASCII Preview</div>
@@ -1792,10 +1791,22 @@
         Utils.$('#zoomOut').onclick = () => UI.setZoom(state.zoom - CONFIG.ZOOM_STEP);
         Utils.$('#zoomReset').onclick = () => UI.setZoom(1);
 
-        // Toggle Preview Panel
+        // Toggle Preview Panel (old button in panel)
         Utils.$('#toggleProps').onclick = () => {
           const panel = Utils.$('#propsPanel');
           panel.classList.toggle('props--collapsed');
+        };
+
+        // Toggle Preview Panel (new button in toolbar)
+        Utils.$('#togglePreview').onclick = () => {
+          const panel = Utils.$('#propsPanel');
+          panel.classList.toggle('props--collapsed');
+        };
+
+        // Toggle Sidebar
+        Utils.$('#toggleSidebar').onclick = () => {
+          const sidebar = Utils.$('.sidebar');
+          sidebar.classList.toggle('sidebar--collapsed');
         };
 
         // Modal
