@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUI Builder - Terminal UI Flow Builder</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    /* ==================== CSS VARIABLES & THEME ==================== */
+    :root {
+      --color-primary: #000;
+      --color-secondary: #fff;
+      --color-border: #e0e0e0;
+      --color-shadow: rgba(0, 0, 0, 0.1);
+      --color-hover: rgba(0, 0, 0, 0.05);
+      --color-active: rgba(0, 0, 0, 0.1);
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --font-sm: 11px;
+      --font-md: 13px;
+      --font-lg: 15px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --color-primary: #fff;
+      --color-secondary: #000;
+      --color-border: #333;
+      --color-shadow: rgba(255, 255, 255, 0.1);
+      --color-hover: rgba(255, 255, 255, 0.05);
+      --color-active: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ==================== RESET & BASE ==================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--color-secondary);
+      color: var(--color-primary);
+      line-height: 1.6;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ==================== LAYOUT ==================== */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      contain: layout style paint;
+    }
+
+    .app__header {
+      background: var(--color-secondary);
+      border-bottom: 2px solid var(--color-primary);
+      padding: var(--spacing-md) var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      z-index: 100;
+      will-change: border-color;
+    }
+
+    .app__main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      contain: layout style paint;
+    }
+
+    /* ==================== LOGO ==================== */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-lg);
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .logo__icon {
+      font-size: 20px;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn {
+      background: var(--color-secondary);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--color-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+      background: var(--color-active);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn--primary {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .btn--icon {
+      padding: var(--spacing-sm);
+      min-width: 32px;
+      justify-content: center;
+    }
+
+    .btn__icon {
+      font-size: 18px;
+    }
+
+    .actions {
+      margin-left: auto;
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    .sidebar {
+      width: 260px;
+      background: var(--color-secondary);
+      border-right: 2px solid var(--color-primary);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      contain: layout style paint;
+    }
+
+    .sidebar__title {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      font-size: var(--font-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .palette {
+      padding: var(--spacing-md);
+    }
+
+    .palette__item {
+      background: var(--color-secondary);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      cursor: grab;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .palette__item:hover {
+      border-color: var(--color-primary);
+      transform: translateX(4px);
+    }
+
+    .palette__item:active {
+      cursor: grabbing;
+    }
+
+    .palette__header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+      font-size: var(--font-md);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .palette__desc {
+      font-size: var(--font-sm);
+      opacity: 0.6;
+      padding-left: 28px;
+    }
+
+    /* ==================== CANVAS ==================== */
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      contain: layout style paint;
+    }
+
+    .toolbar {
+      background: var(--color-secondary);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .zoom {
+      display: flex;
+      gap: var(--spacing-xs);
+      align-items: center;
+    }
+
+    .zoom__level {
+      font-size: var(--font-sm);
+      min-width: 50px;
+      text-align: center;
+      font-weight: 500;
+      font-family: monospace;
+    }
+
+    .toolbar__hint {
+      margin-left: auto;
+      font-size: var(--font-sm);
+      opacity: 0.6;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .canvas-container {
+      flex: 1;
+      overflow: auto;
+      background-image: 
+        linear-gradient(var(--color-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: -1px -1px;
+      contain: layout style paint;
+    }
+
+    .canvas {
+      min-height: 100%;
+      padding: var(--spacing-xl);
+      transform-origin: top left;
+      transition: transform var(--transition);
+      will-change: transform;
+    }
+
+    .canvas--empty {
+      position: relative;
+    }
+
+    .empty {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .empty__icon {
+      font-size: 64px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .empty__text {
+      font-size: var(--font-lg);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .empty__hint {
+      font-size: var(--font-sm);
+      opacity: 0.6;
+    }
+
+    /* ==================== NODE ==================== */
+    .node-wrap {
+      margin: var(--spacing-lg) 0;
+      position: relative;
+      contain: layout style;
+    }
+
+    .node {
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      min-width: 300px;
+      max-width: 600px;
+      transition: all var(--transition);
+      box-shadow: 0 2px 8px var(--color-shadow);
+      will-change: border-color, box-shadow;
+    }
+
+    .node:hover {
+      box-shadow: 0 4px 12px var(--color-shadow);
+    }
+
+    .node--selected {
+      border-width: 3px;
+      box-shadow: 0 0 0 3px var(--color-active);
+    }
+
+    .node--dragging {
+      opacity: 0.4;
+    }
+
+    .node--main {
+      border-width: 3px;
+    }
+
+    .node__header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    .node__drag {
+      cursor: move;
+      padding: var(--spacing-xs);
+      opacity: 0.3;
+      transition: opacity var(--transition);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .node:hover .node__drag {
+      opacity: 0.6;
+    }
+
+    .node__drag:hover {
+      opacity: 1;
+    }
+
+    .node__icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .node__content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .node__title {
+      font-size: var(--font-lg);
+      font-weight: 600;
+      outline: none;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      cursor: text;
+      word-wrap: break-word;
+      min-height: 28px;
+    }
+
+    .node__title:hover {
+      background: var(--color-hover);
+    }
+
+    .node__title:focus {
+      background: var(--color-active);
+      border-color: var(--color-primary);
+    }
+
+    .node__meta {
+      font-size: var(--font-sm);
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm);
+      background: var(--color-hover);
+      border-radius: var(--radius-sm);
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .node__actions {
+      display: flex;
+      gap: var(--spacing-xs);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .node:hover .node__actions {
+      opacity: 1;
+    }
+
+    .node__btn {
+      background: var(--color-secondary);
+      border: 1px solid var(--color-border);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .node__btn:hover {
+      border-color: var(--color-primary);
+      background: var(--color-hover);
+    }
+
+    .node__reorder {
+      display: flex;
+      gap: 2px;
+    }
+
+    .node__reorder-btn {
+      width: 24px;
+      height: 24px;
+      background: var(--color-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all var(--transition);
+    }
+
+    .node__reorder-btn:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-hover);
+    }
+
+    .node__reorder-btn:disabled {
+      opacity: 0.2;
+      cursor: not-allowed;
+    }
+
+    /* ==================== CHILDREN ==================== */
+    .children {
+      margin-left: 40px;
+      margin-top: var(--spacing-md);
+      padding-left: var(--spacing-lg);
+      border-left: 2px solid var(--color-border);
+      position: relative;
+    }
+
+    .children::before {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-primary);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .node-wrap:hover > .children::before {
+      opacity: 0.3;
+    }
+
+    /* ==================== DROP ZONE ==================== */
+    .drop-zone {
+      min-height: 50px;
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      opacity: 0.3;
+    }
+
+    .drop-zone--visible {
+      opacity: 1;
+    }
+
+    .drop-zone--over {
+      border-color: var(--color-primary);
+      background: var(--color-hover);
+      border-style: solid;
+      opacity: 1;
+    }
+
+    .drop-zone__label {
+      font-size: var(--font-sm);
+      opacity: 0.5;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    /* ==================== PROPERTIES ==================== */
+    .props {
+      width: 320px;
+      background: var(--color-secondary);
+      border-left: 2px solid var(--color-primary);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      contain: layout style paint;
+    }
+
+    .props__title {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      font-size: var(--font-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .props__content {
+      padding: var(--spacing-lg);
+    }
+
+    .prop-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .prop-group__label {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      opacity: 0.7;
+    }
+
+    .prop-input {
+      width: 100%;
+      background: var(--color-secondary);
+      border: 1px solid var(--color-border);
+      color: var(--color-primary);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-md);
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .prop-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-active);
+    }
+
+    .prop-input--textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+      font-size: var(--font-sm);
+    }
+
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-sm);
+    }
+
+    .type-option {
+      background: var(--color-secondary);
+      border: 2px solid var(--color-border);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
+    }
+
+    .type-option:hover {
+      border-color: var(--color-primary);
+      background: var(--color-hover);
+    }
+
+    .type-option--active {
+      border-color: var(--color-primary);
+      background: var(--color-active);
+    }
+
+    .type-option__icon {
+      font-size: 24px;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .type-option__label {
+      font-size: var(--font-sm);
+      font-weight: 600;
+    }
+
+    .preview {
+      background: var(--color-hover);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .preview__title {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    .preview__content {
+      background: var(--color-secondary);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      font-family: 'Courier New', monospace;
+      font-size: var(--font-sm);
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--color-border);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal--visible {
+      display: flex;
+    }
+
+    .modal__box {
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-xl);
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px var(--color-shadow);
+      width: 90%;
+    }
+
+    .modal__header {
+      font-size: var(--font-lg);
+      font-weight: 700;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .modal__body {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .modal__footer {
+      display: flex;
+      gap: var(--spacing-sm);
+      justify-content: flex-end;
+    }
+
+    /* ==================== TOAST ==================== */
+    .toast {
+      position: fixed;
+      bottom: var(--spacing-lg);
+      right: var(--spacing-lg);
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      box-shadow: 0 4px 16px var(--color-shadow);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all var(--transition);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      max-width: 400px;
+    }
+
+    .toast--visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--color-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-primary);
+    }
+
+    /* ==================== UTILITIES ==================== */
+    .material-icons {
+      font-size: inherit;
+      line-height: inherit;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 2px solid var(--color-primary);
+      }
+
+      .props {
+        display: none;
+      }
+
+      .toolbar__hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Header -->
+    <header class="app__header">
+      <div class="logo">
+        <span class="logo__icon material-icons">terminal</span>
+        <span>TUI Builder</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn--icon" id="themeToggle" title="Toggle Theme">
+          <span class="material-icons btn__icon">brightness_6</span>
+        </button>
+        <button class="btn" id="addMain">
+          <span class="material-icons">add</span>
+          Main
+        </button>
+        <button class="btn" id="loadSample">
+          <span class="material-icons">description</span>
+          Sample
+        </button>
+        <button class="btn" id="exportAscii">
+          <span class="material-icons">code</span>
+          ASCII
+        </button>
+        <button class="btn btn--primary" id="exportJson">
+          <span class="material-icons">save</span>
+          JSON
+        </button>
+        <button class="btn" id="importJson">
+          <span class="material-icons">upload</span>
+          Import
+        </button>
+        <button class="btn" id="undo" disabled>
+          <span class="material-icons">undo</span>
+        </button>
+        <button class="btn" id="redo" disabled>
+          <span class="material-icons">redo</span>
+        </button>
+        <button class="btn" id="clearAll">
+          <span class="material-icons">delete_outline</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app__main">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar__title">
+          <span class="material-icons">widgets</span>
+          Components
+        </div>
+        <div class="palette" id="palette"></div>
+      </aside>
+
+      <!-- Canvas -->
+      <div class="canvas-wrap">
+        <div class="toolbar">
+          <div class="zoom">
+            <button class="btn btn--icon" id="zoomOut" title="Zoom Out">
+              <span class="material-icons btn__icon">remove</span>
+            </button>
+            <span class="zoom__level" id="zoomLevel">100%</span>
+            <button class="btn btn--icon" id="zoomIn" title="Zoom In">
+              <span class="material-icons btn__icon">add</span>
+            </button>
+            <button class="btn btn--icon" id="zoomReset" title="Reset Zoom">
+              <span class="material-icons btn__icon">refresh</span>
+            </button>
+          </div>
+          <div class="toolbar__hint">
+            <span class="material-icons" style="font-size: 16px;">info</span>
+            <span>Drag to reorder • Click to select • Edit inline</span>
+          </div>
+        </div>
+        <div class="canvas-container">
+          <div class="canvas" id="canvas"></div>
+        </div>
+      </div>
+
+      <!-- Properties -->
+      <aside class="props">
+        <div class="props__title">
+          <span class="material-icons">settings</span>
+          Properties
+        </div>
+        <div class="props__content" id="props"></div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal__box">
+      <div class="modal__header" id="modalTitle"></div>
+      <div class="modal__body" id="modalBody"></div>
+      <div class="modal__footer">
+        <button class="btn" id="modalCancel">Cancel</button>
+        <button class="btn btn--primary" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="material-icons">info</span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script>
+    'use strict';
+
+    // ==================== CONFIGURATION ====================
+    const CONFIG = {
+      MAX_HISTORY: 50,
+      AUTO_SAVE_DELAY: 1000,
+      MAX_NODES: 1000,
+      STORAGE_KEY: 'tuiBuilder_v1',
+      ZOOM_STEP: 0.1,
+      MIN_ZOOM: 0.5,
+      MAX_ZOOM: 2,
+      DEBOUNCE_DELAY: 300
+    };
+
+    const NODE_TYPES = {
+      phase: { icon: 'rocket_launch', label: 'Phase', desc: 'Major milestone' },
+      step: { icon: 'settings', label: 'Step', desc: 'Action step' },
+      decision: { icon: 'fork_right', label: 'Decision', desc: 'Conditional branch' },
+      ui: { icon: 'web', label: 'UI', desc: 'Interface component' },
+      api: { icon: 'api', label: 'API', desc: 'API endpoint' },
+      note: { icon: 'notes', label: 'Note', desc: 'Documentation' }
+    };
+
+    // ==================== UTILITIES ====================
+    const Utils = {
+      uid: () => `n_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      
+      esc: (str) => {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      },
+      
+      clone: (obj) => JSON.parse(JSON.stringify(obj)),
+      
+      debounce: (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      },
+      
+      $: (sel, ctx = document) => ctx.querySelector(sel),
+      $$: (sel, ctx = document) => [...ctx.querySelectorAll(sel)]
+    };
+
+    // ==================== STATE MANAGEMENT ====================
+    class AppState {
+      constructor() {
+        this.nodes = [];
+        this.selectedId = null;
+        this.draggedNode = null;
+        this.draggedType = null;
+        this.zoom = 1;
+        this.history = [];
+        this.historyIndex = -1;
+        this.saveTimer = null;
+        this.theme = localStorage.getItem('theme') || 'light';
+      }
+
+      reset() {
+        this.nodes = [];
+        this.selectedId = null;
+        this.history = [];
+        this.historyIndex = -1;
+      }
+
+      canUndo() {
+        return this.historyIndex > 0;
+      }
+
+      canRedo() {
+        return this.historyIndex < this.history.length - 1;
+      }
+    }
+
+    const state = new AppState();
+
+    // ==================== VALIDATORS ====================
+    const Validator = {
+      isValidNode(node) {
+        if (!node || typeof node !== 'object') return false;
+        if (!node.id || !node.type || !node.title) return false;
+        if (!NODE_TYPES[node.type]) return false;
+        if (!Array.isArray(node.children)) return false;
+        return true;
+      },
+
+      isValidNodeArray(arr) {
+        if (!Array.isArray(arr)) return false;
+        return arr.every(node => this.isValidNode(node));
+      },
+
+      countNodes(nodes) {
+        return nodes.reduce((sum, node) => sum + 1 + this.countNodes(node.children), 0);
+      },
+
+      canAddNode() {
+        return this.countNodes(state.nodes) < CONFIG.MAX_NODES;
+      }
+    };
+
+    // ==================== NODE OPERATIONS ====================
+    const NodeOps = {
+      create(type, title = null) {
+        if (!NODE_TYPES[type]) return null;
+        
+        return {
+          id: Utils.uid(),
+          type,
+          title: title || `New ${NODE_TYPES[type].label}`,
+          meta: '',
+          children: []
+        };
+      },
+
+      find(id, nodes = state.nodes) {
+        for (const node of nodes) {
+          if (node.id === id) return node;
+          const found = this.find(id, node.children);
+          if (found) return found;
+        }
+        return null;
+      },
+
+      findParent(childId, nodes = state.nodes, parent = null) {
+        for (const node of nodes) {
+          if (node.id === childId) return parent;
+          const found = this.findParent(childId, node.children, node);
+          if (found !== null) return found;
+        }
+        return null;
+      },
+
+      remove(id, nodes = state.nodes) {
+        const index = nodes.findIndex(n => n.id === id);
+        if (index !== -1) {
+          nodes.splice(index, 1);
+          return true;
+        }
+        for (const node of nodes) {
+          if (this.remove(id, node.children)) return true;
+        }
+        return false;
+      },
+
+      addChild(parentId, node) {
+        if (!Validator.canAddNode()) {
+          UI.toast(`Maximum ${CONFIG.MAX_NODES} nodes reached`);
+          return false;
+        }
+        
+        if (!parentId) {
+          state.nodes.push(node);
+        } else {
+          const parent = this.find(parentId);
+          if (!parent) return false;
+          parent.children.push(node);
+        }
+        return true;
+      },
+
+      reorder(nodeId, direction) {
+        const parent = this.findParent(nodeId);
+        const siblings = parent ? parent.children : state.nodes;
+        const index = siblings.findIndex(n => n.id === nodeId);
+        
+        if (index === -1) return false;
+        
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= siblings.length) return false;
+        
+        [siblings[index], siblings[newIndex]] = [siblings[newIndex], siblings[index]];
+        return true;
+      },
+
+      move(nodeId, newParentId, position = -1) {
+        const node = this.find(nodeId);
+        if (!node) return false;
+        
+        if (newParentId && this.isDescendant(newParentId, nodeId)) {
+          UI.toast('Cannot move node into its own child');
+          return false;
+        }
+        
+        const nodeCopy = Utils.clone(node);
+        this.remove(nodeId);
+        
+        if (!newParentId) {
+          if (position >= 0 && position < state.nodes.length) {
+            state.nodes.splice(position, 0, nodeCopy);
+          } else {
+            state.nodes.push(nodeCopy);
+          }
+        } else {
+          const parent = this.find(newParentId);
+          if (!parent) return false;
+          
+          if (position >= 0 && position < parent.children.length) {
+            parent.children.splice(position, 0, nodeCopy);
+          } else {
+            parent.children.push(nodeCopy);
+          }
+        }
+        return true;
+      },
+
+      isDescendant(nodeId, ancestorId) {
+        const node = this.find(ancestorId);
+        if (!node) return false;
+        
+        const check = (children) => {
+          for (const child of children) {
+            if (child.id === nodeId) return true;
+            if (check(child.children)) return true;
+          }
+          return false;
+        };
+        
+        return check(node.children);
+      }
+    };
+
+    // ==================== HISTORY MANAGEMENT ====================
+    const History = {
+      save() {
+        state.history = state.history.slice(0, state.historyIndex + 1);
+        state.history.push(Utils.clone(state.nodes));
+        state.historyIndex++;
+        
+        if (state.history.length > CONFIG.MAX_HISTORY) {
+          state.history.shift();
+          state.historyIndex--;
+        }
+        
+        this.updateButtons();
+        Storage.autoSave();
+      },
+
+      undo() {
+        if (!state.canUndo()) return;
+        
+        state.historyIndex--;
+        state.nodes = Utils.clone(state.history[state.historyIndex]);
+        Renderer.render();
+        UI.toast('Undo');
+        this.updateButtons();
+      },
+
+      redo() {
+        if (!state.canRedo()) return;
+        
+        state.historyIndex++;
+        state.nodes = Utils.clone(state.history[state.historyIndex]);
+        Renderer.render();
+        UI.toast('Redo');
+        this.updateButtons();
+      },
+
+      updateButtons() {
+        Utils.$('#undo').disabled = !state.canUndo();
+        Utils.$('#redo').disabled = !state.canRedo();
+      }
+    };
+
+    // ==================== STORAGE ====================
+    const Storage = {
+      autoSave: Utils.debounce(() => {
+        try {
+          localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({
+            nodes: state.nodes,
+            version: '1.0',
+            timestamp: Date.now()
+          }));
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        }
+      }, CONFIG.AUTO_SAVE_DELAY),
+
+      load() {
+        try {
+          const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+          if (!saved) return false;
+          
+          const data = JSON.parse(saved);
+          if (!data.nodes || !Validator.isValidNodeArray(data.nodes)) {
+            throw new Error('Invalid data');
+          }
+          
+          state.nodes = data.nodes;
+          History.save();
+          Renderer.render();
+          UI.toast('Data restored');
+          return true;
+        } catch (error) {
+          console.error('Load failed:', error);
+          localStorage.removeItem(CONFIG.STORAGE_KEY);
+          return false;
+        }
+      }
+    };
+
+    // ==================== EXPORT/IMPORT ====================
+    const Exporter = {
+      toAscii() {
+        const lines = [];
+        
+        const walk = (node, level, isLast, prefix = '') => {
+          const type = NODE_TYPES[node.type];
+          const connector = isLast ? '└─' : '├─';
+          const childPrefix = prefix + (isLast ? '   ' : '│  ');
+          
+          if (level === 0) {
+            const title = ` ${node.title.toUpperCase()} `;
+            const width = Math.max(70, title.length + 4);
+            
+            lines.push('┌' + '─'.repeat(width - 2) + '┐');
+            lines.push('│' + title.padEnd(width - 2) + '│');
+            
+            if (node.meta) {
+              node.meta.split('\n').forEach(line => {
+                lines.push('│ ' + line.padEnd(width - 3) + '│');
+              });
+            }
+            
+            lines.push('└' + '─'.repeat(width - 2) + '┘');
+          } else {
+            lines.push(`${prefix}${connector}► ${node.title}`);
+            if (node.meta) {
+              node.meta.split('\n').forEach((line, i) => {
+                const c = i === node.meta.split('\n').length - 1 && node.children.length === 0 ? '   ' : '│  ';
+                lines.push(`${childPrefix}${c}${line}`);
+              });
+            }
+          }
+          
+          node.children.forEach((child, i) => {
+            walk(child, level + 1, i === node.children.length - 1, level === 0 ? '  ' : childPrefix);
+          });
+          
+          if (level === 0) lines.push('');
+        };
+        
+        state.nodes.forEach((node, i) => {
+          walk(node, 0, i === state.nodes.length - 1);
+        });
+        
+        return lines.join('\n') || '—';
+      },
+
+      toJson() {
+        return JSON.stringify(state.nodes, null, 2);
+      },
+
+      fromJson(str) {
+        try {
+          const data = JSON.parse(str);
+          
+          if (!Array.isArray(data) || !Validator.isValidNodeArray(data)) {
+            throw new Error('Invalid format');
+          }
+          
+          History.save();
+          state.nodes = data;
+          state.selectedId = null;
+          Renderer.render();
+          UI.toast('Import successful');
+          return true;
+        } catch (error) {
+          UI.toast('Import failed: ' + error.message);
+          return false;
+        }
+      }
+    };
+
+    // ==================== UI COMPONENTS ====================
+    const UI = {
+      toast(message, icon = 'check_circle') {
+        const toast = Utils.$('#toast');
+        const msgEl = Utils.$('#toastMsg');
+        const iconEl = toast.querySelector('.material-icons');
+        
+        iconEl.textContent = icon;
+        msgEl.textContent = message;
+        toast.classList.add('toast--visible');
+        
+        setTimeout(() => {
+          toast.classList.remove('toast--visible');
+        }, 3000);
+      },
+
+      modal(title, body, onConfirm = null) {
+        Utils.$('#modalTitle').textContent = title;
+        Utils.$('#modalBody').innerHTML = body;
+        Utils.$('#modal').classList.add('modal--visible');
+        
+        const confirmBtn = Utils.$('#modalConfirm');
+        if (onConfirm) {
+          confirmBtn.style.display = 'block';
+          confirmBtn.onclick = onConfirm;
+        } else {
+          confirmBtn.style.display = 'none';
+        }
+      },
+
+      closeModal() {
+        Utils.$('#modal').classList.remove('modal--visible');
+      },
+
+      setZoom(zoom) {
+        state.zoom = Math.max(CONFIG.MIN_ZOOM, Math.min(CONFIG.MAX_ZOOM, zoom));
+        Utils.$('#canvas').style.transform = `scale(${state.zoom})`;
+        Utils.$('#zoomLevel').textContent = Math.round(state.zoom * 100) + '%';
+      },
+
+      toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
+      }
+    };
+
+    // ==================== RENDERER ====================
+    const Renderer = {
+      render() {
+        this.renderPalette();
+        this.renderCanvas();
+        this.renderProps();
+        History.updateButtons();
+      },
+
+      renderPalette() {
+        const palette = Utils.$('#palette');
+        palette.innerHTML = Object.entries(NODE_TYPES).map(([type, info]) => `
+          <div class="palette__item" draggable="true" data-type="${type}">
+            <div class="palette__header">
+              <span class="material-icons">${info.icon}</span>
+              <span>${info.label}</span>
+            </div>
+            <div class="palette__desc">${info.desc}</div>
+          </div>
+        `).join('');
+        
+        Utils.$$('.palette__item').forEach(item => {
+          item.ondragstart = (e) => {
+            state.draggedType = item.dataset.type;
+            e.dataTransfer.effectAllowed = 'copy';
+          };
+          item.ondragend = () => state.draggedType = null;
+        });
+      },
+
+      renderCanvas() {
+        const canvas = Utils.$('#canvas');
+        
+        if (state.nodes.length === 0) {
+          canvas.className = 'canvas canvas--empty';
+          canvas.innerHTML = `
+            <div class="empty">
+              <div class="empty__icon">
+                <span class="material-icons" style="font-size: 64px;">account_tree</span>
+              </div>
+              <div class="empty__text">Your canvas is empty</div>
+              <div class="empty__hint">Click "Main" or drag items from the palette</div>
+            </div>
+          `;
+          
+          const zone = this.createDropZone(null, 0);
+          zone.classList.add('drop-zone--visible');
+          canvas.appendChild(zone);
+          return;
+        }
+        
+        canvas.className = 'canvas';
+        canvas.innerHTML = '';
+        
+        state.nodes.forEach((node, i) => {
+          canvas.appendChild(this.renderNode(node, null, i));
+        });
+        
+        const zone = this.createDropZone(null, state.nodes.length);
+        zone.classList.add('drop-zone--visible');
+        canvas.appendChild(zone);
+      },
+
+      renderNode(node, parentId, index) {
+        const wrap = document.createElement('div');
+        wrap.className = 'node-wrap';
+        wrap.dataset.nodeId = node.id;
+        
+        const el = document.createElement('div');
+        el.className = 'node';
+        el.dataset.id = node.id;
+        el.dataset.type = node.type;
+        
+        if (!parentId) el.classList.add('node--main');
+        if (state.selectedId === node.id) el.classList.add('node--selected');
+        
+        const type = NODE_TYPES[node.type];
+        const parent = NodeOps.findParent(node.id);
+        const siblings = parent ? parent.children : state.nodes;
+        const idx = siblings.findIndex(n => n.id === node.id);
+        
+        el.innerHTML = `
+          <div class="node__header">
+            <div class="node__drag" draggable="true">
+              <span class="material-icons">drag_indicator</span>
+            </div>
+            <div class="node__icon">
+              <span class="material-icons">${type.icon}</span>
+            </div>
+            <div class="node__content">
+              <div class="node__title" contenteditable="true" spellcheck="false">${Utils.esc(node.title)}</div>
+              ${node.meta ? `<div class="node__meta">${Utils.esc(node.meta)}</div>` : ''}
+            </div>
+            <div class="node__actions">
+              <div class="node__reorder">
+                <button class="node__reorder-btn" data-action="up" ${idx === 0 ? 'disabled' : ''}>
+                  <span class="material-icons">arrow_upward</span>
+                </button>
+                <button class="node__reorder-btn" data-action="down" ${idx === siblings.length - 1 ? 'disabled' : ''}>
+                  <span class="material-icons">arrow_downward</span>
+                </button>
+              </div>
+              <button class="node__btn" data-action="child">
+                <span class="material-icons" style="font-size: 16px;">add</span>
+                Child
+              </button>
+              <button class="node__btn" data-action="delete">
+                <span class="material-icons" style="font-size: 16px;">delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        wrap.appendChild(el);
+        
+        if (node.children.length > 0) {
+          const children = document.createElement('div');
+          children.className = 'children';
+          
+          node.children.forEach((child, i) => {
+            children.appendChild(this.renderNode(child, node.id, i));
+          });
+          
+          const zone = this.createDropZone(node.id, node.children.length);
+          zone.classList.add('drop-zone--visible');
+          children.appendChild(zone);
+          
+          wrap.appendChild(children);
+        }
+        
+        this.attachNodeEvents(el);
+        return wrap;
+      },
+
+      createDropZone(parentId, position) {
+        const zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.dataset.parentId = parentId || '';
+        zone.dataset.position = position;
+        zone.innerHTML = `
+          <div class="drop-zone__label">
+            <span class="material-icons">add_circle_outline</span>
+            <span>Drop here</span>
+          </div>
+        `;
+        
+        zone.ondragover = (e) => {
+          e.preventDefault();
+          zone.classList.add('drop-zone--over');
+        };
+        
+        zone.ondragleave = () => zone.classList.remove('drop-zone--over');
+        
+        zone.ondrop = (e) => {
+          e.preventDefault();
+          zone.classList.remove('drop-zone--over');
+          
+          const parentId = zone.dataset.parentId || null;
+          const pos = parseInt(zone.dataset.position);
+          
+          History.save();
+          
+          if (state.draggedNode) {
+            if (NodeOps.move(state.draggedNode, parentId, pos)) {
+              UI.toast('Node moved');
+            }
+          } else if (state.draggedType) {
+            const newNode = NodeOps.create(state.draggedType);
+            if (newNode) {
+              if (!parentId) {
+                state.nodes.splice(pos, 0, newNode);
+              } else {
+                const parent = NodeOps.find(parentId);
+                if (parent) parent.children.splice(pos, 0, newNode);
+              }
+              UI.toast('Node created');
+            }
+          }
+          
+          this.render();
+        };
+        
+        return zone;
+      },
+
+      attachNodeEvents(el) {
+        el.onclick = (e) => {
+          if (e.target.closest('.node__actions') || 
+              e.target.classList.contains('node__title') ||
+              e.target.closest('.node__drag')) return;
+          
+          state.selectedId = el.dataset.id;
+          this.render();
+        };
+        
+        const title = el.querySelector('.node__title');
+        const updateTitle = Utils.debounce((e) => {
+          const node = NodeOps.find(el.dataset.id);
+          if (node) {
+            node.title = e.target.textContent;
+            History.save();
+          }
+        }, CONFIG.DEBOUNCE_DELAY);
+        
+        title.oninput = updateTitle;
+        
+        Utils.$$('.node__btn', el).forEach(btn => {
+          btn.onclick = () => {
+            const action = btn.dataset.action;
+            const nodeId = el.dataset.id;
+            
+            if (action === 'child') {
+              History.save();
+              const node = NodeOps.find(nodeId);
+              if (node) {
+                node.children.push(NodeOps.create('step'));
+                this.render();
+                UI.toast('Child added');
+              }
+            } else if (action === 'delete') {
+              if (confirm('Delete this node and all children?')) {
+                History.save();
+                NodeOps.remove(nodeId);
+                if (state.selectedId === nodeId) state.selectedId = null;
+                this.render();
+                UI.toast('Node deleted', 'delete');
+              }
+            }
+          };
+        });
+        
+        Utils.$$('.node__reorder-btn', el).forEach(btn => {
+          btn.onclick = () => {
+            const direction = btn.dataset.action;
+            const nodeId = el.dataset.id;
+            
+            History.save();
+            if (NodeOps.reorder(nodeId, direction)) {
+              this.render();
+              UI.toast(`Moved ${direction}`);
+            }
+          };
+        });
+        
+        const handle = el.querySelector('.node__drag');
+        handle.ondragstart = (e) => {
+          e.stopPropagation();
+          state.draggedNode = el.dataset.id;
+          el.classList.add('node--dragging');
+        };
+        handle.ondragend = () => {
+          el.classList.remove('node--dragging');
+          state.draggedNode = null;
+        };
+      },
+
+      renderProps() {
+        const props = Utils.$('#props');
+        
+        if (!state.selectedId) {
+          props.innerHTML = `
+            <div class="empty">
+              <div class="empty__icon">
+                <span class="material-icons" style="font-size: 48px;">touch_app</span>
+              </div>
+              <div class="empty__text">Select a node</div>
+              <div class="empty__hint">Click any node to edit properties</div>
+            </div>
+          `;
+          return;
+        }
+        
+        const node = NodeOps.find(state.selectedId);
+        if (!node) {
+          state.selectedId = null;
+          this.renderProps();
+          return;
+        }
+        
+        props.innerHTML = `
+          <div class="prop-group">
+            <div class="prop-group__label">Type</div>
+            <div class="type-grid">
+              ${Object.entries(NODE_TYPES).map(([k, v]) => `
+                <div class="type-option ${node.type === k ? 'type-option--active' : ''}" data-type="${k}">
+                  <div class="type-option__icon">
+                    <span class="material-icons">${v.icon}</span>
+                  </div>
+                  <div class="type-option__label">${v.label}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group__label">Title</div>
+            <input type="text" class="prop-input" id="propTitle" value="${Utils.esc(node.title)}">
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group__label">Metadata / Notes</div>
+            <textarea class="prop-input prop-input--textarea" id="propMeta" placeholder="Add commands, notes, documentation...">${Utils.esc(node.meta)}</textarea>
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group__label">Node ID</div>
+            <input type="text" class="prop-input" value="${node.id}" readonly style="opacity:0.5">
+          </div>
+          
+          <div class="preview">
+            <div class="preview__title">ASCII Preview</div>
+            <div class="preview__content">${Exporter.toAscii()}</div>
+          </div>
+        `;
+        
+        Utils.$$('.type-option').forEach(opt => {
+          opt.onclick = () => {
+            node.type = opt.dataset.type;
+            History.save();
+            this.render();
+          };
+        });
+        
+        const titleInput = Utils.$('#propTitle');
+        const updateTitle = Utils.debounce((e) => {
+          node.title = e.target.value;
+          History.save();
+          this.render();
+        }, CONFIG.DEBOUNCE_DELAY);
+        titleInput.oninput = updateTitle;
+        
+        const metaInput = Utils.$('#propMeta');
+        const updateMeta = Utils.debounce((e) => {
+          node.meta = e.target.value;
+          History.save();
+          this.render();
+        }, CONFIG.DEBOUNCE_DELAY);
+        metaInput.oninput = updateMeta;
+      }
+    };
+
+    // ==================== EVENT HANDLERS ====================
+    const Handlers = {
+      init() {
+        // Theme toggle
+        Utils.$('#themeToggle').onclick = () => UI.toggleTheme();
+
+        // Main actions
+        Utils.$('#addMain').onclick = () => {
+          if (!Validator.canAddNode()) {
+            UI.toast(`Max ${CONFIG.MAX_NODES} nodes`, 'warning');
+            return;
+          }
+          History.save();
+          state.nodes.push(NodeOps.create('phase', 'New Phase'));
+          Renderer.render();
+          UI.toast('Main node added');
+        };
+
+        Utils.$('#loadSample').onclick = () => {
+          if (state.nodes.length > 0 && !confirm('Replace current data?')) return;
+          
+          History.save();
+          state.nodes = [
+            {
+              id: Utils.uid(), type: 'phase',
+              title: 'PHASE 01: SETUP',
+              meta: 'Initialize system',
+              children: [
+                { id: Utils.uid(), type: 'step', title: 'Check requirements', meta: 'lsb_release -a', children: [] },
+                { id: Utils.uid(), type: 'step', title: 'Install dependencies', meta: 'apt install -y docker', children: [] }
+              ]
+            },
+            {
+              id: Utils.uid(), type: 'phase',
+              title: 'PHASE 02: DEPLOY',
+              meta: 'Deploy application',
+              children: [
+                { id: Utils.uid(), type: 'api', title: 'Fetch config', meta: 'GET /api/config', children: [] },
+                { id: Utils.uid(), type: 'step', title: 'Start services', meta: 'docker-compose up -d', children: [] }
+              ]
+            }
+          ];
+          
+          Renderer.render();
+          UI.toast('Sample loaded');
+        };
+
+        Utils.$('#exportAscii').onclick = () => {
+          const ascii = Exporter.toAscii();
+          navigator.clipboard.writeText(ascii).then(() => {
+            UI.toast('ASCII copied!');
+          }).catch(() => {
+            UI.modal('ASCII Export', `<pre style="background:var(--color-hover);padding:16px;border-radius:8px;overflow:auto;max-height:60vh;font-family:monospace;font-size:11px;border:1px solid var(--color-border);">${Utils.esc(ascii)}</pre>`);
+          });
+        };
+
+        Utils.$('#exportJson').onclick = () => {
+          const json = Exporter.toJson();
+          navigator.clipboard.writeText(json).then(() => {
+            UI.toast('JSON copied!');
+          }).catch(() => {
+            UI.modal('JSON Export', `<pre style="background:var(--color-hover);padding:16px;border-radius:8px;overflow:auto;max-height:60vh;font-family:monospace;font-size:11px;border:1px solid var(--color-border);">${Utils.esc(json)}</pre>`);
+          });
+        };
+
+        Utils.$('#importJson').onclick = () => {
+          const body = `
+            <div style="margin-bottom:12px;opacity:0.7;font-size:13px;">
+              Paste JSON data:
+            </div>
+            <textarea id="importData" style="width:100%;min-height:300px;background:var(--color-secondary);color:var(--color-primary);border:1px solid var(--color-border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;" placeholder='[{"id":"...","type":"phase",...}]'></textarea>
+          `;
+          
+          UI.modal('Import JSON', body, () => {
+            const data = Utils.$('#importData').value;
+            if (data.trim() && Exporter.fromJson(data)) {
+              UI.closeModal();
+            }
+          });
+        };
+
+        Utils.$('#undo').onclick = () => History.undo();
+        Utils.$('#redo').onclick = () => History.redo();
+
+        Utils.$('#clearAll').onclick = () => {
+          if (confirm('Clear all nodes? This cannot be undone.')) {
+            History.save();
+            state.nodes = [];
+            state.selectedId = null;
+            Renderer.render();
+            UI.toast('Canvas cleared', 'delete');
+          }
+        };
+
+        Utils.$('#zoomIn').onclick = () => UI.setZoom(state.zoom + CONFIG.ZOOM_STEP);
+        Utils.$('#zoomOut').onclick = () => UI.setZoom(state.zoom - CONFIG.ZOOM_STEP);
+        Utils.$('#zoomReset').onclick = () => UI.setZoom(1);
+
+        // Modal
+        Utils.$('#modalCancel').onclick = () => UI.closeModal();
+        Utils.$('#modal').onclick = (e) => {
+          if (e.target === Utils.$('#modal')) UI.closeModal();
+        };
+
+        // Keyboard shortcuts
+        document.onkeydown = (e) => {
+          const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) ||
+                          document.activeElement.contentEditable === 'true';
+          
+          if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            History.undo();
+          }
+          
+          if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y')) {
+            e.preventDefault();
+            History.redo();
+          }
+          
+          if (e.key === 'Delete' && state.selectedId && !isInput) {
+            if (confirm('Delete node?')) {
+              History.save();
+              NodeOps.remove(state.selectedId);
+              state.selectedId = null;
+              Renderer.render();
+            }
+          }
+          
+          if (e.key === 'Escape') {
+            state.selectedId = null;
+            Renderer.render();
+          }
+          
+          if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            Utils.$('#exportJson').click();
+          }
+        };
+      }
+    };
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      console.log('%c🚀 TUI Builder v1.0', 'font-size:20px;font-weight:bold');
+      
+      // Apply theme
+      document.documentElement.setAttribute('data-theme', state.theme);
+      
+      // Load auto-saved data
+      if (!Storage.load()) {
+        History.save();
+      }
+      
+      // Render initial state
+      Renderer.render();
+      
+      // Attach event handlers
+      Handlers.init();
+      
+      // Error handling
+      window.onerror = (msg, url, line, col, error) => {
+        console.error('Error:', error);
+        UI.toast('An error occurred', 'error');
+        return true;
+      };
+      
+      window.onunhandledrejection = (e) => {
+        console.error('Promise rejection:', e.reason);
+        UI.toast('An error occurred', 'error');
+      };
+    }
+
+    // Start the application
+    init();
+  </script>
+</body>
+</html>
