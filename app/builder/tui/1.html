@@ -159,6 +159,13 @@
       flex-direction: column;
       overflow-y: auto;
       contain: layout style paint;
+      transition: transform var(--transition), width var(--transition);
+    }
+
+    .sidebar--collapsed {
+      transform: translateX(-100%);
+      width: 0;
+      border: none;
     }
 
     .sidebar__title {
@@ -528,6 +535,13 @@
       flex-direction: column;
       overflow-y: auto;
       contain: layout style paint;
+      transition: transform var(--transition), width var(--transition);
+    }
+
+    .props--collapsed {
+      transform: translateX(100%);
+      width: 0;
+      border: none;
     }
 
     .props__title {
@@ -543,7 +557,11 @@
     }
 
     .props__content {
-      padding: var(--spacing-lg);
+      flex: 1;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .prop-group {
@@ -621,11 +639,15 @@
     }
 
     .preview {
-      background: var(--color-hover);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 0;
       padding: var(--spacing-md);
-      margin-top: var(--spacing-lg);
+      background: var(--color-secondary);
+      border: none;
+      border-radius: 0;
     }
 
     .preview__title {
@@ -637,13 +659,13 @@
     }
 
     .preview__content {
+      flex: 1;
       background: var(--color-secondary);
       padding: var(--spacing-md);
       border-radius: var(--radius-sm);
       font-family: 'Courier New', monospace;
       font-size: var(--font-sm);
       white-space: pre-wrap;
-      max-height: 400px;
       overflow-y: auto;
       border: 1px solid var(--color-border);
     }
@@ -843,10 +865,13 @@
       </div>
 
       <!-- Properties -->
-      <aside class="props">
+      <aside class="props" id="propsPanel">
         <div class="props__title">
-          <span class="material-icons">settings</span>
-          Properties
+          <span class="material-icons">visibility</span>
+          Preview
+          <button class="btn btn--icon" id="toggleProps" style="margin-left: auto;" title="Toggle Preview">
+            <span class="material-icons btn__icon">close</span>
+          </button>
         </div>
         <div class="props__content" id="props"></div>
       </aside>
@@ -1311,23 +1336,96 @@
 
       renderPalette() {
         const palette = Utils.$('#palette');
-        palette.innerHTML = Object.entries(NODE_TYPES).map(([type, info]) => `
-          <div class="palette__item" draggable="true" data-type="${type}">
-            <div class="palette__header">
-              <span class="material-icons">${info.icon}</span>
-              <span>${info.label}</span>
-            </div>
-            <div class="palette__desc">${info.desc}</div>
-          </div>
-        `).join('');
         
-        Utils.$$('.palette__item').forEach(item => {
-          item.ondragstart = (e) => {
-            state.draggedType = item.dataset.type;
+        // Universal Node item + properties editor
+        palette.innerHTML = `
+          <div class="palette__item" draggable="true" data-type="step">
+            <div class="palette__header">
+              <span class="material-icons">auto_awesome</span>
+              <span>Node</span>
+            </div>
+            <div class="palette__desc">Universal node</div>
+          </div>
+          
+          ${!state.selectedId ? '' : `
+            <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); border-top: 2px solid var(--color-border);">
+              <div style="font-weight: 600; font-size: var(--font-sm); margin-bottom: var(--spacing-md); text-transform: uppercase; opacity: 0.7;">Node Editor</div>
+              
+              <div class="prop-group">
+                <div class="prop-group__label">Type</div>
+                <div class="type-grid">
+                  ${Object.entries(NODE_TYPES).map(([k, v]) => `
+                    <div class="type-option ${NodeOps.find(state.selectedId)?.type === k ? 'type-option--active' : ''}" data-type="${k}">
+                      <div class="type-option__icon">
+                        <span class="material-icons">${v.icon}</span>
+                      </div>
+                      <div class="type-option__label">${v.label}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              
+              <div class="prop-group">
+                <div class="prop-group__label">Title</div>
+                <input type="text" class="prop-input" id="sidebarPropTitle" value="${Utils.esc(NodeOps.find(state.selectedId)?.title || '')}">
+              </div>
+              
+              <div class="prop-group">
+                <div class="prop-group__label">Metadata</div>
+                <textarea class="prop-input prop-input--textarea" id="sidebarPropMeta" placeholder="Commands, notes...">${Utils.esc(NodeOps.find(state.selectedId)?.meta || '')}</textarea>
+              </div>
+              
+              <div class="prop-group">
+                <div class="prop-group__label">Node ID</div>
+                <input type="text" class="prop-input" value="${state.selectedId}" readonly style="opacity:0.5; font-size: 10px;">
+              </div>
+            </div>
+          `}
+        `;
+        
+        // Drag handler
+        const paletteItem = Utils.$('.palette__item');
+        if (paletteItem) {
+          paletteItem.ondragstart = (e) => {
+            state.draggedType = 'step';
             e.dataTransfer.effectAllowed = 'copy';
           };
-          item.ondragend = () => state.draggedType = null;
-        });
+          paletteItem.ondragend = () => state.draggedType = null;
+        }
+        
+        // Type selector handlers
+        if (state.selectedId) {
+          const node = NodeOps.find(state.selectedId);
+          if (node) {
+            Utils.$('.type-option').forEach(opt => {
+              opt.onclick = () => {
+                node.type = opt.dataset.type;
+                History.save();
+                this.render();
+              };
+            });
+            
+            const titleInput = Utils.$('#sidebarPropTitle');
+            if (titleInput) {
+              const updateTitle = Utils.debounce((e) => {
+                node.title = e.target.value;
+                History.save();
+                this.render();
+              }, CONFIG.DEBOUNCE_DELAY);
+              titleInput.oninput = updateTitle;
+            }
+            
+            const metaInput = Utils.$('#sidebarPropMeta');
+            if (metaInput) {
+              const updateMeta = Utils.debounce((e) => {
+                node.meta = e.target.value;
+                History.save();
+                this.render();
+              }, CONFIG.DEBOUNCE_DELAY);
+              metaInput.oninput = updateMeta;
+            }
+          }
+        }
       },
 
       renderCanvas() {
@@ -1506,8 +1604,11 @@
         
         title.oninput = updateTitle;
         
-        Utils.$$('.node__btn', el).forEach(btn => {
-          btn.onclick = () => {
+        // Fix: Use el.querySelectorAll instead of Utils.$
+        const nodeBtns = el.querySelectorAll('.node__btn');
+        nodeBtns.forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
             const action = btn.dataset.action;
             const nodeId = el.dataset.id;
             
@@ -1515,9 +1616,12 @@
               History.save();
               const node = NodeOps.find(nodeId);
               if (node) {
-                node.children.push(NodeOps.create('step'));
-                this.render();
-                UI.toast('Child added');
+                const newChild = NodeOps.create('step');
+                if (newChild) {
+                  node.children.push(newChild);
+                  this.render();
+                  UI.toast('Child added');
+                }
               }
             } else if (action === 'delete') {
               if (confirm('Delete this node and all children?')) {
@@ -1531,8 +1635,11 @@
           };
         });
         
-        Utils.$$('.node__reorder-btn', el).forEach(btn => {
-          btn.onclick = () => {
+        // Fix: Use el.querySelectorAll instead of Utils.$
+        const reorderBtns = el.querySelectorAll('.node__reorder-btn');
+        reorderBtns.forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
             const direction = btn.dataset.action;
             const nodeId = el.dataset.id;
             
@@ -1545,15 +1652,17 @@
         });
         
         const handle = el.querySelector('.node__drag');
-        handle.ondragstart = (e) => {
-          e.stopPropagation();
-          state.draggedNode = el.dataset.id;
-          el.classList.add('node--dragging');
-        };
-        handle.ondragend = () => {
-          el.classList.remove('node--dragging');
-          state.draggedNode = null;
-        };
+        if (handle) {
+          handle.ondragstart = (e) => {
+            e.stopPropagation();
+            state.draggedNode = el.dataset.id;
+            el.classList.add('node--dragging');
+          };
+          handle.ondragend = () => {
+            el.classList.remove('node--dragging');
+            state.draggedNode = null;
+          };
+        }
       },
 
       renderProps() {
@@ -1561,12 +1670,9 @@
         
         if (!state.selectedId) {
           props.innerHTML = `
-            <div class="empty">
-              <div class="empty__icon">
-                <span class="material-icons" style="font-size: 48px;">touch_app</span>
-              </div>
-              <div class="empty__text">Select a node</div>
-              <div class="empty__hint">Click any node to edit properties</div>
+            <div class="preview">
+              <div class="preview__title">ASCII Preview</div>
+              <div class="preview__content">${Exporter.toAscii()}</div>
             </div>
           `;
           return;
@@ -1580,64 +1686,11 @@
         }
         
         props.innerHTML = `
-          <div class="prop-group">
-            <div class="prop-group__label">Type</div>
-            <div class="type-grid">
-              ${Object.entries(NODE_TYPES).map(([k, v]) => `
-                <div class="type-option ${node.type === k ? 'type-option--active' : ''}" data-type="${k}">
-                  <div class="type-option__icon">
-                    <span class="material-icons">${v.icon}</span>
-                  </div>
-                  <div class="type-option__label">${v.label}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          
-          <div class="prop-group">
-            <div class="prop-group__label">Title</div>
-            <input type="text" class="prop-input" id="propTitle" value="${Utils.esc(node.title)}">
-          </div>
-          
-          <div class="prop-group">
-            <div class="prop-group__label">Metadata / Notes</div>
-            <textarea class="prop-input prop-input--textarea" id="propMeta" placeholder="Add commands, notes, documentation...">${Utils.esc(node.meta)}</textarea>
-          </div>
-          
-          <div class="prop-group">
-            <div class="prop-group__label">Node ID</div>
-            <input type="text" class="prop-input" value="${node.id}" readonly style="opacity:0.5">
-          </div>
-          
           <div class="preview">
             <div class="preview__title">ASCII Preview</div>
             <div class="preview__content">${Exporter.toAscii()}</div>
           </div>
         `;
-        
-        Utils.$$('.type-option').forEach(opt => {
-          opt.onclick = () => {
-            node.type = opt.dataset.type;
-            History.save();
-            this.render();
-          };
-        });
-        
-        const titleInput = Utils.$('#propTitle');
-        const updateTitle = Utils.debounce((e) => {
-          node.title = e.target.value;
-          History.save();
-          this.render();
-        }, CONFIG.DEBOUNCE_DELAY);
-        titleInput.oninput = updateTitle;
-        
-        const metaInput = Utils.$('#propMeta');
-        const updateMeta = Utils.debounce((e) => {
-          node.meta = e.target.value;
-          History.save();
-          this.render();
-        }, CONFIG.DEBOUNCE_DELAY);
-        metaInput.oninput = updateMeta;
       }
     };
 
@@ -1738,6 +1791,12 @@
         Utils.$('#zoomIn').onclick = () => UI.setZoom(state.zoom + CONFIG.ZOOM_STEP);
         Utils.$('#zoomOut').onclick = () => UI.setZoom(state.zoom - CONFIG.ZOOM_STEP);
         Utils.$('#zoomReset').onclick = () => UI.setZoom(1);
+
+        // Toggle Preview Panel
+        Utils.$('#toggleProps').onclick = () => {
+          const panel = Utils.$('#propsPanel');
+          panel.classList.toggle('props--collapsed');
+        };
 
         // Modal
         Utils.$('#modalCancel').onclick = () => UI.closeModal();
