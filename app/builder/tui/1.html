@@ -3,120 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TUI Builder - Terminal UI Flow Builder</title>
+  <title>TUI Builder - Optimized</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* ==================== CSS VARIABLES & THEME ==================== */
+    /* ==================== CSS VARIABLES ==================== */
     :root {
-      --color-primary: #000;
-      --color-secondary: #fff;
-      --color-border: #e0e0e0;
-      --color-shadow: rgba(0, 0, 0, 0.1);
-      --color-hover: rgba(0, 0, 0, 0.05);
-      --color-active: rgba(0, 0, 0, 0.1);
-      --spacing-xs: 4px;
-      --spacing-sm: 8px;
-      --spacing-md: 12px;
-      --spacing-lg: 16px;
-      --spacing-xl: 24px;
-      --radius-sm: 4px;
-      --radius-md: 8px;
-      --font-sm: 11px;
-      --font-md: 13px;
-      --font-lg: 15px;
+      --c-primary: #000;
+      --c-secondary: #fff;
+      --border: #e0e0e0;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --hover: rgba(0, 0, 0, 0.05);
+      --active: rgba(0, 0, 0, 0.1);
+      --spacing: 8px;
+      --radius: 6px;
+      --font-sm: 12px;
+      --font-md: 14px;
+      --font-lg: 16px;
       --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [data-theme="dark"] {
-      --color-primary: #fff;
-      --color-secondary: #000;
-      --color-border: #333;
-      --color-shadow: rgba(255, 255, 255, 0.1);
-      --color-hover: rgba(255, 255, 255, 0.05);
-      --color-active: rgba(255, 255, 255, 0.1);
+      --c-primary: #fff;
+      --c-secondary: #000;
+      --border: #333;
+      --shadow: rgba(255, 255, 255, 0.1);
+      --hover: rgba(255, 255, 255, 0.05);
+      --active: rgba(255, 255, 255, 0.1);
     }
 
-    /* ==================== RESET & BASE ==================== */
-    *, *::before, *::after {
+    /* ==================== RESET ==================== */
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--color-secondary);
-      color: var(--color-primary);
-      line-height: 1.6;
-      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--c-secondary);
+      color: var(--c-primary);
+      line-height: 1.5;
       height: 100vh;
+      overflow: hidden;
     }
 
     /* ==================== LAYOUT ==================== */
     .app {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: auto 1fr;
       height: 100vh;
-      contain: layout style paint;
     }
 
-    .app__header {
-      background: var(--color-secondary);
-      border-bottom: 2px solid var(--color-primary);
-      padding: var(--spacing-md) var(--spacing-lg);
+    .header {
+      background: var(--c-secondary);
+      border-bottom: 2px solid var(--c-primary);
+      padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
+      gap: calc(var(--spacing) * 2);
       z-index: 100;
-      will-change: border-color;
     }
 
-    .app__main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      contain: layout style paint;
-    }
-
-    /* ==================== LOGO ==================== */
     .logo {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
-      font-size: var(--font-lg);
+      gap: var(--spacing);
       font-weight: 700;
-      user-select: none;
+      font-size: var(--font-lg);
     }
 
-    .logo__icon {
-      font-size: 20px;
+    .actions {
+      margin-left: auto;
+      display: flex;
+      gap: var(--spacing);
+      flex-wrap: wrap;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      overflow: hidden;
     }
 
     /* ==================== BUTTONS ==================== */
     .btn {
-      background: var(--color-secondary);
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-sm);
+      background: var(--c-secondary);
+      color: var(--c-primary);
+      border: 1px solid var(--c-primary);
+      padding: var(--spacing) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
       font-size: var(--font-sm);
       font-weight: 500;
       cursor: pointer;
       transition: all var(--transition);
       display: inline-flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: calc(var(--spacing) / 2);
       white-space: nowrap;
+      font-family: inherit;
     }
 
     .btn:hover:not(:disabled) {
-      background: var(--color-hover);
+      background: var(--hover);
       transform: translateY(-1px);
     }
 
     .btn:active:not(:disabled) {
       transform: translateY(0);
-      background: var(--color-active);
     }
 
     .btn:disabled {
@@ -125,78 +118,59 @@
     }
 
     .btn--primary {
-      background: var(--color-primary);
-      color: var(--color-secondary);
-    }
-
-    .btn--primary:hover:not(:disabled) {
-      opacity: 0.9;
+      background: var(--c-primary);
+      color: var(--c-secondary);
     }
 
     .btn--icon {
-      padding: var(--spacing-sm);
-      min-width: 32px;
-      justify-content: center;
-    }
-
-    .btn__icon {
-      font-size: 18px;
-    }
-
-    .actions {
-      margin-left: auto;
-      display: flex;
-      gap: var(--spacing-sm);
-      flex-wrap: wrap;
+      padding: var(--spacing);
+      aspect-ratio: 1;
     }
 
     /* ==================== SIDEBAR ==================== */
     .sidebar {
-      width: 260px;
-      background: var(--color-secondary);
-      border-right: 2px solid var(--color-primary);
+      width: 280px;
+      background: var(--c-secondary);
+      border-right: 2px solid var(--c-primary);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      contain: layout style paint;
-      transition: transform var(--transition), width var(--transition);
+      transition: margin-left var(--transition), width var(--transition);
     }
 
     .sidebar--collapsed {
-      transform: translateX(-100%);
+      margin-left: -280px;
       width: 0;
-      border: none;
     }
 
-    .sidebar__title {
-      padding: var(--spacing-lg);
-      border-bottom: 1px solid var(--color-border);
+    .sidebar__header {
+      padding: calc(var(--spacing) * 2);
+      border-bottom: 1px solid var(--border);
       font-weight: 600;
       font-size: var(--font-sm);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: var(--spacing);
     }
 
     .palette {
-      padding: var(--spacing-md);
+      padding: calc(var(--spacing) * 1.5);
     }
 
     .palette__item {
-      background: var(--color-secondary);
-      border: 2px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-md);
-      margin-bottom: var(--spacing-sm);
+      background: var(--c-secondary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 1.5);
       cursor: grab;
       transition: all var(--transition);
       user-select: none;
     }
 
     .palette__item:hover {
-      border-color: var(--color-primary);
+      border-color: var(--c-primary);
       transform: translateX(4px);
     }
 
@@ -207,85 +181,231 @@
     .palette__header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: var(--spacing);
       font-weight: 600;
       font-size: var(--font-md);
-      margin-bottom: var(--spacing-xs);
     }
 
     .palette__desc {
       font-size: var(--font-sm);
       opacity: 0.6;
-      padding-left: 28px;
+      margin-left: calc(var(--spacing) * 3.5);
+    }
+
+    /* ==================== EDITOR ==================== */
+    .editor {
+      margin-top: calc(var(--spacing) * 2);
+      padding: calc(var(--spacing) * 2);
+      border-top: 2px solid var(--border);
+    }
+
+    .editor__title {
+      font-weight: 600;
+      font-size: var(--font-sm);
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: calc(var(--spacing) * 1.5);
+    }
+
+    .field {
+      margin-bottom: calc(var(--spacing) * 2);
+    }
+
+    .field__label {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: calc(var(--spacing) / 2);
+    }
+
+    .field__input {
+      width: 100%;
+      background: var(--c-secondary);
+      color: var(--c-primary);
+      border: 1px solid var(--border);
+      padding: var(--spacing) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
+      font-size: var(--font-md);
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .field__input:focus {
+      outline: none;
+      border-color: var(--c-primary);
+      box-shadow: 0 0 0 2px var(--active);
+    }
+
+    .field__input--textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+      font-size: var(--font-sm);
+    }
+
+    /* ==================== ICON PICKER ==================== */
+    .icon-picker {
+      position: relative;
+    }
+
+    .icon-picker__display {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      background: var(--c-secondary);
+      border: 1px solid var(--border);
+      padding: var(--spacing);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .icon-picker__display:hover {
+      border-color: var(--c-primary);
+    }
+
+    .icon-picker__preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--hover);
+      border-radius: var(--radius);
+    }
+
+    .icon-picker__label {
+      flex: 1;
+      font-size: var(--font-md);
+    }
+
+    .icon-picker__dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: calc(var(--spacing) / 2);
+      background: var(--c-secondary);
+      border: 2px solid var(--c-primary);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px var(--shadow);
+      z-index: 100;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .icon-picker__dropdown--open {
+      display: block;
+    }
+
+    .icon-picker__search {
+      position: sticky;
+      top: 0;
+      background: var(--c-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing);
+    }
+
+    .icon-picker__search-input {
+      width: 100%;
+      padding: var(--spacing);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--c-secondary);
+      color: var(--c-primary);
+      font-size: var(--font-sm);
+    }
+
+    .icon-picker__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+      gap: calc(var(--spacing) / 2);
+      padding: var(--spacing);
+    }
+
+    .icon-picker__item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--c-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .icon-picker__item:hover {
+      background: var(--hover);
+      border-color: var(--c-primary);
+    }
+
+    .icon-picker__item--selected {
+      background: var(--c-primary);
+      color: var(--c-secondary);
+      border-color: var(--c-primary);
     }
 
     /* ==================== CANVAS ==================== */
     .canvas-wrap {
-      flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      contain: layout style paint;
     }
 
     .toolbar {
-      background: var(--color-secondary);
-      border-bottom: 1px solid var(--color-border);
-      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--c-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing) calc(var(--spacing) * 2);
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
+      gap: calc(var(--spacing) * 1.5);
     }
 
     .zoom {
       display: flex;
-      gap: var(--spacing-xs);
       align-items: center;
+      gap: calc(var(--spacing) / 2);
     }
 
     .zoom__level {
       font-size: var(--font-sm);
       min-width: 50px;
       text-align: center;
-      font-weight: 500;
       font-family: monospace;
     }
 
-    .toolbar__hint {
+    .hint {
       margin-left: auto;
       font-size: var(--font-sm);
       opacity: 0.6;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
     }
 
     .canvas-container {
       flex: 1;
       overflow: auto;
       background-image: 
-        linear-gradient(var(--color-border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
       background-size: 20px 20px;
       background-position: -1px -1px;
-      contain: layout style paint;
     }
 
     .canvas {
-      min-height: 100%;
-      padding: var(--spacing-xl);
+      min-width: 3000px;
+      min-height: 2000px;
+      padding: calc(var(--spacing) * 6);
       transform-origin: top left;
       transition: transform var(--transition);
       will-change: transform;
     }
 
-    .canvas--empty {
-      position: relative;
-    }
-
-    .empty {
+    .empty-state {
       position: absolute;
-      top: 40%;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
@@ -293,47 +413,36 @@
       pointer-events: none;
     }
 
-    .empty__icon {
+    .empty-state__icon {
       font-size: 64px;
-      margin-bottom: var(--spacing-md);
-    }
-
-    .empty__text {
-      font-size: var(--font-lg);
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .empty__hint {
-      font-size: var(--font-sm);
-      opacity: 0.6;
+      margin-bottom: var(--spacing);
     }
 
     /* ==================== NODE ==================== */
     .node-wrap {
-      margin: var(--spacing-lg) 0;
+      margin: calc(var(--spacing) * 2) 0;
       position: relative;
-      contain: layout style;
     }
 
     .node {
-      background: var(--color-secondary);
-      border: 2px solid var(--color-primary);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-lg);
+      background: var(--c-secondary);
+      border: 2px solid var(--c-primary);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 2);
       min-width: 300px;
       max-width: 600px;
       transition: all var(--transition);
-      box-shadow: 0 2px 8px var(--color-shadow);
-      will-change: border-color, box-shadow;
+      box-shadow: 0 2px 8px var(--shadow);
+      contain: layout style;
     }
 
     .node:hover {
-      box-shadow: 0 4px 12px var(--color-shadow);
+      box-shadow: 0 4px 12px var(--shadow);
     }
 
     .node--selected {
       border-width: 3px;
-      box-shadow: 0 0 0 3px var(--color-active);
+      box-shadow: 0 0 0 3px var(--active);
     }
 
     .node--dragging {
@@ -347,29 +456,22 @@
     .node__header {
       display: flex;
       align-items: flex-start;
-      gap: var(--spacing-md);
+      gap: calc(var(--spacing) * 1.5);
     }
 
     .node__drag {
       cursor: move;
-      padding: var(--spacing-xs);
       opacity: 0.3;
       transition: opacity var(--transition);
       font-size: 18px;
-      line-height: 1;
     }
 
     .node:hover .node__drag {
       opacity: 0.6;
     }
 
-    .node__drag:hover {
-      opacity: 1;
-    }
-
     .node__icon {
       font-size: 24px;
-      line-height: 1;
     }
 
     .node__content {
@@ -377,34 +479,54 @@
       min-width: 0;
     }
 
-    .node__title {
+    .node__title-display {
+      font-size: var(--font-lg);
+      font-weight: 600;
+      padding: calc(var(--spacing) / 2) var(--spacing);
+      border-radius: var(--radius);
+      cursor: pointer;
+      word-wrap: break-word;
+      text-align: left;
+      width: 100%;
+      transition: all var(--transition);
+    }
+
+    .node__title-display:hover {
+      background: var(--hover);
+    }
+
+    .node__title-input {
       font-size: var(--font-lg);
       font-weight: 600;
       outline: none;
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-sm);
-      border: 1px solid transparent;
-      transition: all var(--transition);
-      cursor: text;
-      word-wrap: break-word;
-      min-height: 28px;
+      padding: calc(var(--spacing) / 2) var(--spacing);
+      border-radius: var(--radius);
+      border: 2px solid var(--c-primary);
+      background: var(--active);
+      color: var(--c-primary);
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      box-shadow: 0 0 0 2px var(--active);
+    }
+    
+    .node__title-input::placeholder {
+      opacity: 0.5;
     }
 
-    .node__title:hover {
-      background: var(--color-hover);
-    }
-
-    .node__title:focus {
-      background: var(--color-active);
-      border-color: var(--color-primary);
+    .node__title-hint {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-top: 4px;
+      font-style: italic;
     }
 
     .node__meta {
       font-size: var(--font-sm);
-      margin-top: var(--spacing-sm);
-      padding: var(--spacing-sm);
-      background: var(--color-hover);
-      border-radius: var(--radius-sm);
+      margin-top: var(--spacing);
+      padding: var(--spacing);
+      background: var(--hover);
+      border-radius: var(--radius);
       font-family: 'Courier New', monospace;
       white-space: pre-wrap;
       word-break: break-word;
@@ -412,26 +534,26 @@
 
     .node__actions {
       display: flex;
-      gap: var(--spacing-xs);
-      opacity: 1;
+      gap: calc(var(--spacing) / 2);
     }
 
     .node__btn {
-      background: var(--color-secondary);
-      border: 1px solid var(--color-border);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-sm);
+      background: var(--c-secondary);
+      color: var(--c-primary);
+      border: 1px solid var(--border);
+      padding: calc(var(--spacing) / 2) var(--spacing);
+      border-radius: var(--radius);
       font-size: var(--font-sm);
       cursor: pointer;
       transition: all var(--transition);
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: calc(var(--spacing) / 2);
     }
 
     .node__btn:hover {
-      border-color: var(--color-primary);
-      background: var(--color-hover);
+      border-color: var(--c-primary);
+      background: var(--hover);
     }
 
     .node__reorder {
@@ -442,9 +564,9 @@
     .node__reorder-btn {
       width: 24px;
       height: 24px;
-      background: var(--color-secondary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
+      background: var(--c-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -454,8 +576,8 @@
     }
 
     .node__reorder-btn:hover:not(:disabled) {
-      border-color: var(--color-primary);
-      background: var(--color-hover);
+      border-color: var(--c-primary);
+      background: var(--hover);
     }
 
     .node__reorder-btn:disabled {
@@ -466,9 +588,9 @@
     /* ==================== CHILDREN ==================== */
     .children {
       margin-left: 40px;
-      margin-top: var(--spacing-md);
-      padding-left: var(--spacing-lg);
-      border-left: 2px solid var(--color-border);
+      margin-top: calc(var(--spacing) * 1.5);
+      padding-left: calc(var(--spacing) * 2);
+      border-left: 2px solid var(--border);
       position: relative;
     }
 
@@ -479,7 +601,7 @@
       top: 0;
       bottom: 0;
       width: 2px;
-      background: var(--color-primary);
+      background: var(--c-primary);
       opacity: 0;
       transition: opacity var(--transition);
     }
@@ -491,242 +613,117 @@
     /* ==================== DROP ZONE ==================== */
     .drop-zone {
       min-height: 50px;
-      border: 2px dashed var(--color-border);
-      border-radius: var(--radius-md);
-      margin: var(--spacing-md) 0;
+      border: 3px dashed var(--border);
+      border-radius: var(--radius);
+      margin: calc(var(--spacing) * 1.5) 0;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all var(--transition);
-      opacity: 0.3;
+      opacity: 0.6;
+      background: var(--hover);
     }
 
     .drop-zone--visible {
       opacity: 1;
+      border-width: 3px;
     }
 
     .drop-zone--over {
-      border-color: var(--color-primary);
-      background: var(--color-hover);
+      border-color: var(--c-primary);
+      background: var(--active);
       border-style: solid;
       opacity: 1;
+      border-width: 4px;
+      transform: scale(1.02);
     }
 
     .drop-zone__label {
       font-size: var(--font-sm);
-      opacity: 0.5;
+      opacity: 0.7;
       pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .drop-zone--over .drop-zone__label {
+      opacity: 1;
+      font-weight: 700;
     }
 
-    /* ==================== PROPERTIES ==================== */
-    .props {
+    /* ==================== PREVIEW ==================== */
+    .preview-panel {
       width: 320px;
-      background: var(--color-secondary);
-      border-left: 2px solid var(--color-primary);
+      background: var(--c-secondary);
+      border-left: 2px solid var(--c-primary);
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      contain: layout style paint;
-      transition: transform var(--transition), width var(--transition);
+      transition: margin-right var(--transition), width var(--transition);
     }
 
-    .props--collapsed {
-      transform: translateX(100%);
+    .preview-panel--collapsed {
+      margin-right: -320px;
       width: 0;
-      border: none;
     }
 
-    .props__title {
-      padding: var(--spacing-lg);
-      border-bottom: 1px solid var(--color-border);
+    .preview-panel__header {
+      padding: calc(var(--spacing) * 2);
+      border-bottom: 1px solid var(--border);
       font-weight: 600;
       font-size: var(--font-sm);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
-    }
-
-    .props__content {
-      flex: 1;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .prop-group {
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .prop-group__label {
-      font-size: var(--font-sm);
-      font-weight: 600;
-      margin-bottom: var(--spacing-sm);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      opacity: 0.7;
-    }
-
-    .prop-input {
-      width: 100%;
-      background: var(--color-secondary);
-      border: 1px solid var(--color-border);
-      color: var(--color-primary);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-md);
-      transition: all var(--transition);
-      font-family: inherit;
-    }
-
-    .prop-input:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 2px var(--color-active);
-    }
-
-    .prop-input--textarea {
-      min-height: 100px;
-      resize: vertical;
-      font-family: 'Courier New', monospace;
-      font-size: var(--font-sm);
-    }
-
-    .type-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--spacing-sm);
-    }
-
-    .type-option {
-      background: var(--color-secondary);
-      border: 2px solid var(--color-border);
-      padding: var(--spacing-md);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all var(--transition);
-      text-align: center;
-    }
-
-    .type-option:hover {
-      border-color: var(--color-primary);
-      background: var(--color-hover);
-    }
-
-    .type-option--active {
-      border-color: var(--color-primary);
-      background: var(--color-active);
-    }
-
-    .type-option__icon {
-      font-size: 24px;
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .type-option__label {
-      font-size: var(--font-sm);
-      font-weight: 600;
+      gap: var(--spacing);
     }
 
     .preview {
       flex: 1;
+      padding: calc(var(--spacing) * 2);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      margin: 0;
-      padding: var(--spacing-md);
-      background: var(--color-secondary);
-      border: none;
-      border-radius: 0;
     }
 
     .preview__title {
       font-size: var(--font-sm);
       font-weight: 600;
-      margin-bottom: var(--spacing-sm);
       text-transform: uppercase;
       opacity: 0.7;
+      margin-bottom: var(--spacing);
     }
 
     .preview__content {
       flex: 1;
-      background: var(--color-secondary);
-      padding: var(--spacing-md);
-      border-radius: var(--radius-sm);
+      background: var(--c-secondary);
+      padding: calc(var(--spacing) * 1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       font-family: 'Courier New', monospace;
       font-size: var(--font-sm);
       white-space: pre-wrap;
       overflow-y: auto;
-      border: 1px solid var(--color-border);
-    }
-
-    /* ==================== MODAL ==================== */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
-    }
-
-    .modal--visible {
-      display: flex;
-    }
-
-    .modal__box {
-      background: var(--color-secondary);
-      border: 2px solid var(--color-primary);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-xl);
-      max-width: 600px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 8px 32px var(--color-shadow);
-      width: 90%;
-    }
-
-    .modal__header {
-      font-size: var(--font-lg);
-      font-weight: 700;
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .modal__body {
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .modal__footer {
-      display: flex;
-      gap: var(--spacing-sm);
-      justify-content: flex-end;
     }
 
     /* ==================== TOAST ==================== */
     .toast {
       position: fixed;
-      bottom: var(--spacing-lg);
-      right: var(--spacing-lg);
-      background: var(--color-primary);
-      color: var(--color-secondary);
-      border: 2px solid var(--color-primary);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-md) var(--spacing-lg);
-      box-shadow: 0 4px 16px var(--color-shadow);
+      bottom: calc(var(--spacing) * 2);
+      right: calc(var(--spacing) * 2);
+      background: var(--c-primary);
+      color: var(--c-secondary);
+      border-radius: var(--radius);
+      padding: var(--spacing) calc(var(--spacing) * 2);
+      box-shadow: 0 4px 12px var(--shadow);
       transform: translateY(120%);
       opacity: 0;
       transition: all var(--transition);
       z-index: 2000;
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: var(--spacing);
       max-width: 400px;
     }
 
@@ -737,21 +734,21 @@
 
     /* ==================== SCROLLBAR ==================== */
     ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
     }
 
     ::-webkit-scrollbar-track {
-      background: var(--color-secondary);
+      background: var(--c-secondary);
     }
 
     ::-webkit-scrollbar-thumb {
-      background: var(--color-border);
-      border-radius: 5px;
+      background: var(--border);
+      border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: var(--color-primary);
+      background: var(--c-primary);
     }
 
     /* ==================== UTILITIES ==================== */
@@ -762,34 +759,28 @@
     }
 
     @media (max-width: 768px) {
-      .sidebar {
-        width: 100%;
-        max-height: 200px;
-        border-right: none;
-        border-bottom: 2px solid var(--color-primary);
+      .sidebar, .preview-panel {
+        position: absolute;
+        z-index: 50;
       }
-
-      .props {
-        display: none;
-      }
-
-      .toolbar__hint {
+      
+      .hint {
         display: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="app" id="app">
+  <div class="app">
     <!-- Header -->
-    <header class="app__header">
+    <header class="header">
       <div class="logo">
-        <span class="logo__icon material-icons">terminal</span>
+        <span class="material-icons">terminal</span>
         <span>TUI Builder</span>
       </div>
       <div class="actions">
         <button class="btn btn--icon" id="themeToggle" title="Toggle Theme">
-          <span class="material-icons btn__icon">brightness_6</span>
+          <span class="material-icons">brightness_6</span>
         </button>
         <button class="btn" id="addMain">
           <span class="material-icons">add</span>
@@ -803,14 +794,6 @@
           <span class="material-icons">code</span>
           ASCII
         </button>
-        <button class="btn btn--primary" id="exportJson">
-          <span class="material-icons">save</span>
-          JSON
-        </button>
-        <button class="btn" id="importJson">
-          <span class="material-icons">upload</span>
-          Import
-        </button>
         <button class="btn" id="undo" disabled>
           <span class="material-icons">undo</span>
         </button>
@@ -818,16 +801,17 @@
           <span class="material-icons">redo</span>
         </button>
         <button class="btn" id="clearAll">
-          <span class="material-icons">delete_outline</span>
+          <span class="material-icons">clear</span>
+          Clear
         </button>
       </div>
     </header>
 
     <!-- Main -->
-    <main class="app__main">
+    <main class="main">
       <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar__title">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar__header">
           <span class="material-icons">widgets</span>
           Components
         </div>
@@ -838,26 +822,26 @@
       <div class="canvas-wrap">
         <div class="toolbar">
           <button class="btn btn--icon" id="toggleSidebar" title="Toggle Sidebar">
-            <span class="material-icons btn__icon">menu</span>
+            <span class="material-icons">menu</span>
           </button>
           <div class="zoom">
             <button class="btn btn--icon" id="zoomOut" title="Zoom Out">
-              <span class="material-icons btn__icon">remove</span>
+              <span class="material-icons">remove</span>
             </button>
             <span class="zoom__level" id="zoomLevel">100%</span>
             <button class="btn btn--icon" id="zoomIn" title="Zoom In">
-              <span class="material-icons btn__icon">add</span>
+              <span class="material-icons">add</span>
             </button>
             <button class="btn btn--icon" id="zoomReset" title="Reset Zoom">
-              <span class="material-icons btn__icon">refresh</span>
+              <span class="material-icons">refresh</span>
             </button>
           </div>
-          <div class="toolbar__hint">
+          <div class="hint">
             <span class="material-icons" style="font-size: 16px;">info</span>
-            <span>Drag to reorder • Click to select • Edit inline</span>
+            SHIFT+ENTER: Sibling • TAB: Child • Click title to edit
           </div>
-          <button class="btn btn--icon" id="togglePreview" title="Toggle Preview" style="margin-left: auto;">
-            <span class="material-icons btn__icon">visibility</span>
+          <button class="btn btn--icon" id="togglePreview" title="Toggle Preview">
+            <span class="material-icons">visibility</span>
           </button>
         </div>
         <div class="canvas-container">
@@ -865,30 +849,21 @@
         </div>
       </div>
 
-      <!-- Properties -->
-      <aside class="props" id="propsPanel">
-        <div class="props__title">
+      <!-- Preview -->
+      <aside class="preview-panel" id="previewPanel">
+        <div class="preview-panel__header">
           <span class="material-icons">visibility</span>
           Preview
-          <button class="btn btn--icon" id="toggleProps" style="margin-left: auto;" title="Toggle Preview">
-            <span class="material-icons btn__icon">close</span>
+          <button class="btn btn--icon" id="togglePreviewInner" style="margin-left: auto;" title="Close">
+            <span class="material-icons">close</span>
           </button>
         </div>
-        <div class="props__content" id="props"></div>
+        <div class="preview">
+          <div class="preview__title">ASCII Preview</div>
+          <div class="preview__content" id="previewContent"></div>
+        </div>
       </aside>
     </main>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal__box">
-      <div class="modal__header" id="modalTitle"></div>
-      <div class="modal__body" id="modalBody"></div>
-      <div class="modal__footer">
-        <button class="btn" id="modalCancel">Cancel</button>
-        <button class="btn btn--primary" id="modalConfirm">Confirm</button>
-      </div>
-    </div>
   </div>
 
   <!-- Toast -->
@@ -902,52 +877,14 @@
 
     // ==================== CONFIGURATION ====================
     const CONFIG = {
-      MAX_HISTORY: 50,
-      AUTO_SAVE_DELAY: 1000,
-      MAX_NODES: 1000,
-      STORAGE_KEY: 'tuiBuilder_v1',
-      ZOOM_STEP: 0.1,
-      MIN_ZOOM: 0.5,
-      MAX_ZOOM: 2,
-      DEBOUNCE_DELAY: 300
-    };
-
-    const NODE_TYPES = {
-      phase: { icon: 'rocket_launch', label: 'Phase', desc: 'Major milestone' },
-      step: { icon: 'settings', label: 'Step', desc: 'Action step' },
-      decision: { icon: 'fork_right', label: 'Decision', desc: 'Conditional branch' },
-      ui: { icon: 'web', label: 'UI', desc: 'Interface component' },
-      api: { icon: 'api', label: 'API', desc: 'API endpoint' },
-      note: { icon: 'notes', label: 'Note', desc: 'Documentation' }
-    };
-
-    // ==================== UTILITIES ====================
-    const Utils = {
-      uid: () => `n_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      
-      esc: (str) => {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      },
-      
-      clone: (obj) => JSON.parse(JSON.stringify(obj)),
-      
-      debounce: (func, wait) => {
-        let timeout;
-        return function executedFunction(...args) {
-          const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-          };
-          clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
-        };
-      },
-      
-      $: (sel, ctx = document) => ctx.querySelector(sel),
-      $$: (sel, ctx = document) => [...ctx.querySelectorAll(sel)]
+      maxHistory: 50,
+      autoSaveDelay: 1000,
+      maxNodes: 100,
+      storageKey: 'tuiBuilder_v2',
+      zoomStep: 0.1,
+      minZoom: 0.5,
+      maxZoom: 2,
+      debounceDelay: 300
     };
 
     // ==================== STATE MANAGEMENT ====================
@@ -956,65 +893,174 @@
         this.nodes = [];
         this.selectedId = null;
         this.draggedNode = null;
-        this.draggedType = null;
+        this.draggedFromPalette = false;
         this.zoom = 1;
         this.history = [];
         this.historyIndex = -1;
-        this.saveTimer = null;
         this.theme = localStorage.getItem('theme') || 'light';
       }
 
       reset() {
         this.nodes = [];
         this.selectedId = null;
-        this.history = [];
-        this.historyIndex = -1;
+        this.saveToHistory();
       }
 
-      canUndo() {
-        return this.historyIndex > 0;
+      saveToHistory() {
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(JSON.parse(JSON.stringify(this.nodes)));
+        this.historyIndex++;
+        
+        if (this.history.length > CONFIG.maxHistory) {
+          this.history.shift();
+          this.historyIndex--;
+        }
+        
+        this.autoSave();
       }
 
-      canRedo() {
-        return this.historyIndex < this.history.length - 1;
+      undo() {
+        if (this.historyIndex > 0) {
+          this.historyIndex--;
+          this.nodes = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+          return true;
+        }
+        return false;
+      }
+
+      redo() {
+        if (this.historyIndex < this.history.length - 1) {
+          this.historyIndex++;
+          this.nodes = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+          return true;
+        }
+        return false;
+      }
+
+      autoSave() {
+        clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => {
+          try {
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify({
+              nodes: this.nodes,
+              version: '2.0',
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            console.warn('Auto-save failed:', e);
+          }
+        }, CONFIG.autoSaveDelay);
+      }
+
+      loadFromStorage() {
+        try {
+          const saved = localStorage.getItem(CONFIG.storageKey);
+          if (saved) {
+            const data = JSON.parse(saved);
+            if (data.nodes && Array.isArray(data.nodes)) {
+              this.nodes = data.nodes;
+              this.saveToHistory();
+              return true;
+            }
+          }
+        } catch (e) {
+          console.warn('Load failed:', e);
+        }
+        return false;
       }
     }
 
     const state = new AppState();
 
-    // ==================== VALIDATORS ====================
-    const Validator = {
-      isValidNode(node) {
-        if (!node || typeof node !== 'object') return false;
-        if (!node.id || !node.type || !node.title) return false;
-        if (!NODE_TYPES[node.type]) return false;
-        if (!Array.isArray(node.children)) return false;
-        return true;
+    // ==================== UTILITIES ====================
+    const Utils = {
+      uid: () => `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      
+      $(selector, context = document) {
+        return context.querySelector(selector);
       },
 
-      isValidNodeArray(arr) {
-        if (!Array.isArray(arr)) return false;
-        return arr.every(node => this.isValidNode(node));
+      $$(selector, context = document) {
+        return Array.from(context.querySelectorAll(selector));
       },
 
-      countNodes(nodes) {
-        return nodes.reduce((sum, node) => sum + 1 + this.countNodes(node.children), 0);
+      escape(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
       },
 
-      canAddNode() {
-        return this.countNodes(state.nodes) < CONFIG.MAX_NODES;
+      debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      },
+
+      toast(message, icon = 'info') {
+        const toast = Utils.$('#toast');
+        const msg = Utils.$('#toastMsg');
+        
+        toast.querySelector('.material-icons').textContent = icon;
+        msg.textContent = message;
+        toast.classList.add('toast--visible');
+        
+        clearTimeout(toast.hideTimer);
+        toast.hideTimer = setTimeout(() => {
+          toast.classList.remove('toast--visible');
+        }, 3000);
       }
     };
 
+    // ==================== MATERIAL ICONS LIST ====================
+    const MATERIAL_ICONS = [
+      'home', 'account_circle', 'settings', 'search', 'favorite', 'star', 
+      'delete', 'add', 'remove', 'edit', 'save', 'check', 'close', 'menu',
+      'more_vert', 'arrow_back', 'arrow_forward', 'refresh', 'check_circle',
+      'info', 'warning', 'error', 'help', 'visibility', 'visibility_off',
+      'lock', 'lock_open', 'https', 'vpn_key', 'security', 'fingerprint',
+      'face', 'person', 'people', 'group', 'person_add', 'group_add',
+      'mail', 'send', 'drafts', 'inbox', 'reply', 'forward',
+      'call', 'phone', 'smartphone', 'computer', 'desktop_windows', 'laptop',
+      'memory', 'router', 'scanner', 'print', 'keyboard', 'mouse',
+      'watch', 'tv', 'radio', 'videocam', 'headset', 'speaker',
+      'folder', 'folder_open', 'create_new_folder', 'insert_drive_file', 'attach_file',
+      'cloud', 'cloud_upload', 'cloud_download', 'cloud_done', 'cloud_off',
+      'file_download', 'file_upload', 'attachment', 'archive', 'folder_shared',
+      'work', 'business', 'school', 'local_library', 'store', 'local_mall',
+      'shopping_cart', 'shopping_basket', 'shop', 'add_shopping_cart',
+      'flight', 'hotel', 'restaurant', 'local_cafe', 'local_bar', 'local_pizza',
+      'map', 'navigation', 'place', 'my_location', 'location_on', 'directions',
+      'traffic', 'train', 'directions_car', 'directions_bus', 'directions_bike',
+      'schedule', 'access_time', 'alarm', 'alarm_on', 'alarm_off', 'timer',
+      'today', 'date_range', 'event', 'event_available', 'event_busy',
+      'trending_up', 'trending_down', 'trending_flat', 'analytics', 'pie_chart',
+      'show_chart', 'bar_chart', 'timeline', 'code', 'developer_mode',
+      'devices', 'widgets', 'wallpaper', 'brightness_low', 'brightness_high',
+      'data_usage', 'storage', 'usb', 'wifi', 'bluetooth', 'cast',
+      'build', 'extension', 'explore', 'bookmark', 'book', 'dns',
+      'dashboard', 'language', 'translate', 'record_voice_over', 'mic',
+      'play_arrow', 'pause', 'stop', 'skip_next', 'skip_previous', 'fast_forward',
+      'fast_rewind', 'volume_up', 'volume_down', 'volume_mute', 'music_note',
+      'image', 'photo', 'camera', 'camera_alt', 'videocam', 'photo_library',
+      'brush', 'palette', 'format_paint', 'colorize', 'gradient', 'layers',
+      'assessment', 'assignment', 'ballot', 'poll', 'quiz', 'receipt',
+      'auto_awesome', 'terminal', 'account_tree', 'hub', 'all_inclusive',
+      'api', 'integration_instructions', 'webhook', 'schema', 'table_chart',
+      'view_list', 'view_module', 'view_quilt', 'view_stream', 'view_agenda',
+      'rocket_launch', 'science', 'psychology', 'engineering', 'biotech',
+      'category', 'label', 'style', 'format_list_bulleted', 'format_list_numbered',
+      'drag_indicator', 'drag_handle', 'reorder', 'swap_vert', 'swap_horiz'
+    ];
+
     // ==================== NODE OPERATIONS ====================
     const NodeOps = {
-      create(type, title = null) {
-        if (!NODE_TYPES[type]) return null;
-        
+      create(title = 'New Node') {
         return {
           id: Utils.uid(),
-          type,
-          title: title || `New ${NODE_TYPES[type].label}`,
+          title,
+          icon: 'auto_awesome',
           meta: '',
           children: []
         };
@@ -1050,19 +1096,23 @@
         return false;
       },
 
-      addChild(parentId, node) {
-        if (!Validator.canAddNode()) {
-          UI.toast(`Maximum ${CONFIG.MAX_NODES} nodes reached`);
+      move(nodeId, targetParentId, position) {
+        const node = this.find(nodeId);
+        if (!node) return false;
+        
+        // Prevent moving into own children
+        if (targetParentId && this.isDescendant(targetParentId, nodeId)) {
           return false;
         }
         
-        if (!parentId) {
-          state.nodes.push(node);
-        } else {
-          const parent = this.find(parentId);
-          if (!parent) return false;
-          parent.children.push(node);
-        }
+        const nodeCopy = JSON.parse(JSON.stringify(node));
+        this.remove(nodeId);
+        
+        const targetArray = targetParentId ? 
+          this.find(targetParentId).children : 
+          state.nodes;
+        
+        targetArray.splice(position, 0, nodeCopy);
         return true;
       },
 
@@ -1080,37 +1130,6 @@
         return true;
       },
 
-      move(nodeId, newParentId, position = -1) {
-        const node = this.find(nodeId);
-        if (!node) return false;
-        
-        if (newParentId && this.isDescendant(newParentId, nodeId)) {
-          UI.toast('Cannot move node into its own child');
-          return false;
-        }
-        
-        const nodeCopy = Utils.clone(node);
-        this.remove(nodeId);
-        
-        if (!newParentId) {
-          if (position >= 0 && position < state.nodes.length) {
-            state.nodes.splice(position, 0, nodeCopy);
-          } else {
-            state.nodes.push(nodeCopy);
-          }
-        } else {
-          const parent = this.find(newParentId);
-          if (!parent) return false;
-          
-          if (position >= 0 && position < parent.children.length) {
-            parent.children.splice(position, 0, nodeCopy);
-          } else {
-            parent.children.push(nodeCopy);
-          }
-        }
-        return true;
-      },
-
       isDescendant(nodeId, ancestorId) {
         const node = this.find(ancestorId);
         if (!node) return false;
@@ -1124,224 +1143,34 @@
         };
         
         return check(node.children);
-      }
-    };
-
-    // ==================== HISTORY MANAGEMENT ====================
-    const History = {
-      save() {
-        state.history = state.history.slice(0, state.historyIndex + 1);
-        state.history.push(Utils.clone(state.nodes));
-        state.historyIndex++;
-        
-        if (state.history.length > CONFIG.MAX_HISTORY) {
-          state.history.shift();
-          state.historyIndex--;
-        }
-        
-        this.updateButtons();
-        Storage.autoSave();
       },
 
-      undo() {
-        if (!state.canUndo()) return;
-        
-        state.historyIndex--;
-        state.nodes = Utils.clone(state.history[state.historyIndex]);
-        Renderer.render();
-        UI.toast('Undo');
-        this.updateButtons();
-      },
-
-      redo() {
-        if (!state.canRedo()) return;
-        
-        state.historyIndex++;
-        state.nodes = Utils.clone(state.history[state.historyIndex]);
-        Renderer.render();
-        UI.toast('Redo');
-        this.updateButtons();
-      },
-
-      updateButtons() {
-        Utils.$('#undo').disabled = !state.canUndo();
-        Utils.$('#redo').disabled = !state.canRedo();
-      }
-    };
-
-    // ==================== STORAGE ====================
-    const Storage = {
-      autoSave: Utils.debounce(() => {
-        try {
-          localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({
-            nodes: state.nodes,
-            version: '1.0',
-            timestamp: Date.now()
-          }));
-        } catch (error) {
-          console.error('Auto-save failed:', error);
-        }
-      }, CONFIG.AUTO_SAVE_DELAY),
-
-      load() {
-        try {
-          const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
-          if (!saved) return false;
-          
-          const data = JSON.parse(saved);
-          if (!data.nodes || !Validator.isValidNodeArray(data.nodes)) {
-            throw new Error('Invalid data');
-          }
-          
-          state.nodes = data.nodes;
-          History.save();
-          Renderer.render();
-          UI.toast('Data restored');
-          return true;
-        } catch (error) {
-          console.error('Load failed:', error);
-          localStorage.removeItem(CONFIG.STORAGE_KEY);
-          return false;
-        }
-      }
-    };
-
-    // ==================== EXPORT/IMPORT ====================
-    const Exporter = {
-      toAscii() {
-        const lines = [];
-        
-        const walk = (node, level, isLast, prefix = '') => {
-          const type = NODE_TYPES[node.type];
-          const connector = isLast ? '└─' : '├─';
-          const childPrefix = prefix + (isLast ? '   ' : '│  ');
-          
-          if (level === 0) {
-            const title = ` ${node.title.toUpperCase()} `;
-            const width = Math.max(70, title.length + 4);
-            
-            lines.push('┌' + '─'.repeat(width - 2) + '┐');
-            lines.push('│' + title.padEnd(width - 2) + '│');
-            
-            if (node.meta) {
-              node.meta.split('\n').forEach(line => {
-                lines.push('│ ' + line.padEnd(width - 3) + '│');
-              });
-            }
-            
-            lines.push('└' + '─'.repeat(width - 2) + '┘');
-          } else {
-            lines.push(`${prefix}${connector}► ${node.title}`);
-            if (node.meta) {
-              node.meta.split('\n').forEach((line, i) => {
-                const c = i === node.meta.split('\n').length - 1 && node.children.length === 0 ? '   ' : '│  ';
-                lines.push(`${childPrefix}${c}${line}`);
-              });
-            }
-          }
-          
-          node.children.forEach((child, i) => {
-            walk(child, level + 1, i === node.children.length - 1, level === 0 ? '  ' : childPrefix);
-          });
-          
-          if (level === 0) lines.push('');
-        };
-        
-        state.nodes.forEach((node, i) => {
-          walk(node, 0, i === state.nodes.length - 1);
-        });
-        
-        return lines.join('\n') || '—';
-      },
-
-      toJson() {
-        return JSON.stringify(state.nodes, null, 2);
-      },
-
-      fromJson(str) {
-        try {
-          const data = JSON.parse(str);
-          
-          if (!Array.isArray(data) || !Validator.isValidNodeArray(data)) {
-            throw new Error('Invalid format');
-          }
-          
-          History.save();
-          state.nodes = data;
-          state.selectedId = null;
-          Renderer.render();
-          UI.toast('Import successful');
-          return true;
-        } catch (error) {
-          UI.toast('Import failed: ' + error.message);
-          return false;
-        }
-      }
-    };
-
-    // ==================== UI COMPONENTS ====================
-    const UI = {
-      toast(message, icon = 'check_circle') {
-        const toast = Utils.$('#toast');
-        const msgEl = Utils.$('#toastMsg');
-        const iconEl = toast.querySelector('.material-icons');
-        
-        iconEl.textContent = icon;
-        msgEl.textContent = message;
-        toast.classList.add('toast--visible');
-        
-        setTimeout(() => {
-          toast.classList.remove('toast--visible');
-        }, 3000);
-      },
-
-      modal(title, body, onConfirm = null) {
-        Utils.$('#modalTitle').textContent = title;
-        Utils.$('#modalBody').innerHTML = body;
-        Utils.$('#modal').classList.add('modal--visible');
-        
-        const confirmBtn = Utils.$('#modalConfirm');
-        if (onConfirm) {
-          confirmBtn.style.display = 'block';
-          confirmBtn.onclick = onConfirm;
-        } else {
-          confirmBtn.style.display = 'none';
-        }
-      },
-
-      closeModal() {
-        Utils.$('#modal').classList.remove('modal--visible');
-      },
-
-      setZoom(zoom) {
-        state.zoom = Math.max(CONFIG.MIN_ZOOM, Math.min(CONFIG.MAX_ZOOM, zoom));
-        Utils.$('#canvas').style.transform = `scale(${state.zoom})`;
-        Utils.$('#zoomLevel').textContent = Math.round(state.zoom * 100) + '%';
-      },
-
-      toggleTheme() {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', state.theme);
-        localStorage.setItem('theme', state.theme);
+      countNodes(nodes = state.nodes) {
+        return nodes.reduce((sum, node) => 
+          sum + 1 + this.countNodes(node.children), 0);
       }
     };
 
     // ==================== RENDERER ====================
     const Renderer = {
-      render() {
+      init() {
         this.renderPalette();
+        this.render();
+        this.updateButtons();
+      },
+
+      render() {
         this.renderCanvas();
-        this.renderProps();
-        History.updateButtons();
+        this.renderPreview();
+        this.updateButtons();
       },
 
       renderPalette() {
         const palette = Utils.$('#palette');
         const selectedNode = state.selectedId ? NodeOps.find(state.selectedId) : null;
         
-        // Universal Node item + properties editor
         palette.innerHTML = `
-          <div class="palette__item" draggable="true" data-type="step">
+          <div class="palette__item" draggable="true">
             <div class="palette__header">
               <span class="material-icons">auto_awesome</span>
               <span>Node</span>
@@ -1350,80 +1179,127 @@
           </div>
           
           ${!selectedNode ? '' : `
-            <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); border-top: 2px solid var(--color-border);">
-              <div style="font-weight: 600; font-size: var(--font-sm); margin-bottom: var(--spacing-md); text-transform: uppercase; opacity: 0.7;">Node Editor</div>
+            <div class="editor">
+              <div class="editor__title">Node Editor</div>
               
-              <div class="prop-group">
-                <div class="prop-group__label">Type</div>
-                <div class="type-grid">
-                  ${Object.entries(NODE_TYPES).map(([k, v]) => `
-                    <div class="type-option ${selectedNode.type === k ? 'type-option--active' : ''}" data-type="${k}">
-                      <div class="type-option__icon">
-                        <span class="material-icons">${v.icon}</span>
-                      </div>
-                      <div class="type-option__label">${v.label}</div>
+              <div class="field">
+                <div class="field__label">Icon</div>
+                <div class="icon-picker">
+                  <div class="icon-picker__display" id="iconPickerDisplay">
+                    <div class="icon-picker__preview">
+                      <span class="material-icons">${selectedNode.icon || 'auto_awesome'}</span>
                     </div>
-                  `).join('')}
+                    <div class="icon-picker__label">${selectedNode.icon || 'auto_awesome'}</div>
+                    <span class="material-icons">expand_more</span>
+                  </div>
+                  <div class="icon-picker__dropdown" id="iconPickerDropdown">
+                    <div class="icon-picker__search">
+                      <input type="text" class="icon-picker__search-input" 
+                             id="iconSearch" placeholder="Search icons...">
+                    </div>
+                    <div class="icon-picker__grid" id="iconGrid">
+                      ${MATERIAL_ICONS.map(icon => `
+                        <div class="icon-picker__item ${icon === selectedNode.icon ? 'icon-picker__item--selected' : ''}" 
+                             data-icon="${icon}" title="${icon}">
+                          <span class="material-icons">${icon}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div class="prop-group">
-                <div class="prop-group__label">Title</div>
-                <input type="text" class="prop-input" id="sidebarPropTitle" value="${Utils.esc(selectedNode.title)}">
+              <div class="field">
+                <div class="field__label">Title</div>
+                <input type="text" class="field__input" id="editorTitle" 
+                       value="${Utils.escape(selectedNode.title)}">
               </div>
               
-              <div class="prop-group">
-                <div class="prop-group__label">Metadata</div>
-                <textarea class="prop-input prop-input--textarea" id="sidebarPropMeta" placeholder="Commands, notes...">${Utils.esc(selectedNode.meta)}</textarea>
-              </div>
-              
-              <div class="prop-group">
-                <div class="prop-group__label">Node ID</div>
-                <input type="text" class="prop-input" value="${state.selectedId}" readonly style="opacity:0.5; font-size: 10px;">
+              <div class="field">
+                <div class="field__label">Metadata</div>
+                <textarea class="field__input field__input--textarea" id="editorMeta" 
+                          placeholder="Notes, commands, etc...">${Utils.escape(selectedNode.meta)}</textarea>
               </div>
             </div>
           `}
         `;
         
-        // Drag handler
-        const paletteItem = Utils.$('.palette__item');
+        // Palette drag handlers
+        const paletteItem = palette.querySelector('.palette__item');
         if (paletteItem) {
           paletteItem.ondragstart = (e) => {
-            state.draggedType = 'step';
+            state.draggedFromPalette = true;
             e.dataTransfer.effectAllowed = 'copy';
           };
-          paletteItem.ondragend = () => state.draggedType = null;
+          paletteItem.ondragend = () => {
+            state.draggedFromPalette = false;
+          };
         }
         
-        // Type selector handlers
+        // Editor handlers
         if (selectedNode) {
-          const typeOptions = Utils.$$('.type-option');
-          typeOptions.forEach(opt => {
-            opt.onclick = () => {
-              selectedNode.type = opt.dataset.type;
-              History.save();
-              this.render();
-            };
-          });
+          const titleInput = Utils.$('#editorTitle');
+          const metaInput = Utils.$('#editorMeta');
+          const iconPicker = Utils.$('#iconPickerDisplay');
+          const iconDropdown = Utils.$('#iconPickerDropdown');
+          const iconSearch = Utils.$('#iconSearch');
+          const iconGrid = Utils.$('#iconGrid');
           
-          const titleInput = Utils.$('#sidebarPropTitle');
-          if (titleInput) {
-            const updateTitle = Utils.debounce((e) => {
-              selectedNode.title = e.target.value;
-              History.save();
-              this.render();
-            }, CONFIG.DEBOUNCE_DELAY);
-            titleInput.oninput = updateTitle;
+          // Icon picker handlers
+          if (iconPicker) {
+            iconPicker.onclick = (e) => {
+              e.stopPropagation();
+              iconDropdown.classList.toggle('icon-picker__dropdown--open');
+            };
           }
           
-          const metaInput = Utils.$('#sidebarPropMeta');
-          if (metaInput) {
-            const updateMeta = Utils.debounce((e) => {
-              selectedNode.meta = e.target.value;
-              History.save();
+          // Icon search
+          if (iconSearch) {
+            iconSearch.oninput = (e) => {
+              const query = e.target.value.toLowerCase();
+              const icons = iconGrid.querySelectorAll('.icon-picker__item');
+              icons.forEach(icon => {
+                const iconName = icon.dataset.icon.toLowerCase();
+                icon.style.display = iconName.includes(query) ? '' : 'none';
+              });
+            };
+          }
+          
+          // Icon selection
+          if (iconGrid) {
+            iconGrid.onclick = (e) => {
+              const item = e.target.closest('.icon-picker__item');
+              if (!item) return;
+              
+              const icon = item.dataset.icon;
+              selectedNode.icon = icon;
+              state.saveToHistory();
               this.render();
-            }, CONFIG.DEBOUNCE_DELAY);
-            metaInput.oninput = updateMeta;
+              Utils.toast(`Icon changed to ${icon}`);
+            };
+          }
+          
+          // Close dropdown when clicking outside
+          document.addEventListener('click', (e) => {
+            if (!e.target.closest('.icon-picker')) {
+              iconDropdown?.classList.remove('icon-picker__dropdown--open');
+            }
+          }, { once: true });
+          
+          if (titleInput) {
+            titleInput.oninput = Utils.debounce((e) => {
+              selectedNode.title = e.target.value;
+              state.saveToHistory();
+              this.render();
+            }, CONFIG.debounceDelay);
+          }
+          
+          if (metaInput) {
+            metaInput.oninput = Utils.debounce((e) => {
+              selectedNode.meta = e.target.value;
+              state.saveToHistory();
+              this.render();
+            }, CONFIG.debounceDelay);
           }
         }
       },
@@ -1432,14 +1308,15 @@
         const canvas = Utils.$('#canvas');
         
         if (state.nodes.length === 0) {
-          canvas.className = 'canvas canvas--empty';
           canvas.innerHTML = `
-            <div class="empty">
-              <div class="empty__icon">
-                <span class="material-icons" style="font-size: 64px;">account_tree</span>
+            <div class="empty-state">
+              <div class="empty-state__icon">
+                <span class="material-icons">account_tree</span>
               </div>
-              <div class="empty__text">Your canvas is empty</div>
-              <div class="empty__hint">Click "Main" or drag items from the palette</div>
+              <div>Canvas is empty</div>
+              <div style="font-size: 12px; margin-top: 8px; opacity: 0.6;">
+                Click "Add Main" or drag from palette
+              </div>
             </div>
           `;
           
@@ -1449,9 +1326,7 @@
           return;
         }
         
-        canvas.className = 'canvas';
         canvas.innerHTML = '';
-        
         state.nodes.forEach((node, i) => {
           canvas.appendChild(this.renderNode(node, null, i));
         });
@@ -1464,17 +1339,14 @@
       renderNode(node, parentId, index) {
         const wrap = document.createElement('div');
         wrap.className = 'node-wrap';
-        wrap.dataset.nodeId = node.id;
         
         const el = document.createElement('div');
         el.className = 'node';
         el.dataset.id = node.id;
-        el.dataset.type = node.type;
         
         if (!parentId) el.classList.add('node--main');
         if (state.selectedId === node.id) el.classList.add('node--selected');
         
-        const type = NODE_TYPES[node.type];
         const parent = NodeOps.findParent(node.id);
         const siblings = parent ? parent.children : state.nodes;
         const idx = siblings.findIndex(n => n.id === node.id);
@@ -1485,18 +1357,22 @@
               <span class="material-icons">drag_indicator</span>
             </div>
             <div class="node__icon">
-              <span class="material-icons">${type.icon}</span>
+              <span class="material-icons">${node.icon || 'auto_awesome'}</span>
             </div>
             <div class="node__content">
-              <div class="node__title" contenteditable="true" spellcheck="false">${Utils.esc(node.title)}</div>
-              ${node.meta ? `<div class="node__meta">${Utils.esc(node.meta)}</div>` : ''}
+              <div class="node__title-display" data-node-id="${node.id}">
+                ${Utils.escape(node.title) || 'Untitled'}
+              </div>
+              ${node.meta ? `<div class="node__meta">${Utils.escape(node.meta)}</div>` : ''}
             </div>
             <div class="node__actions">
               <div class="node__reorder">
-                <button class="node__reorder-btn" data-action="up" ${idx === 0 ? 'disabled' : ''}>
+                <button class="node__reorder-btn" data-action="up" 
+                        ${idx === 0 ? 'disabled' : ''}>
                   <span class="material-icons">arrow_upward</span>
                 </button>
-                <button class="node__reorder-btn" data-action="down" ${idx === siblings.length - 1 ? 'disabled' : ''}>
+                <button class="node__reorder-btn" data-action="down" 
+                        ${idx === siblings.length - 1 ? 'disabled' : ''}>
                   <span class="material-icons">arrow_downward</span>
                 </button>
               </div>
@@ -1516,6 +1392,7 @@
         
         wrap.appendChild(el);
         
+        // Children
         if (node.children.length > 0) {
           const children = document.createElement('div');
           children.className = 'children';
@@ -1540,19 +1417,16 @@
         zone.className = 'drop-zone';
         zone.dataset.parentId = parentId || '';
         zone.dataset.position = position;
-        zone.innerHTML = `
-          <div class="drop-zone__label">
-            <span class="material-icons">add_circle_outline</span>
-            <span>Drop here</span>
-          </div>
-        `;
+        zone.innerHTML = '<div class="drop-zone__label">Drop here</div>';
         
         zone.ondragover = (e) => {
           e.preventDefault();
           zone.classList.add('drop-zone--over');
         };
         
-        zone.ondragleave = () => zone.classList.remove('drop-zone--over');
+        zone.ondragleave = () => {
+          zone.classList.remove('drop-zone--over');
+        };
         
         zone.ondrop = (e) => {
           e.preventDefault();
@@ -1561,22 +1435,20 @@
           const parentId = zone.dataset.parentId || null;
           const pos = parseInt(zone.dataset.position);
           
-          History.save();
+          state.saveToHistory();
           
-          if (state.draggedNode) {
-            if (NodeOps.move(state.draggedNode, parentId, pos)) {
-              UI.toast('Node moved');
+          if (state.draggedFromPalette) {
+            const newNode = NodeOps.create();
+            if (parentId) {
+              const parent = NodeOps.find(parentId);
+              if (parent) parent.children.splice(pos, 0, newNode);
+            } else {
+              state.nodes.splice(pos, 0, newNode);
             }
-          } else if (state.draggedType) {
-            const newNode = NodeOps.create(state.draggedType);
-            if (newNode) {
-              if (!parentId) {
-                state.nodes.splice(pos, 0, newNode);
-              } else {
-                const parent = NodeOps.find(parentId);
-                if (parent) parent.children.splice(pos, 0, newNode);
-              }
-              UI.toast('Node created');
+            Utils.toast('Node added');
+          } else if (state.draggedNode) {
+            if (NodeOps.move(state.draggedNode, parentId, pos)) {
+              Utils.toast('Node moved');
             }
           }
           
@@ -1587,7 +1459,7 @@
       },
 
       attachNodeEvents(el) {
-        // Click to select - dengan proteksi terhadap elemen interaktif
+        // Click to select
         el.onclick = (e) => {
           if (e.target.closest('.node__actions') || 
               e.target.closest('.node__reorder') ||
@@ -1595,79 +1467,127 @@
               e.target.closest('.node__drag')) return;
           
           state.selectedId = el.dataset.id;
+          this.renderPalette();
           this.render();
         };
         
-        const title = el.querySelector('.node__title');
-        const updateTitle = Utils.debounce((e) => {
-          const node = NodeOps.find(el.dataset.id);
-          if (node) {
-            node.title = e.target.textContent;
-            History.save();
-          }
-        }, CONFIG.DEBOUNCE_DELAY);
+        // Title editing - Click to edit
+        const titleDisplay = el.querySelector('.node__title-display');
+        if (titleDisplay) {
+          titleDisplay.onclick = (e) => {
+            e.stopPropagation();
+            const nodeId = titleDisplay.dataset.nodeId;
+            const node = NodeOps.find(nodeId);
+            if (!node) return;
+            
+            // Create input element
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'node__title-input';
+            input.value = node.title;
+            input.placeholder = 'Enter title...';
+            
+            // Create hint
+            const hint = document.createElement('div');
+            hint.className = 'node__title-hint';
+            hint.textContent = 'Press Enter to apply';
+            
+            // Replace display with input
+            const parent = titleDisplay.parentNode;
+            parent.insertBefore(input, titleDisplay);
+            parent.insertBefore(hint, titleDisplay);
+            titleDisplay.style.display = 'none';
+            
+            // Focus and select
+            input.focus();
+            input.select();
+            
+            // Apply changes
+            const applyChanges = () => {
+              const newTitle = input.value.trim() || 'Untitled';
+              node.title = newTitle;
+              state.saveToHistory();
+              Renderer.render();
+              Utils.toast('Title updated');
+            };
+            
+            // Enter key to apply
+            input.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                applyChanges();
+              } else if (e.key === 'Escape') {
+                Renderer.render(); // Cancel
+              }
+            };
+            
+            // Blur to apply
+            input.onblur = applyChanges;
+          };
+        }
         
-        title.oninput = updateTitle;
-        
-        // Fix: Use el.querySelectorAll instead of Utils.$$
-        const nodeBtns = el.querySelectorAll('.node__btn');
-        nodeBtns.forEach(btn => {
+        // Action buttons
+        el.querySelectorAll('.node__btn').forEach(btn => {
           btn.onclick = (e) => {
             e.stopPropagation();
             const action = btn.dataset.action;
             const nodeId = el.dataset.id;
             
             if (action === 'edit') {
-              // Select node and show editor in sidebar
               state.selectedId = nodeId;
+              this.renderPalette();
               this.render();
-              // Ensure sidebar is visible
-              const sidebar = Utils.$('.sidebar');
+              
+              const sidebar = Utils.$('#sidebar');
               if (sidebar.classList.contains('sidebar--collapsed')) {
                 sidebar.classList.remove('sidebar--collapsed');
               }
-              // Scroll sidebar to top
               sidebar.scrollTop = 0;
-              UI.toast('Node editor opened');
+              Utils.toast('Node editor opened');
             } else if (action === 'child') {
-              History.save();
+              if (NodeOps.countNodes() >= CONFIG.maxNodes) {
+                Utils.toast('Maximum nodes reached', 'warning');
+                return;
+              }
+              
+              state.saveToHistory();
               const node = NodeOps.find(nodeId);
               if (node) {
-                const newChild = NodeOps.create('step');
-                if (newChild) {
-                  node.children.push(newChild);
-                  this.render();
-                  UI.toast('Child added');
-                }
+                node.children.push(NodeOps.create());
+                this.render();
+                Utils.toast('Child added');
               }
             } else if (action === 'delete') {
               if (confirm('Delete this node and all children?')) {
-                History.save();
+                state.saveToHistory();
                 NodeOps.remove(nodeId);
-                if (state.selectedId === nodeId) state.selectedId = null;
+                if (state.selectedId === nodeId) {
+                  state.selectedId = null;
+                  this.renderPalette();
+                }
                 this.render();
-                UI.toast('Node deleted', 'delete');
+                Utils.toast('Node deleted');
               }
             }
           };
         });
         
-        // Fix: Use el.querySelectorAll instead of Utils.$$
-        const reorderBtns = el.querySelectorAll('.node__reorder-btn');
-        reorderBtns.forEach(btn => {
+        // Reorder buttons
+        el.querySelectorAll('.node__reorder-btn').forEach(btn => {
           btn.onclick = (e) => {
             e.stopPropagation();
             const direction = btn.dataset.action;
             const nodeId = el.dataset.id;
             
-            History.save();
+            state.saveToHistory();
             if (NodeOps.reorder(nodeId, direction)) {
               this.render();
-              UI.toast(`Moved ${direction}`);
+              Utils.toast(`Moved ${direction}`);
             }
           };
         });
         
+        // Drag handle
         const handle = el.querySelector('.node__drag');
         if (handle) {
           handle.ondragstart = (e) => {
@@ -1675,6 +1595,7 @@
             state.draggedNode = el.dataset.id;
             el.classList.add('node--dragging');
           };
+          
           handle.ondragend = () => {
             el.classList.remove('node--dragging');
             state.draggedNode = null;
@@ -1682,14 +1603,68 @@
         }
       },
 
-      renderProps() {
-        const props = Utils.$('#props');
-        props.innerHTML = `
-          <div class="preview">
-            <div class="preview__title">ASCII Preview</div>
-            <div class="preview__content">${Exporter.toAscii()}</div>
-          </div>
-        `;
+      renderPreview() {
+        const content = Utils.$('#previewContent');
+        if (!content) return;
+        
+        const ascii = this.generateAscii();
+        content.textContent = ascii;
+      },
+
+      generateAscii() {
+        const lines = [];
+        
+        const walk = (node, level, isLast, prefix = '') => {
+          const connector = isLast ? '└─' : '├─';
+          const childPrefix = prefix + (isLast ? '   ' : '│  ');
+          
+          if (level === 0) {
+            const title = ` ${node.title.toUpperCase()} `;
+            const width = Math.max(50, title.length + 4);
+            
+            lines.push('┌' + '─'.repeat(width - 2) + '┐');
+            lines.push('│' + title.padEnd(width - 2) + '│');
+            
+            if (node.meta) {
+              node.meta.split('\n').forEach(line => {
+                lines.push('│ ' + line.padEnd(width - 3) + '│');
+              });
+            }
+            
+            lines.push('└' + '─'.repeat(width - 2) + '┘');
+          } else {
+            lines.push(`${prefix}${connector}► ${node.title}`);
+            if (node.meta) {
+              node.meta.split('\n').forEach(line => {
+                lines.push(`${childPrefix}  ${line}`);
+              });
+            }
+          }
+          
+          node.children.forEach((child, i) => {
+            walk(child, level + 1, i === node.children.length - 1, 
+                 level === 0 ? '  ' : childPrefix);
+          });
+          
+          if (level === 0) lines.push('');
+        };
+        
+        state.nodes.forEach((node, i) => {
+          walk(node, 0, i === state.nodes.length - 1);
+        });
+        
+        return lines.join('\n') || 'Empty canvas';
+      },
+
+      updateButtons() {
+        Utils.$('#undo').disabled = state.historyIndex <= 0;
+        Utils.$('#redo').disabled = state.historyIndex >= state.history.length - 1;
+      },
+
+      setZoom(zoom) {
+        state.zoom = Math.max(CONFIG.minZoom, Math.min(CONFIG.maxZoom, zoom));
+        Utils.$('#canvas').style.transform = `scale(${state.zoom})`;
+        Utils.$('#zoomLevel').textContent = Math.round(state.zoom * 100) + '%';
       }
     };
 
@@ -1697,193 +1672,326 @@
     const Handlers = {
       init() {
         // Theme toggle
-        Utils.$('#themeToggle').onclick = () => UI.toggleTheme();
+        Utils.$('#themeToggle').onclick = () => {
+          state.theme = state.theme === 'light' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', state.theme);
+          localStorage.setItem('theme', state.theme);
+        };
 
         // Main actions
         Utils.$('#addMain').onclick = () => {
-          if (!Validator.canAddNode()) {
-            UI.toast(`Max ${CONFIG.MAX_NODES} nodes`, 'warning');
+          if (NodeOps.countNodes() >= CONFIG.maxNodes) {
+            Utils.toast('Maximum nodes reached', 'warning');
             return;
           }
-          History.save();
-          state.nodes.push(NodeOps.create('phase', 'New Phase'));
+          state.saveToHistory();
+          state.nodes.push(NodeOps.create('New Phase'));
           Renderer.render();
-          UI.toast('Main node added');
+          Utils.toast('Main node added');
         };
 
         Utils.$('#loadSample').onclick = () => {
           if (state.nodes.length > 0 && !confirm('Replace current data?')) return;
           
-          History.save();
           state.nodes = [
             {
-              id: Utils.uid(), type: 'phase',
+              id: Utils.uid(),
               title: 'PHASE 01: SETUP',
-              meta: 'Initialize system',
+              meta: 'Initialize system\nCheck requirements',
               children: [
-                { id: Utils.uid(), type: 'step', title: 'Check requirements', meta: 'lsb_release -a', children: [] },
-                { id: Utils.uid(), type: 'step', title: 'Install dependencies', meta: 'apt install -y docker', children: [] }
+                { id: Utils.uid(), title: 'Install dependencies', meta: 'apt install -y docker', children: [] },
+                { id: Utils.uid(), title: 'Configure environment', meta: '', children: [] }
               ]
             },
             {
-              id: Utils.uid(), type: 'phase',
+              id: Utils.uid(),
               title: 'PHASE 02: DEPLOY',
               meta: 'Deploy application',
               children: [
-                { id: Utils.uid(), type: 'api', title: 'Fetch config', meta: 'GET /api/config', children: [] },
-                { id: Utils.uid(), type: 'step', title: 'Start services', meta: 'docker-compose up -d', children: [] }
+                { id: Utils.uid(), title: 'Build containers', meta: 'docker-compose build', children: [] },
+                { id: Utils.uid(), title: 'Start services', meta: 'docker-compose up -d', children: [] }
               ]
             }
           ];
           
+          state.saveToHistory();
           Renderer.render();
-          UI.toast('Sample loaded');
+          Utils.toast('Sample loaded');
         };
 
         Utils.$('#exportAscii').onclick = () => {
-          const ascii = Exporter.toAscii();
+          const ascii = Renderer.generateAscii();
           navigator.clipboard.writeText(ascii).then(() => {
-            UI.toast('ASCII copied!');
+            Utils.toast('ASCII copied!', 'check_circle');
           }).catch(() => {
-            UI.modal('ASCII Export', `<pre style="background:var(--color-hover);padding:16px;border-radius:8px;overflow:auto;max-height:60vh;font-family:monospace;font-size:11px;border:1px solid var(--color-border);">${Utils.esc(ascii)}</pre>`);
+            Utils.toast('Failed to copy', 'error');
           });
         };
 
-        Utils.$('#exportJson').onclick = () => {
-          const json = Exporter.toJson();
-          navigator.clipboard.writeText(json).then(() => {
-            UI.toast('JSON copied!');
-          }).catch(() => {
-            UI.modal('JSON Export', `<pre style="background:var(--color-hover);padding:16px;border-radius:8px;overflow:auto;max-height:60vh;font-family:monospace;font-size:11px;border:1px solid var(--color-border);">${Utils.esc(json)}</pre>`);
-          });
-        };
-
-        Utils.$('#importJson').onclick = () => {
-          const body = `
-            <div style="margin-bottom:12px;opacity:0.7;font-size:13px;">
-              Paste JSON data:
-            </div>
-            <textarea id="importData" style="width:100%;min-height:300px;background:var(--color-secondary);color:var(--color-primary);border:1px solid var(--color-border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;" placeholder='[{"id":"...","type":"phase",...}]'></textarea>
-          `;
-          
-          UI.modal('Import JSON', body, () => {
-            const data = Utils.$('#importData').value;
-            if (data.trim() && Exporter.fromJson(data)) {
-              UI.closeModal();
-            }
-          });
-        };
-
-        Utils.$('#undo').onclick = () => History.undo();
-        Utils.$('#redo').onclick = () => History.redo();
-
-        Utils.$('#clearAll').onclick = () => {
-          if (confirm('Clear all nodes? This cannot be undone.')) {
-            History.save();
-            state.nodes = [];
-            state.selectedId = null;
+        Utils.$('#undo').onclick = () => {
+          if (state.undo()) {
             Renderer.render();
-            UI.toast('Canvas cleared', 'delete');
+            Utils.toast('Undo');
           }
         };
 
-        Utils.$('#zoomIn').onclick = () => UI.setZoom(state.zoom + CONFIG.ZOOM_STEP);
-        Utils.$('#zoomOut').onclick = () => UI.setZoom(state.zoom - CONFIG.ZOOM_STEP);
-        Utils.$('#zoomReset').onclick = () => UI.setZoom(1);
-
-        // Toggle Preview Panel (old button in panel)
-        Utils.$('#toggleProps').onclick = () => {
-          const panel = Utils.$('#propsPanel');
-          panel.classList.toggle('props--collapsed');
+        Utils.$('#redo').onclick = () => {
+          if (state.redo()) {
+            Renderer.render();
+            Utils.toast('Redo');
+          }
         };
 
-        // Toggle Preview Panel (new button in toolbar)
-        Utils.$('#togglePreview').onclick = () => {
-          const panel = Utils.$('#propsPanel');
-          panel.classList.toggle('props--collapsed');
+        Utils.$('#clearAll').onclick = () => {
+          if (state.nodes.length === 0) return;
+          if (confirm('Clear all nodes? This cannot be undone.')) {
+            state.reset();
+            Renderer.renderPalette();
+            Renderer.render();
+            Utils.toast('Canvas cleared');
+          }
         };
 
-        // Toggle Sidebar
+        // Zoom controls
+        Utils.$('#zoomIn').onclick = () => {
+          Renderer.setZoom(state.zoom + CONFIG.zoomStep);
+        };
+
+        Utils.$('#zoomOut').onclick = () => {
+          Renderer.setZoom(state.zoom - CONFIG.zoomStep);
+        };
+
+        Utils.$('#zoomReset').onclick = () => {
+          Renderer.setZoom(1);
+        };
+
+        // Toggle panels
         Utils.$('#toggleSidebar').onclick = () => {
-          const sidebar = Utils.$('.sidebar');
-          sidebar.classList.toggle('sidebar--collapsed');
+          Utils.$('#sidebar').classList.toggle('sidebar--collapsed');
         };
 
-        // Modal
-        Utils.$('#modalCancel').onclick = () => UI.closeModal();
-        Utils.$('#modal').onclick = (e) => {
-          if (e.target === Utils.$('#modal')) UI.closeModal();
+        Utils.$('#togglePreview').onclick = () => {
+          Utils.$('#previewPanel').classList.toggle('preview-panel--collapsed');
+        };
+
+        Utils.$('#togglePreviewInner').onclick = () => {
+          Utils.$('#previewPanel').classList.add('preview-panel--collapsed');
         };
 
         // Keyboard shortcuts
-        document.onkeydown = (e) => {
+        document.addEventListener('keydown', (e) => {
           const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) ||
-                          document.activeElement.contentEditable === 'true';
+                         document.activeElement.contentEditable === 'true';
           
           if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
             e.preventDefault();
-            History.undo();
+            Utils.$('#undo').click();
           }
           
           if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y')) {
             e.preventDefault();
-            History.redo();
+            Utils.$('#redo').click();
           }
           
           if (e.key === 'Delete' && state.selectedId && !isInput) {
-            if (confirm('Delete node?')) {
-              History.save();
+            const node = NodeOps.find(state.selectedId);
+            if (node && confirm('Delete node?')) {
+              state.saveToHistory();
               NodeOps.remove(state.selectedId);
               state.selectedId = null;
+              Renderer.renderPalette();
               Renderer.render();
             }
           }
           
           if (e.key === 'Escape') {
             state.selectedId = null;
+            Renderer.renderPalette();
             Renderer.render();
           }
+        });
+      }
+    };
+
+    // ==================== KEYBOARD SHORTCUTS ====================
+    const KeyboardShortcuts = {
+      init() {
+        document.addEventListener('keydown', (e) => {
+          const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) ||
+                         document.activeElement.contentEditable === 'true';
           
-          if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          // CTRL/CMD + Z - Undo
+          if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
             e.preventDefault();
-            Utils.$('#exportJson').click();
+            Utils.$('#undo').click();
+            return;
           }
-        };
+          
+          // CTRL/CMD + SHIFT + Z or CTRL/CMD + Y - Redo
+          if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y')) {
+            e.preventDefault();
+            Utils.$('#redo').click();
+            return;
+          }
+          
+          // SHIFT + ENTER - Add sibling node (same level)
+          if (e.shiftKey && e.key === 'Enter' && !isInput) {
+            e.preventDefault();
+            this.addSiblingNode();
+            return;
+          }
+          
+          // TAB - Add child node
+          if (e.key === 'Tab' && !isInput) {
+            e.preventDefault();
+            this.addChildNode();
+            return;
+          }
+          
+          // DELETE - Delete selected node
+          if (e.key === 'Delete' && state.selectedId && !isInput) {
+            const node = NodeOps.find(state.selectedId);
+            if (node && confirm('Delete node?')) {
+              state.saveToHistory();
+              NodeOps.remove(state.selectedId);
+              state.selectedId = null;
+              Renderer.renderPalette();
+              Renderer.render();
+              Utils.toast('Node deleted');
+            }
+            return;
+          }
+          
+          // ESCAPE - Deselect node
+          if (e.key === 'Escape' && !isInput) {
+            state.selectedId = null;
+            Renderer.renderPalette();
+            Renderer.render();
+            return;
+          }
+        });
+      },
+
+      addSiblingNode() {
+        try {
+          if (NodeOps.countNodes() >= CONFIG.maxNodes) {
+            Utils.toast('Maximum nodes reached', 'warning');
+            return;
+          }
+
+          // If no node is selected, add to root
+          if (!state.selectedId) {
+            state.saveToHistory();
+            state.nodes.push(NodeOps.create('New Node'));
+            Renderer.render();
+            Utils.toast('Node added (root level)', 'check_circle');
+            return;
+          }
+
+          // Find the selected node and its parent
+          const selectedNode = NodeOps.find(state.selectedId);
+          if (!selectedNode) return;
+
+          const parent = NodeOps.findParent(state.selectedId);
+          const siblings = parent ? parent.children : state.nodes;
+          const currentIndex = siblings.findIndex(n => n.id === state.selectedId);
+
+          if (currentIndex === -1) return;
+
+          // Create new sibling node
+          state.saveToHistory();
+          const newNode = NodeOps.create('New Node');
+          
+          // Insert after current node
+          siblings.splice(currentIndex + 1, 0, newNode);
+          
+          // Select the new node
+          state.selectedId = newNode.id;
+          
+          Renderer.render();
+          Utils.toast('Sibling node added (SHIFT+ENTER)', 'check_circle');
+          
+          // Focus on the new node's title for immediate editing
+          setTimeout(() => {
+            const newNodeEl = document.querySelector(`[data-id="${newNode.id}"] .node__title-display`);
+            if (newNodeEl) newNodeEl.click();
+          }, 100);
+        } catch (error) {
+          console.error('Error adding sibling:', error);
+          Utils.toast('Failed to add sibling node', 'error');
+        }
+      },
+
+      addChildNode() {
+        try {
+          if (NodeOps.countNodes() >= CONFIG.maxNodes) {
+            Utils.toast('Maximum nodes reached', 'warning');
+            return;
+          }
+
+          // If no node is selected, show message
+          if (!state.selectedId) {
+            Utils.toast('Select a node first to add child (TAB)', 'info');
+            return;
+          }
+
+          // Find the selected node
+          const selectedNode = NodeOps.find(state.selectedId);
+          if (!selectedNode) return;
+
+          // Create and add child node
+          state.saveToHistory();
+          const newChild = NodeOps.create('New Child');
+          selectedNode.children.push(newChild);
+          
+          // Select the new child
+          state.selectedId = newChild.id;
+          
+          Renderer.render();
+          Utils.toast('Child node added (TAB)', 'check_circle');
+          
+          // Focus on the new child's title for immediate editing
+          setTimeout(() => {
+            const newNodeEl = document.querySelector(`[data-id="${newChild.id}"] .node__title-display`);
+            if (newNodeEl) newNodeEl.click();
+          }, 100);
+        } catch (error) {
+          console.error('Error adding child:', error);
+          Utils.toast('Failed to add child node', 'error');
+        }
       }
     };
 
     // ==================== INITIALIZATION ====================
     function init() {
-      console.log('%c🚀 TUI Builder v1.0', 'font-size:20px;font-weight:bold');
-      
       // Apply theme
       document.documentElement.setAttribute('data-theme', state.theme);
       
-      // Load auto-saved data
-      if (!Storage.load()) {
-        History.save();
+      // Load saved data
+      if (!state.loadFromStorage()) {
+        state.saveToHistory();
       }
       
-      // Render initial state
-      Renderer.render();
+      // Initialize UI
+      Renderer.init();
       
       // Attach event handlers
       Handlers.init();
       
-      // Error handling
-      window.onerror = (msg, url, line, col, error) => {
-        console.error('Error:', error);
-        UI.toast('An error occurred', 'error');
-        return true;
-      };
+      // Initialize keyboard shortcuts
+      KeyboardShortcuts.init();
       
-      window.onunhandledrejection = (e) => {
-        console.error('Promise rejection:', e.reason);
-        UI.toast('An error occurred', 'error');
-      };
+      console.log('%c🚀 TUI Builder Optimized', 'font-size:20px;font-weight:bold');
+      console.log('%c📝 Shortcuts:', 'font-weight:bold');
+      console.log('  SHIFT+ENTER - Add sibling node');
+      console.log('  TAB - Add child node');
+      console.log('  DELETE - Delete selected node');
+      console.log('  CTRL+Z - Undo');
+      console.log('  CTRL+SHIFT+Z - Redo');
+      console.log('  ESC - Deselect node');
     }
 
-    // Start the application
+    // Start application
     init();
   </script>
 </body>
