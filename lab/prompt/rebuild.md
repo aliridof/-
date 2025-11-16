@@ -105,7 +105,6 @@ Lakukan analisis mendalam dan refactor aplikasi yang telah kamu buat untuk mengh
 
 ---
 **Note:** Ganti `[nama_aplikasi]` dan `[Spesifikasi_UI/UX_khusus]` dengan detail spesifik aplikasi Anda.
----
 
 ```
 [PASTE CODE DISINI]
