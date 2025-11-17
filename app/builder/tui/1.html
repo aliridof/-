@@ -654,6 +654,147 @@
       justify-content: space-between;
     }
 
+    /* ==================== SHORTCUTS MODAL ==================== */
+    .shortcut-grid {
+      display: grid;
+      gap: calc(var(--spacing) * 1);
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: calc(var(--spacing) * 1.5);
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .shortcut-item:active {
+      background: var(--active-bg);
+      transform: scale(0.98);
+    }
+
+    .shortcut-desc {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+    }
+
+    .shortcut-icon {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+
+    .shortcut-keys {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .key {
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      min-width: 28px;
+      text-align: center;
+      box-shadow: 0 2px 0 var(--border);
+    }
+
+    .key-sep {
+      font-size: 10px;
+      opacity: 0.5;
+      margin: 0 2px;
+    }
+
+    .shortcut-category {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: calc(var(--spacing) * 2.5);
+      margin-bottom: calc(var(--spacing) * 1);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      padding-bottom: calc(var(--spacing) * 0.5);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .shortcut-category:first-child {
+      margin-top: 0;
+    }
+
+    .shortcut-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing);
+      margin-bottom: calc(var(--spacing) * 2);
+    }
+
+    .shortcut-stat {
+      text-align: center;
+      padding: calc(var(--spacing) * 1.5);
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .shortcut-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .shortcut-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .shortcut-hint {
+      position: fixed;
+      bottom: calc(var(--spacing) * 10);
+      right: calc(var(--spacing) * 2);
+      background: var(--primary);
+      color: var(--secondary);
+      padding: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px var(--shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all var(--transition);
+      pointer-events: none;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shortcut-hint.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .shortcut-hint .key {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 2px 6px;
+      font-size: 10px;
+      min-width: 24px;
+    }
+
     /* ==================== SEARCH ==================== */
     .search-box {
       position: relative;
@@ -785,7 +926,7 @@
               <span class="material-icons">refresh</span>
             </button>
           </div>
-          <button class="btn btn--icon ml-auto" id="btn-shortcuts" title="Keyboard Shortcuts">
+          <button class="btn btn--icon ml-auto" id="btn-shortcuts" title="Keyboard Shortcuts (?)">
             <span class="material-icons">keyboard</span>
           </button>
           <button class="btn btn--icon" id="btn-toggle-preview" title="Toggle Preview">
@@ -862,6 +1003,190 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- ==================== KEYBOARD SHORTCUTS MODAL ==================== -->
+  <div id="shortcuts-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 24px;">keyboard</span>
+          <span>Keyboard Shortcuts</span>
+        </div>
+        <button class="btn btn--icon btn--sm" id="btn-close-shortcuts">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="shortcut-stats">
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-nodes">0</div>
+          <div class="shortcut-stat-label">Total Nodes</div>
+        </div>
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-history">0</div>
+          <div class="shortcut-stat-label">History</div>
+        </div>
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-logs">0</div>
+          <div class="shortcut-stat-label">Logs</div>
+        </div>
+      </div>
+      
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">account_tree</span>
+        Node Operations
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">add_circle</span>
+            Add sibling node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Shift</span>
+            <span class="key-sep">+</span>
+            <span class="key">Enter</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">subdirectory_arrow_right</span>
+            Add child node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Tab</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">delete</span>
+            Delete selected node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Del</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">highlight_off</span>
+            Deselect node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Esc</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">content_copy</span>
+        Clipboard
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">content_copy</span>
+            Copy selected node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">C</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">content_paste</span>
+            Paste as child
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">V</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">history</span>
+        History & Undo
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">undo</span>
+            Undo action
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">Z</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">redo</span>
+            Redo action
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">Shift</span>
+            <span class="key-sep">+</span>
+            <span class="key">Z</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">visibility</span>
+        UI & Panels
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">help</span>
+            Show this shortcuts
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">?</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">close</span>
+            Close modals
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Esc</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 2); background: var(--hover-bg); border-radius: var(--radius); border: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: var(--spacing); margin-bottom: var(--spacing);">
+          <span class="material-icons" style="color: var(--text-muted);">info</span>
+          <strong style="font-size: 13px;">Pro Tips</strong>
+        </div>
+        <ul style="font-size: 12px; opacity: 0.8; line-height: 1.8; padding-left: 20px; margin: 0;">
+          <li>Most shortcuts work when no input field is focused</li>
+          <li>Check System Log to track all your actions</li>
+          <li>Use Ctrl+Z/Ctrl+Shift+Z to navigate history</li>
+          <li>Drag nodes from palette or move them on canvas</li>
+        </ul>
+      </div>
+
+      <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 1); background: var(--primary); color: var(--secondary); border-radius: var(--radius); text-align: center; font-size: 11px; font-weight: 600;">
+        📊 All actions are logged in System Log panel
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SHORTCUT HINT ==================== -->
+  <div id="shortcut-hint" class="shortcut-hint">
+    <span class="material-icons" id="hint-icon">info</span>
+    <span id="hint-text"></span>
   </div>
 
   <script>
@@ -1141,6 +1466,17 @@
         Log.render();
       },
 
+      // Auto-edit node title after creation
+      autoEditNodeTitle(nodeId) {
+        // Wait for render to complete
+        setTimeout(() => {
+          const nodeTitle = document.querySelector(`.node-title[data-id="${nodeId}"]`);
+          if (nodeTitle) {
+            nodeTitle.click(); // Trigger inline edit
+          }
+        }, 50);
+      },
+
       renderPalette() {
         const sel = state.selectedId ? Node.find(state.selectedId) : null;
         $('#palette').innerHTML = `
@@ -1241,17 +1577,30 @@
 
           document.addEventListener('click', () => iconDropdown?.classList.add('hidden'), { once: true });
 
-          $('#edit-title')?.addEventListener('input', debounce(e => {
-            sel.title = e.target.value;
-            History.save('edited title');
-            UI.render();
-          }, CONFIG.debounceDelay));
+          // FIX 1: Remove debounce and render - update immediately, save on blur
+          const titleInput = $('#edit-title');
+          if (titleInput) {
+            titleInput.addEventListener('input', e => {
+              sel.title = e.target.value;
+            });
+            titleInput.addEventListener('blur', () => {
+              History.save('edited title');
+              UI.renderCanvas();
+              UI.renderPreview();
+            });
+          }
 
-          $('#edit-meta')?.addEventListener('input', debounce(e => {
-            sel.meta = e.target.value;
-            History.save('edited metadata');
-            UI.render();
-          }, CONFIG.debounceDelay));
+          const metaInput = $('#edit-meta');
+          if (metaInput) {
+            metaInput.addEventListener('input', e => {
+              sel.meta = e.target.value;
+            });
+            metaInput.addEventListener('blur', () => {
+              History.save('edited metadata');
+              UI.renderCanvas();
+              UI.renderPreview();
+            });
+          }
 
           $('#btn-copy-node')?.addEventListener('click', () => {
             state.copiedNode = JSON.parse(JSON.stringify(sel));
@@ -1450,9 +1799,11 @@
             } else if (action === 'child') {
               if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes reached', 'warning');
               History.save('added child');
-              Node.find(id).children.push(Node.create());
+              const newChild = Node.create();
+              Node.find(id).children.push(newChild);
               Log.add('node', `Added child to: ${node.title}`);
               UI.render();
+              UI.autoEditNodeTitle(newChild.id);
               toast('Child added');
             } else if (action === 'delete') {
               if (confirm('Delete node and all children?')) {
@@ -1659,6 +2010,34 @@
         if (confirm('Clear all logs?')) Log.clear();
       };
 
+      // OPTIMIZED: Keyboard Shortcuts Modal with Stats
+      $('#btn-shortcuts').onclick = () => {
+        // Update stats before showing
+        $('#shortcut-stat-nodes').textContent = Node.count();
+        $('#shortcut-stat-history').textContent = state.history.length;
+        $('#shortcut-stat-logs').textContent = state.logs.length;
+        
+        $('#shortcuts-modal').classList.add('visible');
+        Log.add('system', 'Opened keyboard shortcuts panel');
+      };
+
+      $('#btn-close-shortcuts').onclick = () => {
+        $('#shortcuts-modal').classList.remove('visible');
+      };
+
+      // Close modals on background click
+      $('#shortcuts-modal').onclick = (e) => {
+        if (e.target.id === 'shortcuts-modal') {
+          $('#shortcuts-modal').classList.remove('visible');
+        }
+      };
+
+      $('#import-modal').onclick = (e) => {
+        if (e.target.id === 'import-modal') {
+          $('#import-modal').classList.remove('visible');
+        }
+      };
+
       // Log filter
       $$('.log-filter-btn').forEach(btn => {
         btn.onclick = () => {
@@ -1682,13 +2061,34 @@
       document.addEventListener('keydown', e => {
         const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
 
-        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !isInput) {
+        // Show shortcuts with "?"
+        if (e.key === '?' && !isInput) {
+          e.preventDefault();
+          $('#shortcuts-modal').classList.add('visible');
+        }
+        // Escape to close modals
+        else if (e.key === 'Escape') {
+          if ($('#shortcuts-modal').classList.contains('visible')) {
+            $('#shortcuts-modal').classList.remove('visible');
+          } else if ($('#import-modal').classList.contains('visible')) {
+            $('#import-modal').classList.remove('visible');
+          } else if (state.selectedId && !isInput) {
+            state.selectedId = null;
+            UI.render();
+          }
+        }
+        // Undo
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !isInput) {
           e.preventDefault();
           $('#btn-undo').click();
-        } else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y') && !isInput) {
+        }
+        // Redo
+        else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y') && !isInput) {
           e.preventDefault();
           $('#btn-redo').click();
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedId && !isInput) {
+        }
+        // Copy node
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedId && !isInput) {
           e.preventDefault();
           const node = Node.find(state.selectedId);
           if (node) {
@@ -1697,7 +2097,9 @@
             toast('Node copied!', 'content_copy');
             UI.renderPalette();
           }
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.copiedNode && state.selectedId && !isInput) {
+        }
+        // Paste node
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.copiedNode && state.selectedId && !isInput) {
           e.preventDefault();
           const parent = Node.find(state.selectedId);
           if (parent) {
@@ -1710,14 +2112,18 @@
             UI.render();
             toast('Node pasted!', 'content_paste');
           }
-        } else if (e.shiftKey && e.key === 'Enter' && !isInput) {
+        }
+        // Add sibling with Shift+Enter
+        else if (e.shiftKey && e.key === 'Enter' && !isInput) {
           e.preventDefault();
           if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
           if (!state.selectedId) {
             History.save('added sibling');
-            state.nodes.push(Node.create());
+            const newNode = Node.create();
+            state.nodes.push(newNode);
             Log.add('node', 'Added root node');
             UI.render();
+            UI.autoEditNodeTitle(newNode.id);
             toast('Node added (root)');
           } else {
             const node = Node.find(state.selectedId);
@@ -1731,10 +2137,13 @@
               state.selectedId = newNode.id;
               Log.add('node', 'Added sibling node');
               UI.render();
+              UI.autoEditNodeTitle(newNode.id);
               toast('Sibling added');
             }
           }
-        } else if (e.key === 'Tab' && !isInput) {
+        }
+        // Add child with Tab
+        else if (e.key === 'Tab' && !isInput) {
           e.preventDefault();
           if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
           if (!state.selectedId) return toast('Select node first', 'info');
@@ -1746,9 +2155,12 @@
             state.selectedId = child.id;
             Log.add('node', `Added child to: ${node.title}`);
             UI.render();
+            UI.autoEditNodeTitle(child.id);
             toast('Child added');
           }
-        } else if (e.key === 'Delete' && state.selectedId && !isInput) {
+        }
+        // Delete with Delete key
+        else if (e.key === 'Delete' && state.selectedId && !isInput) {
           const node = Node.find(state.selectedId);
           if (confirm('Delete node?')) {
             History.save('deleted node');
@@ -1758,9 +2170,6 @@
             UI.render();
             toast('Node deleted');
           }
-        } else if (e.key === 'Escape' && !isInput) {
-          state.selectedId = null;
-          UI.render();
         }
       });
     }
@@ -1781,6 +2190,7 @@
       console.log('%c🚀 TUI Builder Pro v4.0 - Black & White Edition', 'font-size:20px;font-weight:bold;color:#000');
       console.log('%c📋 System Log: Max 100 activities', 'font-size:14px;color:#666');
       console.log('%c🎨 Theme: Strict Black & White', 'font-size:14px;color:#666');
+      console.log('%c⌨️  Press ? to see keyboard shortcuts', 'font-size:14px;color:#666');
     }
 
     init();
