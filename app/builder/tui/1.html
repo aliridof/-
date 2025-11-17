@@ -3,31 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TUI Builder Pro - Advanced Tree Diagram Builder</title>
+  <title>TUI Builder Pro - Black & White Edition</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* ==================== CSS VARIABLES ==================== */
+    /* ==================== CSS VARIABLES - BLACK & WHITE ONLY ==================== */
     :root {
-      --primary: #000;
-      --secondary: #fff;
-      --accent: #2196F3;
-      --border: #e0e0e0;
+      --black: #000000;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #eeeeee;
+      --gray-300: #e0e0e0;
+      --gray-400: #bdbdbd;
+      --gray-500: #9e9e9e;
+      --gray-600: #757575;
+      --gray-700: #616161;
+      --gray-800: #424242;
+      --gray-900: #212121;
+      
+      /* Theme colors */
+      --primary: var(--black);
+      --secondary: var(--white);
+      --border: var(--gray-300);
       --shadow: rgba(0, 0, 0, 0.1);
-      --hover: rgba(0, 0, 0, 0.05);
-      --active: rgba(0, 0, 0, 0.1);
+      --hover-bg: var(--gray-100);
+      --active-bg: var(--gray-200);
+      --text-muted: var(--gray-600);
+      
+      /* Spacing */
       --spacing: 8px;
       --radius: 8px;
       --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [data-theme="dark"] {
-      --primary: #fff;
-      --secondary: #1a1a1a;
-      --accent: #64B5F6;
-      --border: #333;
+      --primary: var(--white);
+      --secondary: var(--black);
+      --border: var(--gray-700);
       --shadow: rgba(255, 255, 255, 0.1);
-      --hover: rgba(255, 255, 255, 0.05);
-      --active: rgba(255, 255, 255, 0.1);
+      --hover-bg: var(--gray-900);
+      --active-bg: var(--gray-800);
+      --text-muted: var(--gray-400);
+      --gray-50: var(--gray-900);
+      --gray-100: var(--gray-800);
+      --gray-200: var(--gray-700);
     }
 
     /* ==================== RESET & BASE ==================== */
@@ -93,11 +112,11 @@
 
     #main {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto 1fr auto auto;
       overflow: hidden;
     }
 
-    /* ==================== COMPONENTS ==================== */
+    /* ==================== COMPONENTS - NO HOVER ==================== */
     .btn {
       background: var(--secondary);
       color: var(--primary);
@@ -107,7 +126,7 @@
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: all var(--transition);
+      transition: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -116,18 +135,30 @@
       user-select: none;
     }
 
-    .btn:hover:not(:disabled) {
-      background: var(--hover);
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px var(--shadow);
+    .btn:active:not(:disabled) { 
+      background: var(--active-bg);
+      transform: translateY(1px);
     }
-
-    .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn--primary { background: var(--primary); color: var(--secondary); }
-    .btn--accent { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn--icon { padding: var(--spacing); aspect-ratio: 1; }
-    .btn--sm { padding: 4px 8px; font-size: 11px; }
+    
+    .btn:disabled { 
+      opacity: 0.3; 
+      cursor: not-allowed; 
+    }
+    
+    .btn--primary { 
+      background: var(--primary); 
+      color: var(--secondary); 
+    }
+    
+    .btn--icon { 
+      padding: var(--spacing); 
+      aspect-ratio: 1; 
+    }
+    
+    .btn--sm { 
+      padding: 4px 8px; 
+      font-size: 11px; 
+    }
 
     /* ==================== SIDEBAR ==================== */
     #sidebar {
@@ -161,14 +192,8 @@
       padding: calc(var(--spacing) * 1.5);
       margin: var(--spacing) calc(var(--spacing) * 1.5);
       cursor: grab;
-      transition: all var(--transition);
+      transition: border-color var(--transition);
       user-select: none;
-    }
-
-    .palette-item:hover {
-      border-color: var(--accent);
-      transform: translateX(4px);
-      box-shadow: 0 2px 8px var(--shadow);
     }
 
     .palette-item:active { cursor: grabbing; }
@@ -206,8 +231,8 @@
 
     .field-input:focus {
       outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--active-bg);
     }
 
     .field-textarea {
@@ -230,15 +255,13 @@
       transition: all var(--transition);
     }
 
-    .icon-picker-display:hover { border-color: var(--accent); }
-
     .icon-preview {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 32px;
       height: 32px;
-      background: var(--hover);
+      background: var(--hover-bg);
       border-radius: var(--radius);
     }
 
@@ -249,7 +272,7 @@
       right: 0;
       margin-top: 4px;
       background: var(--secondary);
-      border: 2px solid var(--accent);
+      border: 2px solid var(--primary);
       border-radius: var(--radius);
       box-shadow: 0 8px 24px var(--shadow);
       z-index: 1000;
@@ -286,16 +309,10 @@
       transition: all var(--transition);
     }
 
-    .icon-item:hover {
-      background: var(--hover);
-      border-color: var(--accent);
-      transform: scale(1.1);
-    }
-
     .icon-item.selected {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
+      background: var(--primary);
+      color: var(--secondary);
+      border-color: var(--primary);
     }
 
     /* ==================== CANVAS ==================== */
@@ -361,8 +378,11 @@
       box-shadow: 0 2px 8px var(--shadow);
     }
 
-    .node:hover { box-shadow: 0 4px 16px var(--shadow); }
-    .node.selected { border-color: var(--accent); border-width: 3px; box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2); }
+    .node.selected { 
+      border-width: 3px; 
+      box-shadow: 0 0 0 4px var(--active-bg); 
+    }
+    
     .node.dragging { opacity: 0.4; }
     .node.main { border-width: 3px; }
 
@@ -378,8 +398,6 @@
       transition: opacity var(--transition);
     }
 
-    .node:hover .node-drag { opacity: 0.7; }
-
     .node-content { flex: 1; min-width: 0; }
 
     .node-title {
@@ -392,26 +410,24 @@
       transition: all var(--transition);
     }
 
-    .node-title:hover { background: var(--hover); }
-
     .node-title-input {
       font-size: 16px;
       font-weight: 600;
       padding: 4px var(--spacing);
       border-radius: var(--radius);
-      border: 2px solid var(--accent);
-      background: var(--active);
+      border: 2px solid var(--primary);
+      background: var(--active-bg);
       color: var(--primary);
       font-family: inherit;
       width: 100%;
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+      box-shadow: 0 0 0 3px var(--active-bg);
     }
 
     .node-meta {
       font-size: 12px;
       margin-top: var(--spacing);
       padding: var(--spacing);
-      background: var(--hover);
+      background: var(--hover-bg);
       border-radius: var(--radius);
       font-family: 'Courier New', monospace;
       white-space: pre-wrap;
@@ -433,20 +449,6 @@
       position: relative;
     }
 
-    .children::before {
-      content: '';
-      position: absolute;
-      left: -2px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--accent);
-      opacity: 0;
-      transition: opacity var(--transition);
-    }
-
-    .node-wrap:hover > .children::before { opacity: 0.5; }
-
     /* ==================== DROP ZONE ==================== */
     .drop-zone {
       min-height: 50px;
@@ -461,8 +463,8 @@
     }
 
     .drop-zone.over {
-      border-color: var(--accent);
-      background: rgba(33, 150, 243, 0.1);
+      border-color: var(--primary);
+      background: var(--active-bg);
       border-style: solid;
       opacity: 1;
       transform: scale(1.02);
@@ -491,6 +493,103 @@
       font-size: 12px;
       white-space: pre-wrap;
       overflow-y: auto;
+    }
+
+    /* ==================== SYSTEM LOG PANEL ==================== */
+    #log-panel {
+      width: 320px;
+      background: var(--secondary);
+      border-left: 2px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      transition: margin-right var(--transition);
+    }
+
+    #log-panel.collapsed { margin-right: -320px; }
+
+    .log-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing);
+      max-height: calc(100vh - 200px);
+    }
+
+    .log-item {
+      padding: calc(var(--spacing) * 1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: var(--spacing);
+      font-size: 12px;
+      background: var(--secondary);
+    }
+
+    .log-item.highlight {
+      background: var(--gray-100);
+      border-color: var(--primary);
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      margin-bottom: 4px;
+    }
+
+    .log-id {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      background: var(--hover-bg);
+      border-radius: 4px;
+    }
+
+    .log-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .log-type {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--hover-bg);
+    }
+
+    .log-message {
+      color: var(--primary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .log-filter {
+      padding: var(--spacing);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .log-filter-btn {
+      padding: 4px 8px;
+      font-size: 10px;
+      border: 1px solid var(--border);
+      background: var(--secondary);
+      color: var(--primary);
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+
+    .log-filter-btn.active {
+      background: var(--primary);
+      color: var(--secondary);
+      border-color: var(--primary);
     }
 
     /* ==================== TOAST ==================== */
@@ -575,8 +674,8 @@
 
     .search-input:focus {
       outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--active-bg);
     }
 
     .search-icon {
@@ -592,13 +691,13 @@
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--secondary); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
 
     /* ==================== UTILITIES ==================== */
     .material-icons { font-size: inherit; line-height: inherit; vertical-align: middle; }
     
     @media (max-width: 768px) {
-      #sidebar, #preview-panel { position: absolute; z-index: 50; height: 100%; }
+      #sidebar, #preview-panel, #log-panel { position: absolute; z-index: 50; height: 100%; }
       .search-box { max-width: 150px; }
     }
   </style>
@@ -686,12 +785,14 @@
               <span class="material-icons">refresh</span>
             </button>
           </div>
-          <div class="ml-auto" style="font-size: 12px; opacity: 0.6; display: flex; align-items: center; gap: 8px;">
-            <span class="material-icons" style="font-size: 16px;">info</span>
-            <span>CTRL+Z: Undo • SHIFT+ENTER: Sibling • TAB: Child • CTRL+C/V: Copy/Paste</span>
-          </div>
+          <button class="btn btn--icon ml-auto" id="btn-shortcuts" title="Keyboard Shortcuts">
+            <span class="material-icons">keyboard</span>
+          </button>
           <button class="btn btn--icon" id="btn-toggle-preview" title="Toggle Preview">
             <span class="material-icons">visibility</span>
+          </button>
+          <button class="btn btn--icon" id="btn-toggle-log" title="Toggle System Log">
+            <span class="material-icons">receipt_long</span>
           </button>
         </div>
         <div id="canvas-container">
@@ -709,6 +810,27 @@
           </button>
         </div>
         <div class="preview-content" id="preview-content"></div>
+      </aside>
+
+      <!-- SYSTEM LOG PANEL -->
+      <aside id="log-panel" class="collapsed">
+        <div class="sidebar-header">
+          <span class="material-icons">receipt_long</span>
+          System Log
+          <button class="btn btn--icon btn--sm ml-auto" id="btn-close-log" title="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="log-filter">
+          <button class="log-filter-btn active" data-filter="all">All</button>
+          <button class="log-filter-btn" data-filter="node">Node</button>
+          <button class="log-filter-btn" data-filter="history">History</button>
+          <button class="log-filter-btn" data-filter="system">System</button>
+          <button class="btn btn--sm ml-auto" id="btn-clear-log">
+            <span class="material-icons">clear</span>
+          </button>
+        </div>
+        <div class="log-container" id="log-container"></div>
       </aside>
     </main>
   </div>
@@ -734,7 +856,7 @@
       </div>
       <div class="flex gap-1" style="justify-content: flex-end;">
         <button class="btn" id="btn-cancel-import">Cancel</button>
-        <button class="btn btn--accent" id="btn-confirm-import">
+        <button class="btn btn--primary" id="btn-confirm-import">
           <span class="material-icons">upload</span>
           Import
         </button>
@@ -748,9 +870,10 @@
     // ==================== CONFIGURATION ====================
     const CONFIG = {
       maxHistory: 50,
+      maxLogs: 100,
       autoSaveDelay: 1000,
       maxNodes: 100,
-      storageKey: 'tuiBuilderPro_v3',
+      storageKey: 'tuiBuilderPro_v4',
       zoomStep: 0.1,
       minZoom: 0.5,
       maxZoom: 2,
@@ -770,6 +893,8 @@
       zoom: 1,
       history: [],
       historyIndex: -1,
+      logs: [],
+      logFilter: 'all',
       theme: localStorage.getItem('theme') || 'light',
       autoNumbering: localStorage.getItem('autoNumbering') === 'true',
       searchQuery: ''
@@ -779,6 +904,7 @@
     const $ = (sel, ctx = document) => ctx.querySelector(sel);
     const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
     const uid = () => `n_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const logId = () => `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const escape = str => { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; };
     const debounce = (fn, wait) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
 
@@ -790,6 +916,65 @@
       clearTimeout(t._timer);
       t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
     }
+
+    // ==================== SYSTEM LOG ====================
+    const Log = {
+      add(type, message, details = {}) {
+        const log = {
+          id: logId(),
+          type,
+          message,
+          details,
+          timestamp: new Date(),
+          historyRef: state.historyIndex
+        };
+        
+        state.logs.unshift(log);
+        
+        if (state.logs.length > CONFIG.maxLogs) {
+          state.logs = state.logs.slice(0, CONFIG.maxLogs);
+        }
+        
+        this.render();
+        console.log(`[${type.toUpperCase()}] ${message}`, details);
+      },
+
+      render() {
+        const container = $('#log-container');
+        if (!container) return;
+
+        const filtered = state.logFilter === 'all' 
+          ? state.logs 
+          : state.logs.filter(log => log.type === state.logFilter);
+
+        if (filtered.length === 0) {
+          container.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.5;">No logs</div>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(log => {
+          const time = log.timestamp.toLocaleTimeString();
+          const isCurrentHistory = log.historyRef === state.historyIndex;
+          
+          return `
+            <div class="log-item ${isCurrentHistory ? 'highlight' : ''}">
+              <div class="log-header">
+                <span class="log-id">${log.id}</span>
+                <span class="log-type">${log.type}</span>
+                <span class="log-time">${time}</span>
+              </div>
+              <div class="log-message">${escape(log.message)}</div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      clear() {
+        state.logs = [];
+        this.render();
+        toast('Logs cleared', 'delete');
+      }
+    };
 
     // ==================== NODE OPERATIONS ====================
     const Node = {
@@ -878,7 +1063,7 @@
 
     // ==================== HISTORY ====================
     const History = {
-      save() {
+      save(action = 'unknown') {
         state.history = state.history.slice(0, state.historyIndex + 1);
         state.history.push(JSON.parse(JSON.stringify(state.nodes)));
         state.historyIndex++;
@@ -886,6 +1071,8 @@
           state.history.shift();
           state.historyIndex--;
         }
+        
+        Log.add('history', `Saved state: ${action}`);
         this.autoSave();
         UI.updateButtons();
       },
@@ -894,6 +1081,7 @@
         if (state.historyIndex > 0) {
           state.historyIndex--;
           state.nodes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+          Log.add('history', `Undo to log ref: ${state.historyIndex}`);
           return true;
         }
         return false;
@@ -903,6 +1091,7 @@
         if (state.historyIndex < state.history.length - 1) {
           state.historyIndex++;
           state.nodes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+          Log.add('history', `Redo to log ref: ${state.historyIndex}`);
           return true;
         }
         return false;
@@ -912,11 +1101,13 @@
         try {
           localStorage.setItem(CONFIG.storageKey, JSON.stringify({
             nodes: state.nodes,
-            version: '3.0',
+            version: '4.0',
             timestamp: Date.now()
           }));
+          Log.add('system', 'Auto-saved to localStorage');
         } catch (e) {
           console.warn('Auto-save failed:', e);
+          Log.add('system', 'Auto-save failed: ' + e.message);
         }
       }, CONFIG.autoSaveDelay),
 
@@ -927,12 +1118,14 @@
             const data = JSON.parse(saved);
             if (data.nodes && Array.isArray(data.nodes)) {
               state.nodes = data.nodes;
-              this.save();
+              this.save('loaded from storage');
+              Log.add('system', 'Data loaded from localStorage');
               return true;
             }
           }
         } catch (e) {
           console.warn('Load failed:', e);
+          Log.add('system', 'Load failed: ' + e.message);
         }
         return false;
       }
@@ -945,6 +1138,7 @@
         this.renderCanvas();
         this.renderPreview();
         this.updateButtons();
+        Log.render();
       },
 
       renderPalette() {
@@ -997,12 +1191,12 @@
               </div>
 
               <div class="flex gap-1">
-                <button class="btn btn--accent w-full" id="btn-copy-node">
+                <button class="btn btn--primary w-full" id="btn-copy-node">
                   <span class="material-icons">content_copy</span>
                   Copy Node
                 </button>
                 ${!state.copiedNode ? '' : `
-                  <button class="btn btn--accent w-full" id="btn-paste-node">
+                  <button class="btn btn--primary w-full" id="btn-paste-node">
                     <span class="material-icons">content_paste</span>
                     Paste
                   </button>
@@ -1040,7 +1234,7 @@
             const item = e.target.closest('.icon-item');
             if (!item) return;
             sel.icon = item.dataset.icon;
-            History.save();
+            History.save('changed icon');
             UI.render();
             toast(`Icon changed to ${sel.icon}`);
           });
@@ -1049,18 +1243,19 @@
 
           $('#edit-title')?.addEventListener('input', debounce(e => {
             sel.title = e.target.value;
-            History.save();
+            History.save('edited title');
             UI.render();
           }, CONFIG.debounceDelay));
 
           $('#edit-meta')?.addEventListener('input', debounce(e => {
             sel.meta = e.target.value;
-            History.save();
+            History.save('edited metadata');
             UI.render();
           }, CONFIG.debounceDelay));
 
           $('#btn-copy-node')?.addEventListener('click', () => {
             state.copiedNode = JSON.parse(JSON.stringify(sel));
+            Log.add('node', `Copied node: ${sel.title}`);
             toast('Node copied!', 'content_copy');
             UI.renderPalette();
           });
@@ -1071,7 +1266,8 @@
             copy.id = uid();
             copy.title = `${copy.title} (copy)`;
             sel.children.push(copy);
-            History.save();
+            History.save('pasted node');
+            Log.add('node', `Pasted node as child of: ${sel.title}`);
             UI.render();
             toast('Node pasted!', 'content_paste');
           });
@@ -1116,7 +1312,7 @@
         const el = document.createElement('div');
         el.className = `node ${!parentId ? 'main' : ''} ${state.selectedId === node.id ? 'selected' : ''}`;
         el.dataset.id = node.id;
-        if (isHighlighted) el.style.borderColor = 'var(--accent)';
+        if (isHighlighted) el.style.borderColor = 'var(--primary)';
 
         el.innerHTML = `
           <div class="node-header">
@@ -1180,15 +1376,19 @@
           const pid = zone.dataset.parentId || null;
           const p = parseInt(zone.dataset.pos);
 
-          History.save();
+          History.save('dropped node');
 
           if (state.draggedFromPalette) {
             const newNode = Node.create();
             if (pid) Node.find(pid).children.splice(p, 0, newNode);
             else state.nodes.splice(p, 0, newNode);
+            Log.add('node', 'Added node from palette');
             toast('Node added');
           } else if (state.draggedNode) {
-            if (Node.move(state.draggedNode, pid, p)) toast('Node moved');
+            if (Node.move(state.draggedNode, pid, p)) {
+              Log.add('node', 'Moved node via drag & drop');
+              toast('Node moved');
+            }
           }
 
           UI.render();
@@ -1221,7 +1421,7 @@
 
           const apply = () => {
             node.title = input.value.trim() || 'Untitled';
-            History.save();
+            History.save('edited title inline');
             UI.render();
             toast('Title updated');
           };
@@ -1238,6 +1438,7 @@
             e.stopPropagation();
             const action = btn.dataset.action;
             const id = el.dataset.id;
+            const node = Node.find(id);
 
             if (action === 'edit') {
               state.selectedId = id;
@@ -1248,21 +1449,24 @@
               toast('Node editor opened');
             } else if (action === 'child') {
               if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes reached', 'warning');
-              History.save();
+              History.save('added child');
               Node.find(id).children.push(Node.create());
+              Log.add('node', `Added child to: ${node.title}`);
               UI.render();
               toast('Child added');
             } else if (action === 'delete') {
               if (confirm('Delete node and all children?')) {
-                History.save();
+                History.save('deleted node');
+                Log.add('node', `Deleted node: ${node.title}`);
                 Node.remove(id);
                 if (state.selectedId === id) state.selectedId = null;
                 UI.render();
                 toast('Node deleted');
               }
             } else if (action === 'up' || action === 'down') {
-              History.save();
+              History.save(`reordered ${action}`);
               if (Node.reorder(id, action)) {
+                Log.add('node', `Reordered node ${action}: ${node.title}`);
                 UI.render();
                 toast(`Moved ${action}`);
               }
@@ -1329,12 +1533,14 @@
         state.theme = state.theme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', state.theme);
         localStorage.setItem('theme', state.theme);
+        Log.add('system', `Theme changed to ${state.theme}`);
       };
 
       $('#btn-add-main').onclick = () => {
         if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
-        History.save();
+        History.save('added main node');
         state.nodes.push(Node.create('New Phase'));
+        Log.add('node', 'Added main node');
         UI.render();
         toast('Main node added');
       };
@@ -1351,7 +1557,8 @@
             { id: uid(), title: 'Start services', icon: 'play_arrow', meta: 'docker-compose up -d', children: [] }
           ]}
         ];
-        History.save();
+        History.save('loaded sample');
+        Log.add('system', 'Sample data loaded');
         UI.render();
         toast('Sample loaded');
       };
@@ -1365,7 +1572,8 @@
           const data = JSON.parse($('#import-textarea').value);
           if (data.nodes && Array.isArray(data.nodes)) {
             state.nodes = data.nodes;
-            History.save();
+            History.save('imported data');
+            Log.add('system', 'Data imported from JSON');
             UI.render();
             $('#import-modal').classList.remove('visible');
             toast('Data imported!', 'upload');
@@ -1374,11 +1582,12 @@
           }
         } catch (e) {
           toast('Import failed: ' + e.message, 'error');
+          Log.add('system', 'Import failed: ' + e.message);
         }
       };
 
       $('#btn-export-json').onclick = () => {
-        const data = JSON.stringify({ nodes: state.nodes, version: '3.0', exported: new Date().toISOString() }, null, 2);
+        const data = JSON.stringify({ nodes: state.nodes, version: '4.0', exported: new Date().toISOString() }, null, 2);
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1386,13 +1595,17 @@
         a.download = `tui-builder-${Date.now()}.json`;
         a.click();
         URL.revokeObjectURL(url);
+        Log.add('system', 'Exported data to JSON');
         toast('JSON exported!', 'download');
       };
 
       $('#btn-export-ascii').onclick = () => {
         const ascii = $('#preview-content').textContent;
         navigator.clipboard.writeText(ascii).then(
-          () => toast('ASCII copied!', 'check_circle'),
+          () => {
+            Log.add('system', 'Exported ASCII to clipboard');
+            toast('ASCII copied!', 'check_circle');
+          },
           () => toast('Copy failed', 'error')
         );
       };
@@ -1416,7 +1629,8 @@
         if (confirm('Clear all? Cannot be undone.')) {
           state.nodes = [];
           state.selectedId = null;
-          History.save();
+          History.save('cleared all');
+          Log.add('system', 'Canvas cleared');
           UI.render();
           toast('Canvas cleared');
         }
@@ -1425,6 +1639,7 @@
       $('#btn-numbering').onclick = () => {
         state.autoNumbering = !state.autoNumbering;
         localStorage.setItem('autoNumbering', state.autoNumbering);
+        Log.add('system', `Auto numbering ${state.autoNumbering ? 'enabled' : 'disabled'}`);
         toast(state.autoNumbering ? 'Numbering ON' : 'Numbering OFF', 'format_list_numbered');
         UI.render();
       };
@@ -1436,6 +1651,23 @@
       $('#btn-toggle-sidebar').onclick = () => $('#sidebar').classList.toggle('collapsed');
       $('#btn-toggle-preview').onclick = () => $('#preview-panel').classList.toggle('collapsed');
       $('#btn-close-preview').onclick = () => $('#preview-panel').classList.add('collapsed');
+      
+      $('#btn-toggle-log').onclick = () => $('#log-panel').classList.toggle('collapsed');
+      $('#btn-close-log').onclick = () => $('#log-panel').classList.add('collapsed');
+      
+      $('#btn-clear-log').onclick = () => {
+        if (confirm('Clear all logs?')) Log.clear();
+      };
+
+      // Log filter
+      $$('.log-filter-btn').forEach(btn => {
+        btn.onclick = () => {
+          state.logFilter = btn.dataset.filter;
+          $$('.log-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          Log.render();
+        };
+      });
 
       $('#search-input').addEventListener('input', debounce(e => {
         state.searchQuery = e.target.value;
@@ -1461,6 +1693,7 @@
           const node = Node.find(state.selectedId);
           if (node) {
             state.copiedNode = JSON.parse(JSON.stringify(node));
+            Log.add('node', `Copied node: ${node.title}`);
             toast('Node copied!', 'content_copy');
             UI.renderPalette();
           }
@@ -1472,7 +1705,8 @@
             copy.id = uid();
             copy.title = `${copy.title} (copy)`;
             parent.children.push(copy);
-            History.save();
+            History.save('pasted node');
+            Log.add('node', `Pasted node as child of: ${parent.title}`);
             UI.render();
             toast('Node pasted!', 'content_paste');
           }
@@ -1480,8 +1714,9 @@
           e.preventDefault();
           if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
           if (!state.selectedId) {
-            History.save();
+            History.save('added sibling');
             state.nodes.push(Node.create());
+            Log.add('node', 'Added root node');
             UI.render();
             toast('Node added (root)');
           } else {
@@ -1490,10 +1725,11 @@
             const siblings = parent ? parent.children : state.nodes;
             const idx = siblings.findIndex(n => n.id === state.selectedId);
             if (idx !== -1) {
-              History.save();
+              History.save('added sibling');
               const newNode = Node.create();
               siblings.splice(idx + 1, 0, newNode);
               state.selectedId = newNode.id;
+              Log.add('node', 'Added sibling node');
               UI.render();
               toast('Sibling added');
             }
@@ -1504,16 +1740,19 @@
           if (!state.selectedId) return toast('Select node first', 'info');
           const node = Node.find(state.selectedId);
           if (node) {
-            History.save();
+            History.save('added child');
             const child = Node.create();
             node.children.push(child);
             state.selectedId = child.id;
+            Log.add('node', `Added child to: ${node.title}`);
             UI.render();
             toast('Child added');
           }
         } else if (e.key === 'Delete' && state.selectedId && !isInput) {
+          const node = Node.find(state.selectedId);
           if (confirm('Delete node?')) {
-            History.save();
+            History.save('deleted node');
+            Log.add('node', `Deleted node: ${node.title}`);
             Node.remove(state.selectedId);
             state.selectedId = null;
             UI.render();
@@ -1529,11 +1768,19 @@
     // ==================== INITIALIZATION ====================
     function init() {
       document.documentElement.setAttribute('data-theme', state.theme);
-      if (!History.load()) History.save();
+      
+      Log.add('system', 'TUI Builder Pro v4.0 initialized');
+      
+      if (!History.load()) {
+        History.save('initial state');
+      }
+      
       UI.render();
       initEvents();
-      console.log('%c🚀 TUI Builder Pro v3.0', 'font-size:20px;font-weight:bold;color:#2196F3');
-      console.log('%c✨ Optimized & Enhanced', 'font-size:14px;color:#666');
+      
+      console.log('%c🚀 TUI Builder Pro v4.0 - Black & White Edition', 'font-size:20px;font-weight:bold;color:#000');
+      console.log('%c📋 System Log: Max 100 activities', 'font-size:14px;color:#666');
+      console.log('%c🎨 Theme: Strict Black & White', 'font-size:14px;color:#666');
     }
 
     init();
