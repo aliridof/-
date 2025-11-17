@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Canvas Pro - Optimized Edition</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           CSS VARIABLES - THEME SYSTEM
+           ============================================ */
+        :root {
+            /* Light Theme Colors */
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f3f4f6;
+            --bg-hover: #f3f4f6;
+            --bg-active: #e5e7eb;
+            
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --border-hover: #9ca3af;
+            
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-light: rgba(99, 102, 241, 0.1);
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+            
+            --grid-color: rgba(156, 163, 175, 0.1);
+            --grid-size: 20px;
+            
+            --transition-fast: 150ms;
+            --transition-base: 200ms;
+            --transition-slow: 300ms;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --bg-hover: #374151;
+            --bg-active: #4b5563;
+            
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --border-hover: #6b7280;
+            
+            --accent-primary: #818cf8;
+            --accent-hover: #6366f1;
+            --accent-light: rgba(129, 140, 248, 0.1);
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.6);
+            
+            --grid-color: rgba(156, 163, 175, 0.05);
+        }
+
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background var(--transition-base), color var(--transition-base);
+        }
+
+        /* ============================================
+           CANVAS STYLES
+           ============================================ */
+        .canvas {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-primary);
+            overflow: hidden;
+            cursor: default;
+            transition: background var(--transition-base);
+        }
+
+        .canvas__grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: var(--grid-size) var(--grid-size);
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+        }
+
+        .canvas__grid--hidden {
+            opacity: 0;
+        }
+
+        .canvas__viewport {
+            position: absolute;
+            inset: 0;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+
+        .canvas__svg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .canvas__nodes {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        /* ============================================
+           NODE STYLES
+           ============================================ */
+        .node {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            pointer-events: auto;
+            transition: transform var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow var(--transition-base);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            user-select: none;
+            contain: layout style paint;
+        }
+
+        .node:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+            z-index: 10;
+        }
+
+        .node--selected {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 2px;
+            z-index: 100 !important;
+        }
+
+        .node__handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-primary);
+            border: 2px solid var(--bg-secondary);
+            border-radius: 50%;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: crosshair;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+            pointer-events: auto;
+        }
+
+        .node:hover .node__handle {
+            opacity: 1;
+        }
+
+        .node__icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            line-height: 1;
+        }
+
+        .node__title {
+            font-weight: 600;
+            font-size: 13px;
+            color: rgba(0,0,0,0.85);
+            text-align: center;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .node__count {
+            font-size: 11px;
+            color: rgba(0,0,0,0.5);
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           EDGE STYLES
+           ============================================ */
+        .edge {
+            stroke-width: 2;
+            fill: none;
+            pointer-events: stroke;
+            stroke-linecap: round;
+            transition: stroke-width var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .edge:hover {
+            stroke-width: 3;
+        }
+
+        .edge--animated {
+            stroke-dasharray: 5, 5;
+            animation: edge-dash 1s linear infinite;
+        }
+
+        @keyframes edge-dash {
+            to { stroke-dashoffset: -10; }
+        }
+
+        .edge__marker {
+            fill: currentColor;
+        }
+
+        .edge__label {
+            background: var(--bg-secondary);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
+            color: var(--text-primary);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .edge__label:hover {
+            background: var(--bg-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ============================================
+           TOOLBAR STYLES
+           ============================================ */
+        .toolbar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            transition: all var(--transition-base);
+        }
+
+        .toolbar__btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .toolbar__btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .toolbar__btn:active {
+            transform: scale(0.95);
+        }
+
+        .toolbar__btn--active {
+            background: var(--accent-light);
+            color: var(--accent-primary);
+        }
+
+        .toolbar__separator {
+            width: 1px;
+            background: var(--border-primary);
+            margin: 0 4px;
+        }
+
+        .toolbar__btn[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            box-shadow: var(--shadow-md);
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        /* ============================================
+           INSPECTOR PANEL
+           ============================================ */
+        .inspector {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 320px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-xl);
+            padding: 24px;
+            z-index: 2000;
+            transform: translateX(100%);
+            transition: transform var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inspector--open {
+            transform: translateX(0);
+        }
+
+        .inspector__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .inspector__title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .inspector__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .inspector__field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inspector__label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inspector__input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
+        }
+
+        .inspector__input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .inspector__input--color {
+            height: 44px;
+            cursor: pointer;
+        }
+
+        /* ============================================
+           MINIMAP
+           ============================================ */
+        .minimap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .minimap__canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .minimap__viewport {
+            position: absolute;
+            border: 2px solid var(--accent-primary);
+            background: var(--accent-light);
+            pointer-events: none;
+            transition: all 100ms ease-out;
+        }
+
+        /* ============================================
+           CONTEXT MENU
+           ============================================ */
+        .context-menu {
+            position: fixed;
+            min-width: 200px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            box-shadow: var(--shadow-xl);
+            padding: 6px;
+            z-index: 3000;
+            display: none;
+            animation: contextMenuShow 150ms ease-out;
+        }
+
+        @keyframes contextMenuShow {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .context-menu--show {
+            display: block;
+        }
+
+        .context-menu__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            text-align: left;
+            transition: all var(--transition-fast);
+        }
+
+        .context-menu__item:hover {
+            background: var(--bg-hover);
+        }
+
+        .context-menu__item--danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .context-menu__separator {
+            height: 1px;
+            background: var(--border-primary);
+            margin: 6px 8px;
+        }
+
+        /* ============================================
+           COMMAND PALETTE
+           ============================================ */
+        .command-palette {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            max-width: 90vw;
+            max-height: 500px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            z-index: 4000;
+            display: none;
+            animation: paletteShow 200ms ease-out;
+        }
+
+        @keyframes paletteShow {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -48%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .command-palette--show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .command-palette__input {
+            width: 100%;
+            padding: 20px 24px;
+            border: none;
+            border-bottom: 1px solid var(--border-primary);
+            font-size: 16px;
+            background: transparent;
+            color: var(--text-primary);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .command-palette__input:focus {
+            outline: none;
+        }
+
+        .command-palette__results {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .command-palette__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .command-palette__item:hover,
+        .command-palette__item--selected {
+            background: var(--bg-hover);
+        }
+
+        .command-palette__icon {
+            color: var(--text-secondary);
+        }
+
+        .command-palette__name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .command-palette__shortcut {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        /* ============================================
+           NOTIFICATION
+           ============================================ */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 5000;
+            animation: notificationSlide 300ms ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        @keyframes notificationSlide {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* ============================================
+           THEME TOGGLE
+           ============================================ */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            transition: all var(--transition-fast);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+        }
+
+        .theme-toggle__icon {
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           SCROLLBAR STYLING
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-secondary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* ============================================
+           UTILITY CLASSES
+           ============================================ */
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn--primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .btn--primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn--danger {
+            background: var(--error);
+            color: white;
+            border-color: var(--error);
+        }
+
+        .btn--danger:hover {
+            background: #dc2626;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .inspector {
+                width: 100%;
+            }
+
+            .toolbar {
+                flex-wrap: wrap;
+            }
+
+            .command-palette {
+                width: 95vw;
+            }
+
+            .minimap {
+                width: 150px;
+                height: 112px;
+            }
+        }
+
+        /* ============================================
+           LOADING SPINNER
+           ============================================ */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-primary);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           ACCESSIBILITY
+           ============================================ */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Focus visible for keyboard navigation */
+        *:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .node {
+                border: 2px solid currentColor;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Canvas -->
+    <div class="canvas" id="canvas">
+        <div class="canvas__grid" id="grid"></div>
+        <div class="canvas__viewport" id="viewport">
+            <svg class="canvas__svg" id="svg">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                            refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" class="edge__marker" />
+                    </marker>
+                </defs>
+                <g id="edges"></g>
+            </svg>
+            <div class="canvas__nodes" id="nodes"></div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="material-icons theme-toggle__icon" id="themeIcon">dark_mode</span>
+    </button>
+
+    <!-- Toolbar -->
+    <div class="toolbar" id="toolbar">
+        <button class="toolbar__btn" id="btnAddNode" title="Add Node (N)">
+            <span class="material-icons">add_box</span>
+        </button>
+        <button class="toolbar__btn" id="btnUndo" title="Undo (Ctrl+Z)">
+            <span class="material-icons">undo</span>
+        </button>
+        <button class="toolbar__btn" id="btnRedo" title="Redo (Ctrl+Y)">
+            <span class="material-icons">redo</span>
+        </button>
+        <div class="toolbar__separator"></div>
+        <button class="toolbar__btn" id="btnZoomIn" title="Zoom In (Ctrl++)">
+            <span class="material-icons">zoom_in</span>
+        </button>
+        <button class="toolbar__btn" id="btnZoomOut" title="Zoom Out (Ctrl+-)">
+            <span class="material-icons">zoom_out</span>
+        </button>
+        <button class="toolbar__btn" id="btnFitScreen" title="Fit to Screen (Ctrl+0)">
+            <span class="material-icons">fit_screen</span>
+        </button>
+        <div class="toolbar__separator"></div>
+        <button class="toolbar__btn" id="btnToggleGrid" title="Toggle Grid (G)">
+            <span class="material-icons">grid_on</span>
+        </button>
+        <button class="toolbar__btn" id="btnExport" title="Export (Ctrl+S)">
+            <span class="material-icons">download</span>
+        </button>
+        <button class="toolbar__btn" id="btnImport" title="Import (Ctrl+O)">
+            <span class="material-icons">upload</span>
+        </button>
+    </div>
+
+    <!-- Inspector Panel -->
+    <aside class="inspector" id="inspector">
+        <div class="inspector__header">
+            <h3 class="inspector__title" id="inspectorTitle">Properties</h3>
+            <div class="inspector__actions">
+                <button class="btn" id="btnCloseInspector">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </div>
+        <div id="inspectorContent"></div>
+    </aside>
+
+    <!-- Minimap -->
+    <div class="minimap" id="minimap">
+        <canvas class="minimap__canvas" id="minimapCanvas" width="200" height="150"></canvas>
+        <div class="minimap__viewport" id="minimapViewport"></div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu"></div>
+
+    <!-- Command Palette -->
+    <div class="command-palette" id="commandPalette">
+        <input type="text" class="command-palette__input" id="commandInput" 
+               placeholder="Type a command or search..." />
+        <div class="command-palette__results" id="commandResults"></div>
+    </div>
+
+    <script>
+        'use strict';
+
+        // ============================================
+        // CONFIGURATION & CONSTANTS
+        // ============================================
+        const CONFIG = {
+            GRID_SIZE: 20,
+            NODE_SIZE: 120,
+            AUTO_SAVE_INTERVAL: 5000,
+            MAX_HISTORY: 50,
+            ZOOM_FACTOR: 1.2,
+            MIN_ZOOM: 0.1,
+            MAX_ZOOM: 3,
+            DEBOUNCE_DELAY: 300,
+            STORAGE_KEY: 'visual-canvas-pro-v2',
+            THEME_KEY: 'visual-canvas-theme'
+        };
+
+        const COLORS = [
+            '#fbbf24', '#60a5fa', '#34d399', '#a78bfa', 
+            '#f87171', '#fb923c', '#c084fc', '#2dd4bf'
+        ];
+
+        const COMMANDS = [
+            { id: 'create-node', name: 'Create Node', icon: 'add_box', shortcut: 'N' },
+            { id: 'delete', name: 'Delete Selected', icon: 'delete', shortcut: 'Del' },
+            { id: 'duplicate', name: 'Duplicate Node', icon: 'content_copy', shortcut: 'Ctrl+D' },
+            { id: 'undo', name: 'Undo', icon: 'undo', shortcut: 'Ctrl+Z' },
+            { id: 'redo', name: 'Redo', icon: 'redo', shortcut: 'Ctrl+Y' },
+            { id: 'zoom-in', name: 'Zoom In', icon: 'zoom_in', shortcut: 'Ctrl++' },
+            { id: 'zoom-out', name: 'Zoom Out', icon: 'zoom_out', shortcut: 'Ctrl+-' },
+            { id: 'fit-screen', name: 'Fit to Screen', icon: 'fit_screen', shortcut: 'Ctrl+0' },
+            { id: 'toggle-grid', name: 'Toggle Grid', icon: 'grid_on', shortcut: 'G' },
+            { id: 'export', name: 'Export Data', icon: 'download', shortcut: 'Ctrl+S' },
+            { id: 'import', name: 'Import Data', icon: 'upload', shortcut: 'Ctrl+O' },
+            { id: 'clear-all', name: 'Clear All', icon: 'clear_all', shortcut: '' }
+        ];
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        const Utils = {
+            uid: (prefix = 'node_') => prefix + Math.random().toString(36).substr(2, 9),
+            
+            randomColor: () => COLORS[Math.floor(Math.random() * COLORS.length)],
+            
+            debounce: (func, delay) => {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            },
+            
+            clamp: (value, min, max) => Math.min(Math.max(value, min), max),
+            
+            snapToGrid: (value, gridSize = CONFIG.GRID_SIZE) => 
+                Math.round(value / gridSize) * gridSize,
+            
+            bezierPath: (start, end) => {
+                const cpx = (start.x + end.x) / 2;
+                return `M ${start.x} ${start.y} C ${cpx} ${start.y}, ${cpx} ${end.y}, ${end.x} ${end.y}`;
+            },
+            
+            clone: (obj) => JSON.parse(JSON.stringify(obj)),
+            
+            downloadJSON: (data, filename) => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        class StateManager {
+            constructor() {
+                this.state = {
+                    nodes: {},
+                    edges: {},
+                    selectedNode: null,
+                    selectedEdge: null,
+                    viewport: { x: 0, y: 0, zoom: 1 },
+                    showGrid: true
+                };
+                
+                this.history = [];
+                this.future = [];
+                this.observers = new Set();
+                this.pendingUpdates = new Set();
+                this.updateScheduled = false;
+            }
+
+            subscribe(observer) {
+                this.observers.add(observer);
+                return () => this.observers.delete(observer);
+            }
+
+            setState(updates, triggerUpdate = true) {
+                Object.assign(this.state, updates);
+                if (triggerUpdate) {
+                    this.scheduleUpdate();
+                }
+            }
+
+            scheduleUpdate() {
+                if (this.updateScheduled) return;
+                this.updateScheduled = true;
+                requestAnimationFrame(() => {
+                    this.notifyObservers();
+                    this.updateScheduled = false;
+                });
+            }
+
+            notifyObservers() {
+                this.observers.forEach(observer => observer(this.state));
+            }
+
+            executeCommand(command) {
+                command.execute();
+                this.history.push(command);
+                this.future = [];
+                
+                if (this.history.length > CONFIG.MAX_HISTORY) {
+                    this.history.shift();
+                }
+                
+                this.scheduleUpdate();
+            }
+
+            undo() {
+                if (this.history.length === 0) return false;
+                const command = this.history.pop();
+                command.undo();
+                this.future.push(command);
+                this.scheduleUpdate();
+                return true;
+            }
+
+            redo() {
+                if (this.future.length === 0) return false;
+                const command = this.future.pop();
+                command.execute();
+                this.history.push(command);
+                this.scheduleUpdate();
+                return true;
+            }
+
+            getState() {
+                return this.state;
+            }
+        }
+
+        // ============================================
+        // COMMAND PATTERN
+        // ============================================
+        class Command {
+            constructor(execute, undo) {
+                this.execute = execute;
+                this.undo = undo;
+            }
+        }
+
+        // ============================================
+        // THEME MANAGER
+        // ============================================
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = localStorage.getItem(CONFIG.THEME_KEY) || 'light';
+                this.apply();
+            }
+
+            toggle() {
+                this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.apply();
+                localStorage.setItem(CONFIG.THEME_KEY, this.currentTheme);
+            }
+
+            apply() {
+                document.documentElement.setAttribute('data-theme', this.currentTheme);
+                const icon = document.getElementById('themeIcon');
+                if (icon) {
+                    icon.textContent = this.currentTheme === 'light' ? 'dark_mode' : 'light_mode';
+                }
+            }
+
+            getTheme() {
+                return this.currentTheme;
+            }
+        }
+
+        // ============================================
+        // CANVAS APPLICATION
+        // ============================================
+        class CanvasApp {
+            constructor() {
+                this.state = new StateManager();
+                this.theme = new ThemeManager();
+                this.initDOM();
+                this.initState();
+                this.initEventListeners();
+                this.render();
+                this.startAutoSave();
+                this.showNotification('Welcome to Visual Canvas Pro! Press Ctrl+K for commands.');
+            }
+
+            initDOM() {
+                this.canvas = document.getElementById('canvas');
+                this.viewport = document.getElementById('viewport');
+                this.nodesContainer = document.getElementById('nodes');
+                this.edgesContainer = document.getElementById('edges');
+                this.inspector = document.getElementById('inspector');
+                this.inspectorContent = document.getElementById('inspectorContent');
+                this.contextMenu = document.getElementById('contextMenu');
+                this.commandPalette = document.getElementById('commandPalette');
+                this.commandInput = document.getElementById('commandInput');
+                this.commandResults = document.getElementById('commandResults');
+                this.minimap = document.getElementById('minimap');
+                this.minimapCanvas = document.getElementById('minimapCanvas');
+                this.minimapViewport = document.getElementById('minimapViewport');
+                this.grid = document.getElementById('grid');
+            }
+
+            initState() {
+                // Load from localStorage or create initial nodes
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        this.state.setState(data, false);
+                    } catch (e) {
+                        console.error('Failed to load saved data:', e);
+                        this.createInitialNodes();
+                    }
+                } else {
+                    this.createInitialNodes();
+                }
+
+                // Subscribe to state changes
+                this.state.subscribe((state) => {
+                    this.render();
+                    this.updateMinimap();
+                });
+            }
+
+            createInitialNodes() {
+                const nodes = {
+                    'node_1': {
+                        id: 'node_1',
+                        title: 'Project Hub',
+                        icon: '🏠',
+                        color: '#fbbf24',
+                        x: 400,
+                        y: 300,
+                        children: []
+                    },
+                    'node_2': {
+                        id: 'node_2',
+                        title: 'Documents',
+                        icon: '📄',
+                        color: '#60a5fa',
+                        x: 600,
+                        y: 200,
+                        children: []
+                    },
+                    'node_3': {
+                        id: 'node_3',
+                        title: 'Images',
+                        icon: '🖼️',
+                        color: '#34d399',
+                        x: 600,
+                        y: 400,
+                        children: []
+                    }
+                };
+
+                const edges = {
+                    'edge_1': {
+                        id: 'edge_1',
+                        source: 'node_1',
+                        target: 'node_2',
+                        color: '#6b7280',
+                        animated: false
+                    },
+                    'edge_2': {
+                        id: 'edge_2',
+                        source: 'node_1',
+                        target: 'node_3',
+                        color: '#6b7280',
+                        animated: false
+                    }
+                };
+
+                this.state.setState({ nodes, edges }, false);
+            }
+
+            initEventListeners() {
+                // Toolbar buttons
+                document.getElementById('btnAddNode').addEventListener('click', () => this.createNode());
+                document.getElementById('btnUndo').addEventListener('click', () => this.undo());
+                document.getElementById('btnRedo').addEventListener('click', () => this.redo());
+                document.getElementById('btnZoomIn').addEventListener('click', () => this.zoomIn());
+                document.getElementById('btnZoomOut').addEventListener('click', () => this.zoomOut());
+                document.getElementById('btnFitScreen').addEventListener('click', () => this.fitToScreen());
+                document.getElementById('btnToggleGrid').addEventListener('click', () => this.toggleGrid());
+                document.getElementById('btnExport').addEventListener('click', () => this.exportData());
+                document.getElementById('btnImport').addEventListener('click', () => this.importData());
+                
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.theme.toggle();
+                    this.showNotification(`Switched to ${this.theme.getTheme()} mode`);
+                });
+
+                // Canvas interactions
+                this.canvas.addEventListener('click', (e) => {
+                    if (e.target === this.canvas || e.target.classList.contains('canvas__grid')) {
+                        this.deselectAll();
+                    }
+                });
+
+                this.canvas.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.showContextMenu(e.clientX, e.clientY);
+                });
+
+                // Event delegation for nodes
+                this.nodesContainer.addEventListener('mousedown', (e) => {
+                    const node = e.target.closest('.node');
+                    if (!node) return;
+
+                    const handle = e.target.closest('.node__handle');
+                    if (handle) {
+                        e.stopPropagation();
+                        this.startConnection(node.dataset.id);
+                    } else {
+                        this.startDragNode(node.dataset.id, e);
+                    }
+                });
+
+                this.nodesContainer.addEventListener('click', (e) => {
+                    const node = e.target.closest('.node');
+                    if (node) {
+                        e.stopPropagation();
+                        this.selectNode(node.dataset.id);
+                    }
+                });
+
+                // Pan canvas
+                let isPanning = false;
+                let panStart = { x: 0, y: 0 };
+
+                this.canvas.addEventListener('mousedown', (e) => {
+                    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+                        isPanning = true;
+                        const viewport = this.state.getState().viewport;
+                        panStart = { x: e.clientX - viewport.x, y: e.clientY - viewport.y };
+                        this.canvas.style.cursor = 'grabbing';
+                    }
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (isPanning) {
+                        const viewport = this.state.getState().viewport;
+                        viewport.x = e.clientX - panStart.x;
+                        viewport.y = e.clientY - panStart.y;
+                        this.updateViewport();
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (isPanning) {
+                        isPanning = false;
+                        this.canvas.style.cursor = 'default';
+                    }
+                });
+
+                // Zoom with wheel
+                this.canvas.addEventListener('wheel', (e) => {
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        const delta = e.deltaY > 0 ? 1 / CONFIG.ZOOM_FACTOR : CONFIG.ZOOM_FACTOR;
+                        this.zoom(delta);
+                    }
+                }, { passive: false });
+
+                // Keyboard shortcuts
+                window.addEventListener('keydown', (e) => {
+                    this.handleKeyboard(e);
+                });
+
+                // Command palette
+                this.commandInput.addEventListener('input', (e) => {
+                    this.filterCommands(e.target.value);
+                });
+
+                this.commandInput.addEventListener('keydown', (e) => {
+                    this.handleCommandPaletteKeys(e);
+                });
+
+                // Inspector close
+                document.getElementById('btnCloseInspector').addEventListener('click', () => {
+                    this.closeInspector();
+                });
+
+                // Click outside to close menus
+                document.addEventListener('click', (e) => {
+                    if (!this.contextMenu.contains(e.target)) {
+                        this.contextMenu.classList.remove('context-menu--show');
+                    }
+                    if (!this.commandPalette.contains(e.target)) {
+                        this.commandPalette.classList.remove('command-palette--show');
+                    }
+                });
+            }
+
+            handleKeyboard(e) {
+                const key = e.key.toLowerCase();
+                const ctrl = e.ctrlKey || e.metaKey;
+
+                // Command palette
+                if (ctrl && key === 'k') {
+                    e.preventDefault();
+                    this.openCommandPalette();
+                    return;
+                }
+
+                // Close panels
+                if (key === 'escape') {
+                    this.closeAllPanels();
+                    return;
+                }
+
+                // Prevent shortcuts when typing
+                if (e.target.matches('input, textarea')) return;
+
+                // History
+                if (ctrl && key === 'z') {
+                    e.preventDefault();
+                    this.undo();
+                } else if (ctrl && key === 'y') {
+                    e.preventDefault();
+                    this.redo();
+                }
+                // Node operations
+                else if (key === 'n') {
+                    this.createNode();
+                } else if (key === 'delete' || key === 'backspace') {
+                    this.deleteSelected();
+                } else if (ctrl && key === 'd') {
+                    e.preventDefault();
+                    this.duplicateSelected();
+                }
+                // View
+                else if (ctrl && key === '0') {
+                    e.preventDefault();
+                    this.fitToScreen();
+                } else if (ctrl && (key === '+' || key === '=')) {
+                    e.preventDefault();
+                    this.zoomIn();
+                } else if (ctrl && key === '-') {
+                    e.preventDefault();
+                    this.zoomOut();
+                } else if (key === 'g') {
+                    this.toggleGrid();
+                }
+                // Export/Import
+                else if (ctrl && key === 's') {
+                    e.preventDefault();
+                    this.exportData();
+                } else if (ctrl && key === 'o') {
+                    e.preventDefault();
+                    this.importData();
+                }
+            }
+
+            createNode(x = null, y = null) {
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const viewport = this.state.getState().viewport;
+                const nodeData = {
+                    id: Utils.uid(),
+                    title: 'New Node',
+                    icon: '📁',
+                    color: Utils.randomColor(),
+                    x: x !== null ? x : (canvasRect.width / 2 - viewport.x) / viewport.zoom,
+                    y: y !== null ? y : (canvasRect.height / 2 - viewport.y) / viewport.zoom,
+                    children: []
+                };
+
+                const command = new Command(
+                    () => {
+                        const state = this.state.getState();
+                        state.nodes[nodeData.id] = nodeData;
+                        this.state.setState({ nodes: { ...state.nodes } });
+                    },
+                    () => {
+                        const state = this.state.getState();
+                        delete state.nodes[nodeData.id];
+                        this.state.setState({ nodes: { ...state.nodes } });
+                    }
+                );
+
+                this.state.executeCommand(command);
+                this.showNotification('Node created');
+            }
+
+            deleteNode(nodeId) {
+                const state = this.state.getState();
+                const nodeBackup = Utils.clone(state.nodes[nodeId]);
+                const edgesBackup = {};
+
+                // Backup connected edges
+                Object.entries(state.edges).forEach(([id, edge]) => {
+                    if (edge.source === nodeId || edge.target === nodeId) {
+                        edgesBackup[id] = Utils.clone(edge);
+                    }
+                });
+
+                const command = new Command(
+                    () => {
+                        const state = this.state.getState();
+                        // Delete edges
+                        Object.keys(edgesBackup).forEach(id => delete state.edges[id]);
+                        // Delete node
+                        delete state.nodes[nodeId];
+                        this.state.setState({ 
+                            nodes: { ...state.nodes },
+                            edges: { ...state.edges },
+                            selectedNode: null
+                        });
+                    },
+                    () => {
+                        const state = this.state.getState();
+                        // Restore node
+                        state.nodes[nodeId] = nodeBackup;
+                        // Restore edges
+                        Object.assign(state.edges, edgesBackup);
+                        this.state.setState({ 
+                            nodes: { ...state.nodes },
+                            edges: { ...state.edges }
+                        });
+                    }
+                );
+
+                this.state.executeCommand(command);
+                this.showNotification('Node deleted');
+            }
+
+            updateNode(nodeId, updates) {
+                const state = this.state.getState();
+                const oldData = Utils.clone(state.nodes[nodeId]);
+                const newData = { ...oldData, ...updates };
+
+                const command = new Command(
+                    () => {
+                        const state = this.state.getState();
+                        state.nodes[nodeId] = newData;
+                        this.state.setState({ nodes: { ...state.nodes } });
+                    },
+                    () => {
+                        const state = this.state.getState();
+                        state.nodes[nodeId] = oldData;
+                        this.state.setState({ nodes: { ...state.nodes } });
+                    }
+                );
+
+                this.state.executeCommand(command);
+            }
+
+            startDragNode(nodeId, e) {
+                const state = this.state.getState();
+                const node = state.nodes[nodeId];
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const origX = node.x;
+                const origY = node.y;
+
+                const onMove = (e) => {
+                    const viewport = state.viewport;
+                    const dx = (e.clientX - startX) / viewport.zoom;
+                    const dy = (e.clientY - startY) / viewport.zoom;
+                    
+                    node.x = Utils.snapToGrid(origX + dx);
+                    node.y = Utils.snapToGrid(origY + dy);
+                    
+                    this.state.setState({ nodes: { ...state.nodes } }, true);
+                };
+
+                const onUp = () => {
+                    const command = new Command(
+                        () => {
+                            // Already applied
+                        },
+                        () => {
+                            node.x = origX;
+                            node.y = origY;
+                            this.state.setState({ nodes: { ...state.nodes } });
+                        }
+                    );
+
+                    this.state.executeCommand(command);
+                    
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                };
+
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+            }
+
+            startConnection(sourceId) {
+                const canvas = this.canvas;
+                canvas.style.cursor = 'crosshair';
+                
+                let tempLine = null;
+                const svg = this.edgesContainer;
+                
+                const onMove = (e) => {
+                    if (!tempLine) {
+                        tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        tempLine.setAttribute('stroke', '#6b7280');
+                        tempLine.setAttribute('stroke-width', '2');
+                        tempLine.setAttribute('stroke-dasharray', '5,5');
+                        svg.appendChild(tempLine);
+                    }
+                    
+                    const state = this.state.getState();
+                    const source = state.nodes[sourceId];
+                    const rect = canvas.getBoundingClientRect();
+                    const viewport = state.viewport;
+                    
+                    tempLine.setAttribute('x1', source.x + 60);
+                    tempLine.setAttribute('y1', source.y + 60);
+                    tempLine.setAttribute('x2', (e.clientX - rect.left - viewport.x) / viewport.zoom);
+                    tempLine.setAttribute('y2', (e.clientY - rect.top - viewport.y) / viewport.zoom);
+                };
+                
+                const onUp = (e) => {
+                    if (tempLine) {
+                        svg.removeChild(tempLine);
+                    }
+                    
+                    const target = e.target.closest('.node');
+                    if (target && target.dataset.id !== sourceId) {
+                        this.createEdge(sourceId, target.dataset.id);
+                    }
+                    
+                    canvas.style.cursor = 'default';
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                };
+                
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+            }
+
+            createEdge(sourceId, targetId) {
+                const state = this.state.getState();
+                
+                // Check if edge already exists
+                const exists = Object.values(state.edges).some(e => 
+                    (e.source === sourceId && e.target === targetId) ||
+                    (e.source === targetId && e.target === sourceId)
+                );
+                
+                if (exists) {
+                    this.showNotification('Connection already exists');
+                    return;
+                }
+
+                const edgeData = {
+                    id: Utils.uid('edge_'),
+                    source: sourceId,
+                    target: targetId,
+                    color: '#6b7280',
+                    animated: false,
+                    label: ''
+                };
+
+                const command = new Command(
+                    () => {
+                        const state = this.state.getState();
+                        state.edges[edgeData.id] = edgeData;
+                        this.state.setState({ edges: { ...state.edges } });
+                    },
+                    () => {
+                        const state = this.state.getState();
+                        delete state.edges[edgeData.id];
+                        this.state.setState({ edges: { ...state.edges } });
+                    }
+                );
+
+                this.state.executeCommand(command);
+                this.showNotification('Connection created');
+            }
+
+            deleteEdge(edgeId) {
+                const state = this.state.getState();
+                const edgeBackup = Utils.clone(state.edges[edgeId]);
+
+                const command = new Command(
+                    () => {
+                        const state = this.state.getState();
+                        delete state.edges[edgeId];
+                        this.state.setState({ 
+                            edges: { ...state.edges },
+                            selectedEdge: null
+                        });
+                    },
+                    () => {
+                        const state = this.state.getState();
+                        state.edges[edgeId] = edgeBackup;
+                        this.state.setState({ edges: { ...state.edges } });
+                    }
+                );
+
+                this.state.executeCommand(command);
+                this.showNotification('Connection deleted');
+            }
+
+            selectNode(nodeId) {
+                this.deselectAll();
+                this.state.setState({ selectedNode: nodeId });
+                this.showInspector('node', nodeId);
+            }
+
+            selectEdge(edgeId) {
+                this.deselectAll();
+                this.state.setState({ selectedEdge: edgeId });
+                this.showInspector('edge', edgeId);
+            }
+
+            deselectAll() {
+                this.state.setState({ selectedNode: null, selectedEdge: null });
+                this.closeInspector();
+            }
+
+            deleteSelected() {
+                const state = this.state.getState();
+                if (state.selectedNode) {
+                    this.deleteNode(state.selectedNode);
+                } else if (state.selectedEdge) {
+                    this.deleteEdge(state.selectedEdge);
+                }
+            }
+
+            duplicateSelected() {
+                const state = this.state.getState();
+                if (state.selectedNode) {
+                    const original = state.nodes[state.selectedNode];
+                    this.createNode(original.x + 50, original.y + 50);
+                }
+            }
+
+            undo() {
+                if (this.state.undo()) {
+                    this.showNotification('Undone');
+                } else {
+                    this.showNotification('Nothing to undo');
+                }
+            }
+
+            redo() {
+                if (this.state.redo()) {
+                    this.showNotification('Redone');
+                } else {
+                    this.showNotification('Nothing to redo');
+                }
+            }
+
+            zoomIn() {
+                this.zoom(CONFIG.ZOOM_FACTOR);
+            }
+
+            zoomOut() {
+                this.zoom(1 / CONFIG.ZOOM_FACTOR);
+            }
+
+            zoom(factor) {
+                const state = this.state.getState();
+                const viewport = state.viewport;
+                viewport.zoom = Utils.clamp(viewport.zoom * factor, CONFIG.MIN_ZOOM, CONFIG.MAX_ZOOM);
+                this.updateViewport();
+            }
+
+            fitToScreen() {
+                const state = this.state.getState();
+                const nodes = Object.values(state.nodes);
+                
+                if (nodes.length === 0) return;
+
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                
+                nodes.forEach(node => {
+                    minX = Math.min(minX, node.x);
+                    minY = Math.min(minY, node.y);
+                    maxX = Math.max(maxX, node.x + CONFIG.NODE_SIZE);
+                    maxY = Math.max(maxY, node.y + CONFIG.NODE_SIZE);
+                });
+
+                const width = maxX - minX;
+                const height = maxY - minY;
+                const padding = 100;
+                const rect = this.canvas.getBoundingClientRect();
+
+                const scaleX = (rect.width - padding * 2) / width;
+                const scaleY = (rect.height - padding * 2) / height;
+                const scale = Math.min(scaleX, scaleY, 1);
+
+                state.viewport.zoom = scale;
+                state.viewport.x = -minX * scale + padding;
+                state.viewport.y = -minY * scale + padding;
+
+                this.updateViewport();
+                this.showNotification('Fitted to screen');
+            }
+
+            toggleGrid() {
+                const state = this.state.getState();
+                state.showGrid = !state.showGrid;
+                this.grid.classList.toggle('canvas__grid--hidden', !state.showGrid);
+                this.showNotification(state.showGrid ? 'Grid shown' : 'Grid hidden');
+            }
+
+            updateViewport() {
+                const state = this.state.getState();
+                const viewport = state.viewport;
+                const transform = `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`;
+                this.viewport.style.transform = transform;
+                this.updateMinimap();
+            }
+
+            showInspector(type, id) {
+                const state = this.state.getState();
+                const data = type === 'node' ? state.nodes[id] : state.edges[id];
+                
+                if (!data) return;
+
+                this.inspector.classList.add('inspector--open');
+                document.getElementById('inspectorTitle').textContent = type === 'node' ? 'Node Properties' : 'Edge Properties';
+
+                if (type === 'node') {
+                    this.inspectorContent.innerHTML = `
+                        <div class="inspector__field">
+                            <label class="inspector__label">Title</label>
+                            <input class="inspector__input" id="nodeTitle" value="${data.title}" />
+                        </div>
+                        <div class="inspector__field">
+                            <label class="inspector__label">Icon</label>
+                            <input class="inspector__input" id="nodeIcon" value="${data.icon}" />
+                        </div>
+                        <div class="inspector__field">
+                            <label class="inspector__label">Color</label>
+                            <input class="inspector__input inspector__input--color" type="color" id="nodeColor" value="${data.color}" />
+                        </div>
+                        <button class="btn btn--danger" id="btnDeleteNode">
+                            <span class="material-icons">delete</span>
+                            Delete Node
+                        </button>
+                    `;
+
+                    document.getElementById('nodeTitle').addEventListener('input', 
+                        Utils.debounce((e) => {
+                            this.updateNode(id, { title: e.target.value });
+                        }, CONFIG.DEBOUNCE_DELAY)
+                    );
+
+                    document.getElementById('nodeIcon').addEventListener('input',
+                        Utils.debounce((e) => {
+                            this.updateNode(id, { icon: e.target.value });
+                        }, CONFIG.DEBOUNCE_DELAY)
+                    );
+
+                    document.getElementById('nodeColor').addEventListener('input', (e) => {
+                        this.updateNode(id, { color: e.target.value });
+                    });
+
+                    document.getElementById('btnDeleteNode').addEventListener('click', () => {
+                        this.deleteNode(id);
+                    });
+                } else {
+                    this.inspectorContent.innerHTML = `
+                        <div class="inspector__field">
+                            <label class="inspector__label">Label</label>
+                            <input class="inspector__input" id="edgeLabel" value="${data.label || ''}" />
+                        </div>
+                        <div class="inspector__field">
+                            <label class="inspector__label">Color</label>
+                            <input class="inspector__input inspector__input--color" type="color" id="edgeColor" value="${data.color}" />
+                        </div>
+                        <div class="inspector__field">
+                            <label class="inspector__label">
+                                <input type="checkbox" id="edgeAnimated" ${data.animated ? 'checked' : ''} />
+                                Animated
+                            </label>
+                        </div>
+                        <button class="btn btn--danger" id="btnDeleteEdge">
+                            <span class="material-icons">delete</span>
+                            Delete Connection
+                        </button>
+                    `;
+
+                    document.getElementById('edgeLabel').addEventListener('input',
+                        Utils.debounce((e) => {
+                            const state = this.state.getState();
+                            state.edges[id].label = e.target.value;
+                            this.state.setState({ edges: { ...state.edges } });
+                        }, CONFIG.DEBOUNCE_DELAY)
+                    );
+
+                    document.getElementById('edgeColor').addEventListener('input', (e) => {
+                        const state = this.state.getState();
+                        state.edges[id].color = e.target.value;
+                        this.state.setState({ edges: { ...state.edges } });
+                    });
+
+                    document.getElementById('edgeAnimated').addEventListener('change', (e) => {
+                        const state = this.state.getState();
+                        state.edges[id].animated = e.target.checked;
+                        this.state.setState({ edges: { ...state.edges } });
+                    });
+
+                    document.getElementById('btnDeleteEdge').addEventListener('click', () => {
+                        this.deleteEdge(id);
+                    });
+                }
+            }
+
+            closeInspector() {
+                this.inspector.classList.remove('inspector--open');
+            }
+
+            showContextMenu(x, y) {
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const state = this.state.getState();
+                const viewport = state.viewport;
+                const canvasX = (x - canvasRect.left - viewport.x) / viewport.zoom;
+                const canvasY = (y - canvasRect.top - viewport.y) / viewport.zoom;
+
+                this.contextMenu.innerHTML = `
+                    <button class="context-menu__item" data-action="create-node" data-x="${canvasX}" data-y="${canvasY}">
+                        <span class="material-icons">add_box</span>
+                        Create Node Here
+                    </button>
+                    ${state.selectedNode ? `
+                        <button class="context-menu__item" data-action="duplicate">
+                            <span class="material-icons">content_copy</span>
+                            Duplicate Node
+                        </button>
+                        <div class="context-menu__separator"></div>
+                        <button class="context-menu__item context-menu__item--danger" data-action="delete">
+                            <span class="material-icons">delete</span>
+                            Delete Node
+                        </button>
+                    ` : ''}
+                    <div class="context-menu__separator"></div>
+                    <button class="context-menu__item" data-action="fit-screen">
+                        <span class="material-icons">fit_screen</span>
+                        Fit to Screen
+                    </button>
+                    <button class="context-menu__item" data-action="export">
+                        <span class="material-icons">download</span>
+                        Export Canvas
+                    </button>
+                `;
+
+                this.contextMenu.style.left = `${x}px`;
+                this.contextMenu.style.top = `${y}px`;
+                this.contextMenu.classList.add('context-menu--show');
+
+                // Add event listeners to menu items
+                this.contextMenu.querySelectorAll('[data-action]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const action = e.currentTarget.dataset.action;
+                        this.contextMenu.classList.remove('context-menu--show');
+                        
+                        switch (action) {
+                            case 'create-node':
+                                this.createNode(parseFloat(e.currentTarget.dataset.x), parseFloat(e.currentTarget.dataset.y));
+                                break;
+                            case 'duplicate':
+                                this.duplicateSelected();
+                                break;
+                            case 'delete':
+                                this.deleteSelected();
+                                break;
+                            case 'fit-screen':
+                                this.fitToScreen();
+                                break;
+                            case 'export':
+                                this.exportData();
+                                break;
+                        }
+                    });
+                });
+            }
+
+            openCommandPalette() {
+                this.commandPalette.classList.add('command-palette--show');
+                this.commandInput.value = '';
+                this.commandInput.focus();
+                this.filterCommands('');
+            }
+
+            filterCommands(query) {
+                const filtered = COMMANDS.filter(cmd => 
+                    cmd.name.toLowerCase().includes(query.toLowerCase()) ||
+                    cmd.shortcut.toLowerCase().includes(query.toLowerCase())
+                );
+
+                this.commandResults.innerHTML = filtered.map((cmd, i) => `
+                    <div class="command-palette__item ${i === 0 ? 'command-palette__item--selected' : ''}" 
+                         data-index="${i}" data-id="${cmd.id}">
+                        <span class="material-icons command-palette__icon">${cmd.icon}</span>
+                        <span class="command-palette__name">${cmd.name}</span>
+                        ${cmd.shortcut ? `<span class="command-palette__shortcut">${cmd.shortcut}</span>` : ''}
+                    </div>
+                `).join('');
+
+                this.commandResults.querySelectorAll('.command-palette__item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.executeCommandById(item.dataset.id);
+                        this.commandPalette.classList.remove('command-palette--show');
+                    });
+                });
+            }
+
+            handleCommandPaletteKeys(e) {
+                const items = this.commandResults.querySelectorAll('.command-palette__item');
+                const selected = this.commandResults.querySelector('.command-palette__item--selected');
+                const currentIndex = Array.from(items).indexOf(selected);
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (currentIndex < items.length - 1) {
+                        selected?.classList.remove('command-palette__item--selected');
+                        items[currentIndex + 1]?.classList.add('command-palette__item--selected');
+                        items[currentIndex + 1]?.scrollIntoView({ block: 'nearest' });
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        selected?.classList.remove('command-palette__item--selected');
+                        items[currentIndex - 1]?.classList.add('command-palette__item--selected');
+                        items[currentIndex - 1]?.scrollIntoView({ block: 'nearest' });
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selected) {
+                        this.executeCommandById(selected.dataset.id);
+                        this.commandPalette.classList.remove('command-palette--show');
+                    }
+                } else if (e.key === 'Escape') {
+                    this.commandPalette.classList.remove('command-palette--show');
+                }
+            }
+
+            executeCommandById(id) {
+                const actions = {
+                    'create-node': () => this.createNode(),
+                    'delete': () => this.deleteSelected(),
+                    'duplicate': () => this.duplicateSelected(),
+                    'undo': () => this.undo(),
+                    'redo': () => this.redo(),
+                    'zoom-in': () => this.zoomIn(),
+                    'zoom-out': () => this.zoomOut(),
+                    'fit-screen': () => this.fitToScreen(),
+                    'toggle-grid': () => this.toggleGrid(),
+                    'export': () => this.exportData(),
+                    'import': () => this.importData(),
+                    'clear-all': () => this.clearAll()
+                };
+
+                const action = actions[id];
+                if (action) action();
+            }
+
+            closeAllPanels() {
+                this.commandPalette.classList.remove('command-palette--show');
+                this.contextMenu.classList.remove('context-menu--show');
+                this.deselectAll();
+            }
+
+            exportData() {
+                const state = this.state.getState();
+                const data = {
+                    nodes: state.nodes,
+                    edges: state.edges,
+                    viewport: state.viewport,
+                    timestamp: Date.now()
+                };
+                Utils.downloadJSON(data, `canvas-${Date.now()}.json`);
+                this.showNotification('Canvas exported successfully');
+            }
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            this.state.setState({
+                                nodes: data.nodes || {},
+                                edges: data.edges || {},
+                                viewport: data.viewport || { x: 0, y: 0, zoom: 1 }
+                            });
+                            this.updateViewport();
+                            this.showNotification('Canvas imported successfully');
+                        } catch (err) {
+                            this.showNotification('Failed to import file');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+
+            clearAll() {
+                if (!confirm('Are you sure you want to clear all nodes and edges?')) return;
+
+                const state = this.state.getState();
+                const backup = {
+                    nodes: Utils.clone(state.nodes),
+                    edges: Utils.clone(state.edges)
+                };
+
+                const command = new Command(
+                    () => {
+                        this.state.setState({ 
+                            nodes: {},
+                            edges: {},
+                            selectedNode: null,
+                            selectedEdge: null
+                        });
+                    },
+                    () => {
+                        this.state.setState({ 
+                            nodes: backup.nodes,
+                            edges: backup.edges
+                        });
+                    }
+                );
+
+                this.state.executeCommand(command);
+                this.showNotification('Canvas cleared');
+            }
+
+            render() {
+                const state = this.state.getState();
+                this.renderNodes(state);
+                this.renderEdges(state);
+            }
+
+            renderNodes(state) {
+                const fragment = document.createDocumentFragment();
+                const existingNodes = new Set();
+
+                Object.values(state.nodes).forEach(node => {
+                    existingNodes.add(node.id);
+                    let nodeEl = document.getElementById(`node-${node.id}`);
+                    
+                    if (!nodeEl) {
+                        nodeEl = document.createElement('div');
+                        nodeEl.id = `node-${node.id}`;
+                        nodeEl.className = 'node';
+                        nodeEl.dataset.id = node.id;
+                        
+                        nodeEl.innerHTML = `
+                            <div class="node__handle"></div>
+                            <div class="node__icon">${node.icon}</div>
+                            <div class="node__title">${node.title}</div>
+                            <div class="node__count">${node.children?.length || 0} items</div>
+                        `;
+                        
+                        fragment.appendChild(nodeEl);
+                    } else {
+                        // Update existing node
+                        nodeEl.querySelector('.node__icon').textContent = node.icon;
+                        nodeEl.querySelector('.node__title').textContent = node.title;
+                        nodeEl.querySelector('.node__count').textContent = `${node.children?.length || 0} items`;
+                    }
+                    
+                    nodeEl.style.left = `${node.x}px`;
+                    nodeEl.style.top = `${node.y}px`;
+                    nodeEl.style.background = node.color;
+                    
+                    if (node.id === state.selectedNode) {
+                        nodeEl.classList.add('node--selected');
+                    } else {
+                        nodeEl.classList.remove('node--selected');
+                    }
+                });
+
+                // Remove deleted nodes
+                this.nodesContainer.querySelectorAll('.node').forEach(nodeEl => {
+                    if (!existingNodes.has(nodeEl.dataset.id)) {
+                        nodeEl.remove();
+                    }
+                });
+
+                if (fragment.children.length > 0) {
+                    this.nodesContainer.appendChild(fragment);
+                }
+            }
+
+            renderEdges(state) {
+                const fragment = document.createDocumentFragment();
+
+                Object.values(state.edges).forEach(edge => {
+                    const source = state.nodes[edge.source];
+                    const target = state.nodes[edge.target];
+                    
+                    if (!source || !target) return;
+
+                    const start = { x: source.x + 60, y: source.y + 60 };
+                    const end = { x: target.x + 60, y: target.y + 60 };
+                    const d = Utils.bezierPath(start, end);
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('class', edge.animated ? 'edge edge--animated' : 'edge');
+                    path.setAttribute('d', d);
+                    path.setAttribute('stroke', edge.color);
+                    path.setAttribute('marker-end', 'url(#arrowhead)');
+                    
+                    fragment.appendChild(path);
+
+                    // Add label if exists
+                    if (edge.label) {
+                        const midX = (start.x + end.x) / 2;
+                        const midY = (start.y + end.y) / 2;
+                        
+                        const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+                        foreignObject.setAttribute('x', midX - 60);
+                        foreignObject.setAttribute('y', midY - 14);
+                        foreignObject.setAttribute('width', '120');
+                        foreignObject.setAttribute('height', '28');
+                        
+                        const div = document.createElement('div');
+                        div.className = 'edge__label';
+                        div.textContent = edge.label;
+                        
+                        foreignObject.appendChild(div);
+                        fragment.appendChild(foreignObject);
+                    }
+                });
+
+                this.edgesContainer.innerHTML = '';
+                this.edgesContainer.appendChild(fragment);
+            }
+
+            updateMinimap() {
+                const state = this.state.getState();
+                const ctx = this.minimapCanvas.getContext('2d');
+                const scale = 0.1;
+
+                // Clear
+                ctx.clearRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
+                
+                // Background
+                ctx.fillStyle = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bg-tertiary');
+                ctx.fillRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
+
+                // Draw nodes
+                Object.values(state.nodes).forEach(node => {
+                    ctx.fillStyle = node.color;
+                    ctx.fillRect(
+                        node.x * scale,
+                        node.y * scale,
+                        12,
+                        12
+                    );
+                });
+
+                // Update viewport indicator
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const viewport = state.viewport;
+                
+                this.minimapViewport.style.left = `${-viewport.x * scale}px`;
+                this.minimapViewport.style.top = `${-viewport.y * scale}px`;
+                this.minimapViewport.style.width = `${canvasRect.width * scale / viewport.zoom}px`;
+                this.minimapViewport.style.height = `${canvasRect.height * scale / viewport.zoom}px`;
+            }
+
+            showNotification(message) {
+                // Remove existing notification
+                const existing = document.querySelector('.notification');
+                if (existing) existing.remove();
+
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <span class="material-icons">info</span>
+                    <span>${message}</span>
+                `;
+                
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            startAutoSave() {
+                setInterval(() => {
+                    const state = this.state.getState();
+                    const data = {
+                        nodes: state.nodes,
+                        edges: state.edges,
+                        viewport: state.viewport,
+                        showGrid: state.showGrid
+                    };
+                    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+                }, CONFIG.AUTO_SAVE_INTERVAL);
+            }
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new CanvasApp();
+        });
+    </script>
+</body>
+</html>
