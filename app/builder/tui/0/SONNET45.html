@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUI Builder Pro - Black & White Edition</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    /* ==================== CSS VARIABLES - BLACK & WHITE ONLY ==================== */
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #eeeeee;
+      --gray-300: #e0e0e0;
+      --gray-400: #bdbdbd;
+      --gray-500: #9e9e9e;
+      --gray-600: #757575;
+      --gray-700: #616161;
+      --gray-800: #424242;
+      --gray-900: #212121;
+      
+      /* Theme colors */
+      --primary: var(--black);
+      --secondary: var(--white);
+      --border: var(--gray-300);
+      --shadow: rgba(0, 0, 0, 0.1);
+      --hover-bg: var(--gray-100);
+      --active-bg: var(--gray-200);
+      --text-muted: var(--gray-600);
+      
+      /* Spacing */
+      --spacing: 8px;
+      --radius: 8px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --primary: var(--white);
+      --secondary: var(--black);
+      --border: var(--gray-700);
+      --shadow: rgba(255, 255, 255, 0.1);
+      --hover-bg: var(--gray-900);
+      --active-bg: var(--gray-800);
+      --text-muted: var(--gray-400);
+      --gray-50: var(--gray-900);
+      --gray-100: var(--gray-800);
+      --gray-200: var(--gray-700);
+    }
+
+    /* ==================== RESET & BASE ==================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--secondary);
+      color: var(--primary);
+      line-height: 1.6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ==================== UTILITY CLASSES ==================== */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-1 { gap: var(--spacing); }
+    .gap-2 { gap: calc(var(--spacing) * 2); }
+    .p-1 { padding: var(--spacing); }
+    .p-2 { padding: calc(var(--spacing) * 2); }
+    .mt-1 { margin-top: var(--spacing); }
+    .mt-2 { margin-top: calc(var(--spacing) * 2); }
+    .ml-auto { margin-left: auto; }
+    .w-full { width: 100%; }
+    .hidden { display: none; }
+    .pointer { cursor: pointer; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .fixed { position: fixed; }
+    
+    /* ==================== LAYOUT ==================== */
+    #app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+
+    #header {
+      background: var(--secondary);
+      border-bottom: 2px solid var(--primary);
+      padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
+      display: flex;
+      align-items: center;
+      gap: calc(var(--spacing) * 2);
+      flex-wrap: wrap;
+      z-index: 100;
+    }
+
+    #logo {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    #main {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      overflow: hidden;
+    }
+
+    /* ==================== COMPONENTS - NO HOVER ==================== */
+    .btn {
+      background: var(--secondary);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: var(--spacing) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-family: inherit;
+      user-select: none;
+    }
+
+    .btn:active:not(:disabled) { 
+      background: var(--active-bg);
+      transform: translateY(1px);
+    }
+    
+    .btn:disabled { 
+      opacity: 0.3; 
+      cursor: not-allowed; 
+    }
+    
+    .btn--primary { 
+      background: var(--primary); 
+      color: var(--secondary); 
+    }
+    
+    .btn--icon { 
+      padding: var(--spacing); 
+      aspect-ratio: 1; 
+    }
+    
+    .btn--sm { 
+      padding: 4px 8px; 
+      font-size: 11px; 
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    #sidebar {
+      width: 300px;
+      background: var(--secondary);
+      border-right: 2px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: margin-left var(--transition);
+    }
+
+    #sidebar.collapsed { margin-left: -300px; }
+
+    .sidebar-header {
+      padding: calc(var(--spacing) * 2);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+    }
+
+    .palette-item {
+      background: var(--secondary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 1.5);
+      margin: var(--spacing) calc(var(--spacing) * 1.5);
+      cursor: grab;
+      transition: border-color var(--transition);
+      user-select: none;
+    }
+
+    .palette-item:active { cursor: grabbing; }
+
+    /* ==================== EDITOR ==================== */
+    .editor {
+      padding: calc(var(--spacing) * 2);
+      border-top: 2px solid var(--border);
+    }
+
+    .field {
+      margin-bottom: calc(var(--spacing) * 1.5);
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--secondary);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      padding: var(--spacing) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
+      font-size: 14px;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--active-bg);
+    }
+
+    .field-textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    /* ==================== ICON PICKER ==================== */
+    .icon-picker-display {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      padding: var(--spacing);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .icon-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+    }
+
+    .icon-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px var(--shadow);
+      z-index: 1000;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .icon-search {
+      position: sticky;
+      top: 0;
+      background: var(--secondary);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing);
+      z-index: 10;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+      gap: 4px;
+      padding: var(--spacing);
+    }
+
+    .icon-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .icon-item.selected {
+      background: var(--primary);
+      color: var(--secondary);
+      border-color: var(--primary);
+    }
+
+    /* ==================== CANVAS ==================== */
+    #canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      background: var(--secondary);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing) calc(var(--spacing) * 2);
+      display: flex;
+      align-items: center;
+      gap: calc(var(--spacing) * 1.5);
+      flex-wrap: wrap;
+    }
+
+    #canvas-container {
+      flex: 1;
+      overflow: auto;
+      background-image: 
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: -1px -1px;
+      position: relative;
+    }
+
+    #canvas {
+      min-width: 3000px;
+      min-height: 2000px;
+      padding: calc(var(--spacing) * 6);
+      transform-origin: top left;
+      transition: transform var(--transition);
+    }
+
+    .empty-state {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ==================== NODE ==================== */
+    .node-wrap {
+      margin: calc(var(--spacing) * 2) 0;
+      position: relative;
+    }
+
+    .node {
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 2);
+      min-width: 320px;
+      max-width: 600px;
+      transition: all var(--transition);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .node.selected { 
+      border-width: 3px; 
+      box-shadow: 0 0 0 4px var(--active-bg); 
+    }
+    
+    .node.dragging { opacity: 0.4; }
+    .node.main { border-width: 3px; }
+
+    .node-header {
+      display: flex;
+      align-items: flex-start;
+      gap: calc(var(--spacing) * 1.5);
+    }
+
+    .node-drag {
+      cursor: move;
+      opacity: 0.3;
+      transition: opacity var(--transition);
+    }
+
+    .node-content { flex: 1; min-width: 0; }
+
+    .node-title {
+      font-size: 16px;
+      font-weight: 600;
+      padding: 4px var(--spacing);
+      border-radius: var(--radius);
+      cursor: pointer;
+      word-wrap: break-word;
+      transition: all var(--transition);
+    }
+
+    .node-title-input {
+      font-size: 16px;
+      font-weight: 600;
+      padding: 4px var(--spacing);
+      border-radius: var(--radius);
+      border: 2px solid var(--primary);
+      background: var(--active-bg);
+      color: var(--primary);
+      font-family: inherit;
+      width: 100%;
+      box-shadow: 0 0 0 3px var(--active-bg);
+    }
+
+    .node-meta {
+      font-size: 12px;
+      margin-top: var(--spacing);
+      padding: var(--spacing);
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .node-actions {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    /* ==================== CHILDREN ==================== */
+    .children {
+      margin-left: 40px;
+      margin-top: calc(var(--spacing) * 1.5);
+      padding-left: calc(var(--spacing) * 2);
+      border-left: 2px solid var(--border);
+      position: relative;
+    }
+
+    /* ==================== DROP ZONE ==================== */
+    .drop-zone {
+      min-height: 50px;
+      border: 3px dashed var(--border);
+      border-radius: var(--radius);
+      margin: calc(var(--spacing) * 1.5) 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      opacity: 0.6;
+    }
+
+    .drop-zone.over {
+      border-color: var(--primary);
+      background: var(--active-bg);
+      border-style: solid;
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    /* ==================== PREVIEW PANEL ==================== */
+    #preview-panel {
+      width: 360px;
+      background: var(--secondary);
+      border-left: 2px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      transition: margin-right var(--transition);
+    }
+
+    #preview-panel.collapsed { margin-right: -360px; }
+
+    .preview-content {
+      flex: 1;
+      padding: calc(var(--spacing) * 2);
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: calc(var(--spacing) * 2);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+
+    /* ==================== SYSTEM LOG PANEL ==================== */
+    #log-panel {
+      width: 320px;
+      background: var(--secondary);
+      border-left: 2px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      transition: margin-right var(--transition);
+    }
+
+    #log-panel.collapsed { margin-right: -320px; }
+
+    .log-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing);
+      max-height: calc(100vh - 200px);
+    }
+
+    .log-item {
+      padding: calc(var(--spacing) * 1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: var(--spacing);
+      font-size: 12px;
+      background: var(--secondary);
+    }
+
+    .log-item.highlight {
+      background: var(--gray-100);
+      border-color: var(--primary);
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      margin-bottom: 4px;
+    }
+
+    .log-id {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      background: var(--hover-bg);
+      border-radius: 4px;
+    }
+
+    .log-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .log-type {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--hover-bg);
+    }
+
+    .log-message {
+      color: var(--primary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .log-filter {
+      padding: var(--spacing);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .log-filter-btn {
+      padding: 4px 8px;
+      font-size: 10px;
+      border: 1px solid var(--border);
+      background: var(--secondary);
+      color: var(--primary);
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+
+    .log-filter-btn.active {
+      background: var(--primary);
+      color: var(--secondary);
+      border-color: var(--primary);
+    }
+
+    /* ==================== TOAST ==================== */
+    #toast {
+      position: fixed;
+      bottom: calc(var(--spacing) * 2);
+      right: calc(var(--spacing) * 2);
+      background: var(--primary);
+      color: var(--secondary);
+      border-radius: var(--radius);
+      padding: var(--spacing) calc(var(--spacing) * 2);
+      box-shadow: 0 4px 16px var(--shadow);
+      transform: translateY(150%);
+      opacity: 0;
+      transition: all var(--transition);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      max-width: 400px;
+    }
+
+    #toast.visible { transform: translateY(0); opacity: 1; }
+
+    /* ==================== MODAL ==================== */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+
+    .modal.visible { opacity: 1; pointer-events: all; }
+
+    .modal-content {
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 3);
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: calc(var(--spacing) * 2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ==================== SHORTCUTS MODAL ==================== */
+    .shortcut-grid {
+      display: grid;
+      gap: calc(var(--spacing) * 1);
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: calc(var(--spacing) * 1.5);
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .shortcut-item:active {
+      background: var(--active-bg);
+      transform: scale(0.98);
+    }
+
+    .shortcut-desc {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+    }
+
+    .shortcut-icon {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+
+    .shortcut-keys {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .key {
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      min-width: 28px;
+      text-align: center;
+      box-shadow: 0 2px 0 var(--border);
+    }
+
+    .key-sep {
+      font-size: 10px;
+      opacity: 0.5;
+      margin: 0 2px;
+    }
+
+    .shortcut-category {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: calc(var(--spacing) * 2.5);
+      margin-bottom: calc(var(--spacing) * 1);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+      padding-bottom: calc(var(--spacing) * 0.5);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .shortcut-category:first-child {
+      margin-top: 0;
+    }
+
+    .shortcut-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing);
+      margin-bottom: calc(var(--spacing) * 2);
+    }
+
+    .shortcut-stat {
+      text-align: center;
+      padding: calc(var(--spacing) * 1.5);
+      background: var(--hover-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .shortcut-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .shortcut-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .shortcut-hint {
+      position: fixed;
+      bottom: calc(var(--spacing) * 10);
+      right: calc(var(--spacing) * 2);
+      background: var(--primary);
+      color: var(--secondary);
+      padding: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
+      border-radius: var(--radius);
+      font-size: 11px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px var(--shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all var(--transition);
+      pointer-events: none;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shortcut-hint.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .shortcut-hint .key {
+      background: var(--secondary);
+      color: var(--primary);
+      padding: 2px 6px;
+      font-size: 10px;
+      min-width: 24px;
+    }
+
+    /* ==================== SEARCH ==================== */
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: var(--spacing) calc(var(--spacing) * 3) var(--spacing) calc(var(--spacing) * 1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--secondary);
+      color: var(--primary);
+      font-size: 13px;
+      transition: all var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--active-bg);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: var(--spacing);
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ==================== SCROLLBAR ==================== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
+
+    /* ==================== UTILITIES ==================== */
+    .material-icons { font-size: inherit; line-height: inherit; vertical-align: middle; }
+    
+    @media (max-width: 768px) {
+      #sidebar, #preview-panel, #log-panel { position: absolute; z-index: 50; height: 100%; }
+      .search-box { max-width: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- ==================== HEADER ==================== -->
+    <header id="header">
+      <div id="logo">
+        <span class="material-icons">account_tree</span>
+        <span>TUI Builder Pro</span>
+      </div>
+      
+      <div class="search-box">
+        <input type="text" id="search-input" class="search-input" placeholder="Search nodes...">
+        <span class="material-icons search-icon">search</span>
+      </div>
+
+      <div class="flex gap-1 ml-auto" style="flex-wrap: wrap;">
+        <button class="btn btn--icon" id="btn-theme" title="Toggle Theme">
+          <span class="material-icons">brightness_6</span>
+        </button>
+        <button class="btn" id="btn-add-main">
+          <span class="material-icons">add</span>
+          Main
+        </button>
+        <button class="btn" id="btn-sample">
+          <span class="material-icons">description</span>
+          Sample
+        </button>
+        <button class="btn" id="btn-import">
+          <span class="material-icons">upload</span>
+          Import
+        </button>
+        <button class="btn" id="btn-export-json">
+          <span class="material-icons">download</span>
+          JSON
+        </button>
+        <button class="btn" id="btn-export-ascii">
+          <span class="material-icons">code</span>
+          ASCII
+        </button>
+        <button class="btn" id="btn-undo" disabled title="Undo (Ctrl+Z)">
+          <span class="material-icons">undo</span>
+        </button>
+        <button class="btn" id="btn-redo" disabled title="Redo (Ctrl+Shift+Z)">
+          <span class="material-icons">redo</span>
+        </button>
+        <button class="btn" id="btn-numbering" title="Toggle Auto Numbering">
+          <span class="material-icons">format_list_numbered</span>
+        </button>
+        <button class="btn" id="btn-clear">
+          <span class="material-icons">clear</span>
+          Clear
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== MAIN ==================== -->
+    <main id="main">
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <span class="material-icons">widgets</span>
+          Components
+        </div>
+        <div id="palette"></div>
+      </aside>
+
+      <!-- CANVAS -->
+      <div id="canvas-wrap">
+        <div id="toolbar">
+          <button class="btn btn--icon" id="btn-toggle-sidebar" title="Toggle Sidebar">
+            <span class="material-icons">menu</span>
+          </button>
+          <div class="flex items-center gap-1">
+            <button class="btn btn--icon" id="btn-zoom-out" title="Zoom Out">
+              <span class="material-icons">remove</span>
+            </button>
+            <span id="zoom-level" style="font-size: 12px; min-width: 50px; text-align: center; font-family: monospace;">100%</span>
+            <button class="btn btn--icon" id="btn-zoom-in" title="Zoom In">
+              <span class="material-icons">add</span>
+            </button>
+            <button class="btn btn--icon" id="btn-zoom-reset" title="Reset Zoom">
+              <span class="material-icons">refresh</span>
+            </button>
+          </div>
+          <button class="btn btn--icon ml-auto" id="btn-shortcuts" title="Keyboard Shortcuts (?)">
+            <span class="material-icons">keyboard</span>
+          </button>
+          <button class="btn btn--icon" id="btn-toggle-preview" title="Toggle Preview">
+            <span class="material-icons">visibility</span>
+          </button>
+          <button class="btn btn--icon" id="btn-toggle-log" title="Toggle System Log">
+            <span class="material-icons">receipt_long</span>
+          </button>
+        </div>
+        <div id="canvas-container">
+          <div id="canvas"></div>
+        </div>
+      </div>
+
+      <!-- PREVIEW PANEL -->
+      <aside id="preview-panel">
+        <div class="sidebar-header">
+          <span class="material-icons">visibility</span>
+          ASCII Preview
+          <button class="btn btn--icon btn--sm ml-auto" id="btn-close-preview" title="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="preview-content" id="preview-content"></div>
+      </aside>
+
+      <!-- SYSTEM LOG PANEL -->
+      <aside id="log-panel" class="collapsed">
+        <div class="sidebar-header">
+          <span class="material-icons">receipt_long</span>
+          System Log
+          <button class="btn btn--icon btn--sm ml-auto" id="btn-close-log" title="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="log-filter">
+          <button class="log-filter-btn active" data-filter="all">All</button>
+          <button class="log-filter-btn" data-filter="node">Node</button>
+          <button class="log-filter-btn" data-filter="history">History</button>
+          <button class="log-filter-btn" data-filter="system">System</button>
+          <button class="btn btn--sm ml-auto" id="btn-clear-log">
+            <span class="material-icons">clear</span>
+          </button>
+        </div>
+        <div class="log-container" id="log-container"></div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ==================== TOAST ==================== -->
+  <div id="toast">
+    <span class="material-icons" id="toast-icon">info</span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- ==================== IMPORT MODAL ==================== -->
+  <div id="import-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>Import JSON Data</span>
+        <button class="btn btn--icon btn--sm" id="btn-close-modal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="field">
+        <label class="field-label">Paste JSON data below</label>
+        <textarea id="import-textarea" class="field-input field-textarea" rows="15" placeholder='{"nodes": [...]}'></textarea>
+      </div>
+      <div class="flex gap-1" style="justify-content: flex-end;">
+        <button class="btn" id="btn-cancel-import">Cancel</button>
+        <button class="btn btn--primary" id="btn-confirm-import">
+          <span class="material-icons">upload</span>
+          Import
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== KEYBOARD SHORTCUTS MODAL ==================== -->
+  <div id="shortcuts-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 24px;">keyboard</span>
+          <span>Keyboard Shortcuts</span>
+        </div>
+        <button class="btn btn--icon btn--sm" id="btn-close-shortcuts">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="shortcut-stats">
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-nodes">0</div>
+          <div class="shortcut-stat-label">Total Nodes</div>
+        </div>
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-history">0</div>
+          <div class="shortcut-stat-label">History</div>
+        </div>
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-logs">0</div>
+          <div class="shortcut-stat-label">Logs</div>
+        </div>
+      </div>
+      
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">account_tree</span>
+        Node Operations
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">add_circle</span>
+            Add sibling node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Shift</span>
+            <span class="key-sep">+</span>
+            <span class="key">Enter</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">subdirectory_arrow_right</span>
+            Add child node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Tab</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">delete</span>
+            Delete selected node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Del</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">highlight_off</span>
+            Deselect node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Esc</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">content_copy</span>
+        Clipboard
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">content_copy</span>
+            Copy selected node
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">C</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">content_paste</span>
+            Paste as child
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">V</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">history</span>
+        History & Undo
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">undo</span>
+            Undo action
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">Z</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">redo</span>
+            Redo action
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key-sep">+</span>
+            <span class="key">Shift</span>
+            <span class="key-sep">+</span>
+            <span class="key">Z</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">visibility</span>
+        UI & Panels
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">help</span>
+            Show this shortcuts
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">?</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-desc">
+            <span class="material-icons shortcut-icon">close</span>
+            Close modals
+          </span>
+          <div class="shortcut-keys">
+            <span class="key">Esc</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 2); background: var(--hover-bg); border-radius: var(--radius); border: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: var(--spacing); margin-bottom: var(--spacing);">
+          <span class="material-icons" style="color: var(--text-muted);">info</span>
+          <strong style="font-size: 13px;">Pro Tips</strong>
+        </div>
+        <ul style="font-size: 12px; opacity: 0.8; line-height: 1.8; padding-left: 20px; margin: 0;">
+          <li>Most shortcuts work when no input field is focused</li>
+          <li>Check System Log to track all your actions</li>
+          <li>Use Ctrl+Z/Ctrl+Shift+Z to navigate history</li>
+          <li>Drag nodes from palette or move them on canvas</li>
+        </ul>
+      </div>
+
+      <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 1); background: var(--primary); color: var(--secondary); border-radius: var(--radius); text-align: center; font-size: 11px; font-weight: 600;">
+        📊 All actions are logged in System Log panel
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SHORTCUT HINT ==================== -->
+  <div id="shortcut-hint" class="shortcut-hint">
+    <span class="material-icons" id="hint-icon">info</span>
+    <span id="hint-text"></span>
+  </div>
+
+  <script>
+    'use strict';
+
+    // ==================== CONFIGURATION ====================
+    const CONFIG = {
+      maxHistory: 50,
+      maxLogs: 100,
+      autoSaveDelay: 1000,
+      maxNodes: 100,
+      storageKey: 'tuiBuilderPro_v4',
+      zoomStep: 0.1,
+      minZoom: 0.5,
+      maxZoom: 2,
+      debounceDelay: 300
+    };
+
+    // ==================== MATERIAL ICONS ====================
+    const ICONS = ['home','account_circle','settings','search','favorite','star','delete','add','remove','edit','save','check','close','menu','more_vert','arrow_back','arrow_forward','refresh','check_circle','info','warning','error','help','visibility','visibility_off','lock','lock_open','https','vpn_key','security','fingerprint','face','person','people','group','person_add','group_add','mail','send','drafts','inbox','reply','forward','call','phone','smartphone','computer','desktop_windows','laptop','memory','router','scanner','print','keyboard','mouse','watch','tv','radio','videocam','headset','speaker','folder','folder_open','create_new_folder','insert_drive_file','attach_file','cloud','cloud_upload','cloud_download','cloud_done','cloud_off','file_download','file_upload','attachment','archive','folder_shared','work','business','school','local_library','store','local_mall','shopping_cart','shopping_basket','shop','add_shopping_cart','flight','hotel','restaurant','local_cafe','local_bar','local_pizza','map','navigation','place','my_location','location_on','directions','traffic','train','directions_car','directions_bus','directions_bike','schedule','access_time','alarm','alarm_on','alarm_off','timer','today','date_range','event','event_available','event_busy','trending_up','trending_down','trending_flat','analytics','pie_chart','show_chart','bar_chart','timeline','code','developer_mode','devices','widgets','wallpaper','brightness_low','brightness_high','data_usage','storage','usb','wifi','bluetooth','cast','build','extension','explore','bookmark','book','dns','dashboard','language','translate','record_voice_over','mic','play_arrow','pause','stop','skip_next','skip_previous','fast_forward','fast_rewind','volume_up','volume_down','volume_mute','music_note','image','photo','camera','camera_alt','photo_library','brush','palette','format_paint','colorize','gradient','layers','assessment','assignment','ballot','poll','quiz','receipt','auto_awesome','terminal','account_tree','hub','all_inclusive','api','integration_instructions','webhook','schema','table_chart','view_list','view_module','view_quilt','view_stream','view_agenda','rocket_launch','science','psychology','engineering','biotech','category','label','style','format_list_bulleted','format_list_numbered','drag_indicator','drag_handle','reorder','swap_vert','swap_horiz'];
+
+    // ==================== STATE ====================
+    const state = {
+      nodes: [],
+      selectedId: null,
+      copiedNode: null,
+      draggedNode: null,
+      draggedFromPalette: false,
+      zoom: 1,
+      history: [],
+      historyIndex: -1,
+      logs: [],
+      logFilter: 'all',
+      theme: localStorage.getItem('theme') || 'light',
+      autoNumbering: localStorage.getItem('autoNumbering') === 'true',
+      searchQuery: ''
+    };
+
+    // ==================== UTILITIES ====================
+    const $ = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+    const uid = () => `n_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const logId = () => `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const escape = str => { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; };
+    const debounce = (fn, wait) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); }; };
+
+    function toast(msg, icon = 'info') {
+      const t = $('#toast'), m = $('#toast-msg'), i = $('#toast-icon');
+      i.textContent = icon;
+      m.textContent = msg;
+      t.classList.add('visible');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
+    }
+
+    // ==================== SYSTEM LOG ====================
+    const Log = {
+      add(type, message, details = {}) {
+        const log = {
+          id: logId(),
+          type,
+          message,
+          details,
+          timestamp: new Date(),
+          historyRef: state.historyIndex
+        };
+        
+        state.logs.unshift(log);
+        
+        if (state.logs.length > CONFIG.maxLogs) {
+          state.logs = state.logs.slice(0, CONFIG.maxLogs);
+        }
+        
+        this.render();
+        console.log(`[${type.toUpperCase()}] ${message}`, details);
+      },
+
+      render() {
+        const container = $('#log-container');
+        if (!container) return;
+
+        const filtered = state.logFilter === 'all' 
+          ? state.logs 
+          : state.logs.filter(log => log.type === state.logFilter);
+
+        if (filtered.length === 0) {
+          container.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.5;">No logs</div>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(log => {
+          const time = log.timestamp.toLocaleTimeString();
+          const isCurrentHistory = log.historyRef === state.historyIndex;
+          
+          return `
+            <div class="log-item ${isCurrentHistory ? 'highlight' : ''}">
+              <div class="log-header">
+                <span class="log-id">${log.id}</span>
+                <span class="log-type">${log.type}</span>
+                <span class="log-time">${time}</span>
+              </div>
+              <div class="log-message">${escape(log.message)}</div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      clear() {
+        state.logs = [];
+        this.render();
+        toast('Logs cleared', 'delete');
+      }
+    };
+
+    // ==================== NODE OPERATIONS ====================
+    const Node = {
+      create(title = 'New Node') {
+        return { id: uid(), title, icon: 'auto_awesome', meta: '', children: [] };
+      },
+
+      find(id, nodes = state.nodes) {
+        for (const n of nodes) {
+          if (n.id === id) return n;
+          const found = this.find(id, n.children);
+          if (found) return found;
+        }
+        return null;
+      },
+
+      findParent(childId, nodes = state.nodes, parent = null) {
+        for (const n of nodes) {
+          if (n.id === childId) return parent;
+          const found = this.findParent(childId, n.children, n);
+          if (found !== null) return found;
+        }
+        return null;
+      },
+
+      remove(id, nodes = state.nodes) {
+        const idx = nodes.findIndex(n => n.id === id);
+        if (idx !== -1) { nodes.splice(idx, 1); return true; }
+        for (const n of nodes) if (this.remove(id, n.children)) return true;
+        return false;
+      },
+
+      move(nodeId, targetParentId, pos) {
+        const node = this.find(nodeId);
+        if (!node || (targetParentId && this.isDescendant(targetParentId, nodeId))) return false;
+        const copy = JSON.parse(JSON.stringify(node));
+        this.remove(nodeId);
+        const target = targetParentId ? this.find(targetParentId).children : state.nodes;
+        target.splice(pos, 0, copy);
+        return true;
+      },
+
+      reorder(nodeId, dir) {
+        const parent = this.findParent(nodeId);
+        const siblings = parent ? parent.children : state.nodes;
+        const idx = siblings.findIndex(n => n.id === nodeId);
+        if (idx === -1) return false;
+        const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+        if (newIdx < 0 || newIdx >= siblings.length) return false;
+        [siblings[idx], siblings[newIdx]] = [siblings[newIdx], siblings[idx]];
+        return true;
+      },
+
+      isDescendant(nodeId, ancestorId) {
+        const node = this.find(ancestorId);
+        if (!node) return false;
+        const check = children => {
+          for (const c of children) {
+            if (c.id === nodeId || check(c.children)) return true;
+          }
+          return false;
+        };
+        return check(node.children);
+      },
+
+      count(nodes = state.nodes) {
+        return nodes.reduce((sum, n) => sum + 1 + this.count(n.children), 0);
+      },
+
+      search(query, nodes = state.nodes) {
+        const results = [];
+        const search = (nodes, path = []) => {
+          nodes.forEach(n => {
+            const newPath = [...path, n.id];
+            if (n.title.toLowerCase().includes(query.toLowerCase()) || 
+                n.meta.toLowerCase().includes(query.toLowerCase())) {
+              results.push({ node: n, path: newPath });
+            }
+            search(n.children, newPath);
+          });
+        };
+        search(nodes);
+        return results;
+      }
+    };
+
+    // ==================== HISTORY ====================
+    const History = {
+      save(action = 'unknown') {
+        state.history = state.history.slice(0, state.historyIndex + 1);
+        state.history.push(JSON.parse(JSON.stringify(state.nodes)));
+        state.historyIndex++;
+        if (state.history.length > CONFIG.maxHistory) {
+          state.history.shift();
+          state.historyIndex--;
+        }
+        
+        Log.add('history', `Saved state: ${action}`);
+        this.autoSave();
+        UI.updateButtons();
+      },
+
+      undo() {
+        if (state.historyIndex > 0) {
+          state.historyIndex--;
+          state.nodes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+          Log.add('history', `Undo to log ref: ${state.historyIndex}`);
+          return true;
+        }
+        return false;
+      },
+
+      redo() {
+        if (state.historyIndex < state.history.length - 1) {
+          state.historyIndex++;
+          state.nodes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+          Log.add('history', `Redo to log ref: ${state.historyIndex}`);
+          return true;
+        }
+        return false;
+      },
+
+      autoSave: debounce(() => {
+        try {
+          localStorage.setItem(CONFIG.storageKey, JSON.stringify({
+            nodes: state.nodes,
+            version: '4.0',
+            timestamp: Date.now()
+          }));
+          Log.add('system', 'Auto-saved to localStorage');
+        } catch (e) {
+          console.warn('Auto-save failed:', e);
+          Log.add('system', 'Auto-save failed: ' + e.message);
+        }
+      }, CONFIG.autoSaveDelay),
+
+      load() {
+        try {
+          const saved = localStorage.getItem(CONFIG.storageKey);
+          if (saved) {
+            const data = JSON.parse(saved);
+            if (data.nodes && Array.isArray(data.nodes)) {
+              state.nodes = data.nodes;
+              this.save('loaded from storage');
+              Log.add('system', 'Data loaded from localStorage');
+              return true;
+            }
+          }
+        } catch (e) {
+          console.warn('Load failed:', e);
+          Log.add('system', 'Load failed: ' + e.message);
+        }
+        return false;
+      }
+    };
+
+    // ==================== UI RENDERER ====================
+    const UI = {
+      render() {
+        this.renderPalette();
+        this.renderCanvas();
+        this.renderPreview();
+        this.updateButtons();
+        Log.render();
+      },
+
+      // Auto-edit node title after creation
+      autoEditNodeTitle(nodeId) {
+        // Wait for render to complete
+        setTimeout(() => {
+          const nodeTitle = document.querySelector(`.node-title[data-id="${nodeId}"]`);
+          if (nodeTitle) {
+            nodeTitle.click(); // Trigger inline edit
+          }
+        }, 50);
+      },
+
+      renderPalette() {
+        const sel = state.selectedId ? Node.find(state.selectedId) : null;
+        $('#palette').innerHTML = `
+          <div class="palette-item" draggable="true">
+            <div class="flex items-center gap-1">
+              <span class="material-icons">auto_awesome</span>
+              <strong>Node</strong>
+            </div>
+            <div style="font-size: 12px; opacity: 0.6; margin-top: 4px;">Drag to canvas</div>
+          </div>
+          ${!sel ? '' : `
+            <div class="editor">
+              <div style="font-weight: 600; font-size: 12px; text-transform: uppercase; opacity: 0.7; margin-bottom: 12px;">Node Editor</div>
+              
+              <div class="field">
+                <label class="field-label">Icon</label>
+                <div class="relative">
+                  <div class="icon-picker-display" id="icon-display">
+                    <div class="icon-preview">
+                      <span class="material-icons">${sel.icon}</span>
+                    </div>
+                    <span style="flex: 1; font-size: 14px;">${sel.icon}</span>
+                    <span class="material-icons">expand_more</span>
+                  </div>
+                  <div class="icon-dropdown hidden" id="icon-dropdown">
+                    <div class="icon-search">
+                      <input type="text" class="field-input" id="icon-search" placeholder="Search icons...">
+                    </div>
+                    <div class="icon-grid" id="icon-grid">
+                      ${ICONS.map(ic => `
+                        <div class="icon-item ${ic === sel.icon ? 'selected' : ''}" data-icon="${ic}" title="${ic}">
+                          <span class="material-icons">${ic}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="field">
+                <label class="field-label">Title</label>
+                <input type="text" class="field-input" id="edit-title" value="${escape(sel.title)}">
+              </div>
+              
+              <div class="field">
+                <label class="field-label">Metadata</label>
+                <textarea class="field-input field-textarea" id="edit-meta" placeholder="Notes, commands, etc...">${escape(sel.meta)}</textarea>
+              </div>
+
+              <div class="flex gap-1">
+                <button class="btn btn--primary w-full" id="btn-copy-node">
+                  <span class="material-icons">content_copy</span>
+                  Copy Node
+                </button>
+                ${!state.copiedNode ? '' : `
+                  <button class="btn btn--primary w-full" id="btn-paste-node">
+                    <span class="material-icons">content_paste</span>
+                    Paste
+                  </button>
+                `}
+              </div>
+            </div>
+          `}
+        `;
+
+        const paletteItem = $('.palette-item');
+        if (paletteItem) {
+          paletteItem.ondragstart = () => state.draggedFromPalette = true;
+          paletteItem.ondragend = () => state.draggedFromPalette = false;
+        }
+
+        if (sel) {
+          const iconDisplay = $('#icon-display');
+          const iconDropdown = $('#icon-dropdown');
+          const iconSearch = $('#icon-search');
+          const iconGrid = $('#icon-grid');
+
+          iconDisplay?.addEventListener('click', e => {
+            e.stopPropagation();
+            iconDropdown.classList.toggle('hidden');
+          });
+
+          iconSearch?.addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            $$('.icon-item', iconGrid).forEach(el => {
+              el.style.display = el.dataset.icon.includes(q) ? '' : 'none';
+            });
+          });
+
+          iconGrid?.addEventListener('click', e => {
+            const item = e.target.closest('.icon-item');
+            if (!item) return;
+            sel.icon = item.dataset.icon;
+            History.save('changed icon');
+            UI.render();
+            toast(`Icon changed to ${sel.icon}`);
+          });
+
+          document.addEventListener('click', () => iconDropdown?.classList.add('hidden'), { once: true });
+
+          // FIX 1: Remove debounce and render - update immediately, save on blur
+          const titleInput = $('#edit-title');
+          if (titleInput) {
+            titleInput.addEventListener('input', e => {
+              sel.title = e.target.value;
+            });
+            titleInput.addEventListener('blur', () => {
+              History.save('edited title');
+              UI.renderCanvas();
+              UI.renderPreview();
+            });
+          }
+
+          const metaInput = $('#edit-meta');
+          if (metaInput) {
+            metaInput.addEventListener('input', e => {
+              sel.meta = e.target.value;
+            });
+            metaInput.addEventListener('blur', () => {
+              History.save('edited metadata');
+              UI.renderCanvas();
+              UI.renderPreview();
+            });
+          }
+
+          $('#btn-copy-node')?.addEventListener('click', () => {
+            state.copiedNode = JSON.parse(JSON.stringify(sel));
+            Log.add('node', `Copied node: ${sel.title}`);
+            toast('Node copied!', 'content_copy');
+            UI.renderPalette();
+          });
+
+          $('#btn-paste-node')?.addEventListener('click', () => {
+            if (!state.copiedNode) return;
+            const copy = JSON.parse(JSON.stringify(state.copiedNode));
+            copy.id = uid();
+            copy.title = `${copy.title} (copy)`;
+            sel.children.push(copy);
+            History.save('pasted node');
+            Log.add('node', `Pasted node as child of: ${sel.title}`);
+            UI.render();
+            toast('Node pasted!', 'content_paste');
+          });
+        }
+      },
+
+      renderCanvas() {
+        const canvas = $('#canvas');
+        if (state.nodes.length === 0) {
+          canvas.innerHTML = `
+            <div class="empty-state">
+              <div style="font-size: 64px; margin-bottom: 16px;">
+                <span class="material-icons" style="font-size: inherit;">account_tree</span>
+              </div>
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Canvas is empty</div>
+              <div style="font-size: 14px; opacity: 0.7;">Click "Add Main" or drag a node from palette</div>
+            </div>
+          `;
+          canvas.appendChild(this.createDropZone(null, 0));
+          return;
+        }
+
+        canvas.innerHTML = '';
+        state.nodes.forEach((n, i) => canvas.appendChild(this.renderNode(n, null, i)));
+        canvas.appendChild(this.createDropZone(null, state.nodes.length));
+      },
+
+      renderNode(node, parentId, idx) {
+        const wrap = document.createElement('div');
+        wrap.className = 'node-wrap';
+
+        const parent = Node.findParent(node.id);
+        const siblings = parent ? parent.children : state.nodes;
+        const sibIdx = siblings.findIndex(n => n.id === node.id);
+        const num = String(sibIdx + 1).padStart(2, '0');
+        const title = state.autoNumbering ? `${num}. ${node.title}` : node.title;
+
+        const isHighlighted = state.searchQuery && 
+          (node.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+           node.meta.toLowerCase().includes(state.searchQuery.toLowerCase()));
+
+        const el = document.createElement('div');
+        el.className = `node ${!parentId ? 'main' : ''} ${state.selectedId === node.id ? 'selected' : ''}`;
+        el.dataset.id = node.id;
+        if (isHighlighted) el.style.borderColor = 'var(--primary)';
+
+        el.innerHTML = `
+          <div class="node-header">
+            <div class="node-drag" draggable="true">
+              <span class="material-icons">drag_indicator</span>
+            </div>
+            <div style="font-size: 24px;">
+              <span class="material-icons">${node.icon}</span>
+            </div>
+            <div class="node-content">
+              <div class="node-title" data-id="${node.id}">${escape(title) || 'Untitled'}</div>
+              ${node.meta ? `<div class="node-meta">${escape(node.meta)}</div>` : ''}
+            </div>
+            <div class="node-actions">
+              <button class="btn btn--sm" data-action="up" ${sibIdx === 0 ? 'disabled' : ''}>
+                <span class="material-icons">arrow_upward</span>
+              </button>
+              <button class="btn btn--sm" data-action="down" ${sibIdx === siblings.length - 1 ? 'disabled' : ''}>
+                <span class="material-icons">arrow_downward</span>
+              </button>
+              <button class="btn btn--sm" data-action="edit">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="btn btn--sm" data-action="child">
+                <span class="material-icons">add</span>
+              </button>
+              <button class="btn btn--sm" data-action="delete">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        wrap.appendChild(el);
+
+        if (node.children.length > 0) {
+          const children = document.createElement('div');
+          children.className = 'children';
+          node.children.forEach((c, i) => children.appendChild(this.renderNode(c, node.id, i)));
+          children.appendChild(this.createDropZone(node.id, node.children.length));
+          wrap.appendChild(children);
+        }
+
+        this.attachNodeEvents(el);
+        return wrap;
+      },
+
+      createDropZone(parentId, pos) {
+        const zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.dataset.parentId = parentId || '';
+        zone.dataset.pos = pos;
+        zone.innerHTML = '<div style="font-size: 11px; font-weight: 600; text-transform: uppercase; opacity: 0.7;">Drop here</div>';
+
+        zone.ondragover = e => { e.preventDefault(); zone.classList.add('over'); };
+        zone.ondragleave = () => zone.classList.remove('over');
+        zone.ondrop = e => {
+          e.preventDefault();
+          zone.classList.remove('over');
+          
+          const pid = zone.dataset.parentId || null;
+          const p = parseInt(zone.dataset.pos);
+
+          History.save('dropped node');
+
+          if (state.draggedFromPalette) {
+            const newNode = Node.create();
+            if (pid) Node.find(pid).children.splice(p, 0, newNode);
+            else state.nodes.splice(p, 0, newNode);
+            Log.add('node', 'Added node from palette');
+            toast('Node added');
+          } else if (state.draggedNode) {
+            if (Node.move(state.draggedNode, pid, p)) {
+              Log.add('node', 'Moved node via drag & drop');
+              toast('Node moved');
+            }
+          }
+
+          UI.render();
+        };
+
+        return zone;
+      },
+
+      attachNodeEvents(el) {
+        el.onclick = e => {
+          if (e.target.closest('.node-actions') || e.target.closest('.node-drag')) return;
+          state.selectedId = el.dataset.id;
+          UI.render();
+        };
+
+        $('.node-title', el)?.addEventListener('click', e => {
+          e.stopPropagation();
+          const node = Node.find(e.target.dataset.id);
+          if (!node) return;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'node-title-input';
+          input.value = node.title;
+          input.placeholder = 'Enter title...';
+
+          e.target.replaceWith(input);
+          input.focus();
+          input.select();
+
+          const apply = () => {
+            node.title = input.value.trim() || 'Untitled';
+            History.save('edited title inline');
+            UI.render();
+            toast('Title updated');
+          };
+
+          input.onkeydown = e => {
+            if (e.key === 'Enter') { e.preventDefault(); apply(); }
+            else if (e.key === 'Escape') UI.render();
+          };
+          input.onblur = apply;
+        });
+
+        $$('[data-action]', el).forEach(btn => {
+          btn.onclick = e => {
+            e.stopPropagation();
+            const action = btn.dataset.action;
+            const id = el.dataset.id;
+            const node = Node.find(id);
+
+            if (action === 'edit') {
+              state.selectedId = id;
+              UI.render();
+              if ($('#sidebar').classList.contains('collapsed')) {
+                $('#sidebar').classList.remove('collapsed');
+              }
+              toast('Node editor opened');
+            } else if (action === 'child') {
+              if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes reached', 'warning');
+              History.save('added child');
+              const newChild = Node.create();
+              Node.find(id).children.push(newChild);
+              Log.add('node', `Added child to: ${node.title}`);
+              UI.render();
+              UI.autoEditNodeTitle(newChild.id);
+              toast('Child added');
+            } else if (action === 'delete') {
+              if (confirm('Delete node and all children?')) {
+                History.save('deleted node');
+                Log.add('node', `Deleted node: ${node.title}`);
+                Node.remove(id);
+                if (state.selectedId === id) state.selectedId = null;
+                UI.render();
+                toast('Node deleted');
+              }
+            } else if (action === 'up' || action === 'down') {
+              History.save(`reordered ${action}`);
+              if (Node.reorder(id, action)) {
+                Log.add('node', `Reordered node ${action}: ${node.title}`);
+                UI.render();
+                toast(`Moved ${action}`);
+              }
+            }
+          };
+        });
+
+        const drag = $('.node-drag', el);
+        if (drag) {
+          drag.ondragstart = e => {
+            e.stopPropagation();
+            state.draggedNode = el.dataset.id;
+            el.classList.add('dragging');
+          };
+          drag.ondragend = () => {
+            el.classList.remove('dragging');
+            state.draggedNode = null;
+          };
+        }
+      },
+
+      renderPreview() {
+        const lines = [];
+        const walk = (n, level, isLast, prefix = '') => {
+          const conn = isLast ? '└─' : '├─';
+          const childPrefix = prefix + (isLast ? '   ' : '│  ');
+
+          if (level === 0) {
+            const t = ` ${n.title.toUpperCase()} `;
+            const w = Math.max(50, t.length + 4);
+            lines.push('┌' + '─'.repeat(w - 2) + '┐');
+            lines.push('│' + t.padEnd(w - 2) + '│');
+            if (n.meta) n.meta.split('\n').forEach(l => lines.push('│ ' + l.padEnd(w - 3) + '│'));
+            lines.push('└' + '─'.repeat(w - 2) + '┘');
+          } else {
+            lines.push(`${prefix}${conn}► ${n.title}`);
+            if (n.meta) n.meta.split('\n').forEach(l => lines.push(`${childPrefix}  ${l}`));
+          }
+
+          n.children.forEach((c, i) => walk(c, level + 1, i === n.children.length - 1, level === 0 ? '  ' : childPrefix));
+          if (level === 0) lines.push('');
+        };
+
+        state.nodes.forEach((n, i) => walk(n, 0, i === state.nodes.length - 1));
+        $('#preview-content').textContent = lines.join('\n') || 'Empty canvas';
+      },
+
+      updateButtons() {
+        $('#btn-undo').disabled = state.historyIndex <= 0;
+        $('#btn-redo').disabled = state.historyIndex >= state.history.length - 1;
+        $('#btn-numbering').classList.toggle('btn--primary', state.autoNumbering);
+      },
+
+      setZoom(z) {
+        state.zoom = Math.max(CONFIG.minZoom, Math.min(CONFIG.maxZoom, z));
+        $('#canvas').style.transform = `scale(${state.zoom})`;
+        $('#zoom-level').textContent = Math.round(state.zoom * 100) + '%';
+      }
+    };
+
+    // ==================== EVENT HANDLERS ====================
+    function initEvents() {
+      $('#btn-theme').onclick = () => {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
+        Log.add('system', `Theme changed to ${state.theme}`);
+      };
+
+      $('#btn-add-main').onclick = () => {
+        if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
+        History.save('added main node');
+        state.nodes.push(Node.create('New Phase'));
+        Log.add('node', 'Added main node');
+        UI.render();
+        toast('Main node added');
+      };
+
+      $('#btn-sample').onclick = () => {
+        if (state.nodes.length > 0 && !confirm('Replace current data?')) return;
+        state.nodes = [
+          { id: uid(), title: 'PHASE 01: SETUP', icon: 'settings', meta: 'Initialize system\nCheck requirements', children: [
+            { id: uid(), title: 'Install dependencies', icon: 'download', meta: 'apt install -y docker', children: [] },
+            { id: uid(), title: 'Configure environment', icon: 'tune', meta: '', children: [] }
+          ]},
+          { id: uid(), title: 'PHASE 02: DEPLOY', icon: 'rocket_launch', meta: 'Deploy application', children: [
+            { id: uid(), title: 'Build containers', icon: 'build', meta: 'docker-compose build', children: [] },
+            { id: uid(), title: 'Start services', icon: 'play_arrow', meta: 'docker-compose up -d', children: [] }
+          ]}
+        ];
+        History.save('loaded sample');
+        Log.add('system', 'Sample data loaded');
+        UI.render();
+        toast('Sample loaded');
+      };
+
+      $('#btn-import').onclick = () => $('#import-modal').classList.add('visible');
+      $('#btn-close-modal').onclick = () => $('#import-modal').classList.remove('visible');
+      $('#btn-cancel-import').onclick = () => $('#import-modal').classList.remove('visible');
+
+      $('#btn-confirm-import').onclick = () => {
+        try {
+          const data = JSON.parse($('#import-textarea').value);
+          if (data.nodes && Array.isArray(data.nodes)) {
+            state.nodes = data.nodes;
+            History.save('imported data');
+            Log.add('system', 'Data imported from JSON');
+            UI.render();
+            $('#import-modal').classList.remove('visible');
+            toast('Data imported!', 'upload');
+          } else {
+            toast('Invalid JSON format', 'error');
+          }
+        } catch (e) {
+          toast('Import failed: ' + e.message, 'error');
+          Log.add('system', 'Import failed: ' + e.message);
+        }
+      };
+
+      $('#btn-export-json').onclick = () => {
+        const data = JSON.stringify({ nodes: state.nodes, version: '4.0', exported: new Date().toISOString() }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tui-builder-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        Log.add('system', 'Exported data to JSON');
+        toast('JSON exported!', 'download');
+      };
+
+      $('#btn-export-ascii').onclick = () => {
+        const ascii = $('#preview-content').textContent;
+        navigator.clipboard.writeText(ascii).then(
+          () => {
+            Log.add('system', 'Exported ASCII to clipboard');
+            toast('ASCII copied!', 'check_circle');
+          },
+          () => toast('Copy failed', 'error')
+        );
+      };
+
+      $('#btn-undo').onclick = () => {
+        if (History.undo()) {
+          UI.render();
+          toast('Undo ✓', 'undo');
+        }
+      };
+
+      $('#btn-redo').onclick = () => {
+        if (History.redo()) {
+          UI.render();
+          toast('Redo ✓', 'redo');
+        }
+      };
+
+      $('#btn-clear').onclick = () => {
+        if (state.nodes.length === 0) return;
+        if (confirm('Clear all? Cannot be undone.')) {
+          state.nodes = [];
+          state.selectedId = null;
+          History.save('cleared all');
+          Log.add('system', 'Canvas cleared');
+          UI.render();
+          toast('Canvas cleared');
+        }
+      };
+
+      $('#btn-numbering').onclick = () => {
+        state.autoNumbering = !state.autoNumbering;
+        localStorage.setItem('autoNumbering', state.autoNumbering);
+        Log.add('system', `Auto numbering ${state.autoNumbering ? 'enabled' : 'disabled'}`);
+        toast(state.autoNumbering ? 'Numbering ON' : 'Numbering OFF', 'format_list_numbered');
+        UI.render();
+      };
+
+      $('#btn-zoom-in').onclick = () => UI.setZoom(state.zoom + CONFIG.zoomStep);
+      $('#btn-zoom-out').onclick = () => UI.setZoom(state.zoom - CONFIG.zoomStep);
+      $('#btn-zoom-reset').onclick = () => UI.setZoom(1);
+
+      $('#btn-toggle-sidebar').onclick = () => $('#sidebar').classList.toggle('collapsed');
+      $('#btn-toggle-preview').onclick = () => $('#preview-panel').classList.toggle('collapsed');
+      $('#btn-close-preview').onclick = () => $('#preview-panel').classList.add('collapsed');
+      
+      $('#btn-toggle-log').onclick = () => $('#log-panel').classList.toggle('collapsed');
+      $('#btn-close-log').onclick = () => $('#log-panel').classList.add('collapsed');
+      
+      $('#btn-clear-log').onclick = () => {
+        if (confirm('Clear all logs?')) Log.clear();
+      };
+
+      // OPTIMIZED: Keyboard Shortcuts Modal with Stats
+      $('#btn-shortcuts').onclick = () => {
+        // Update stats before showing
+        $('#shortcut-stat-nodes').textContent = Node.count();
+        $('#shortcut-stat-history').textContent = state.history.length;
+        $('#shortcut-stat-logs').textContent = state.logs.length;
+        
+        $('#shortcuts-modal').classList.add('visible');
+        Log.add('system', 'Opened keyboard shortcuts panel');
+      };
+
+      $('#btn-close-shortcuts').onclick = () => {
+        $('#shortcuts-modal').classList.remove('visible');
+      };
+
+      // Close modals on background click
+      $('#shortcuts-modal').onclick = (e) => {
+        if (e.target.id === 'shortcuts-modal') {
+          $('#shortcuts-modal').classList.remove('visible');
+        }
+      };
+
+      $('#import-modal').onclick = (e) => {
+        if (e.target.id === 'import-modal') {
+          $('#import-modal').classList.remove('visible');
+        }
+      };
+
+      // Log filter
+      $$('.log-filter-btn').forEach(btn => {
+        btn.onclick = () => {
+          state.logFilter = btn.dataset.filter;
+          $$('.log-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          Log.render();
+        };
+      });
+
+      $('#search-input').addEventListener('input', debounce(e => {
+        state.searchQuery = e.target.value;
+        UI.renderCanvas();
+        if (state.searchQuery) {
+          const results = Node.search(state.searchQuery);
+          toast(`Found ${results.length} match${results.length !== 1 ? 'es' : ''}`, 'search');
+        }
+      }, 300));
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', e => {
+        const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+
+        // Show shortcuts with "?"
+        if (e.key === '?' && !isInput) {
+          e.preventDefault();
+          $('#shortcuts-modal').classList.add('visible');
+        }
+        // Escape to close modals
+        else if (e.key === 'Escape') {
+          if ($('#shortcuts-modal').classList.contains('visible')) {
+            $('#shortcuts-modal').classList.remove('visible');
+          } else if ($('#import-modal').classList.contains('visible')) {
+            $('#import-modal').classList.remove('visible');
+          } else if (state.selectedId && !isInput) {
+            state.selectedId = null;
+            UI.render();
+          }
+        }
+        // Undo
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !isInput) {
+          e.preventDefault();
+          $('#btn-undo').click();
+        }
+        // Redo
+        else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y') && !isInput) {
+          e.preventDefault();
+          $('#btn-redo').click();
+        }
+        // Copy node
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedId && !isInput) {
+          e.preventDefault();
+          const node = Node.find(state.selectedId);
+          if (node) {
+            state.copiedNode = JSON.parse(JSON.stringify(node));
+            Log.add('node', `Copied node: ${node.title}`);
+            toast('Node copied!', 'content_copy');
+            UI.renderPalette();
+          }
+        }
+        // Paste node
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.copiedNode && state.selectedId && !isInput) {
+          e.preventDefault();
+          const parent = Node.find(state.selectedId);
+          if (parent) {
+            const copy = JSON.parse(JSON.stringify(state.copiedNode));
+            copy.id = uid();
+            copy.title = `${copy.title} (copy)`;
+            parent.children.push(copy);
+            History.save('pasted node');
+            Log.add('node', `Pasted node as child of: ${parent.title}`);
+            UI.render();
+            toast('Node pasted!', 'content_paste');
+          }
+        }
+        // Add sibling with Shift+Enter
+        else if (e.shiftKey && e.key === 'Enter' && !isInput) {
+          e.preventDefault();
+          if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
+          if (!state.selectedId) {
+            History.save('added sibling');
+            const newNode = Node.create();
+            state.nodes.push(newNode);
+            Log.add('node', 'Added root node');
+            UI.render();
+            UI.autoEditNodeTitle(newNode.id);
+            toast('Node added (root)');
+          } else {
+            const node = Node.find(state.selectedId);
+            const parent = Node.findParent(state.selectedId);
+            const siblings = parent ? parent.children : state.nodes;
+            const idx = siblings.findIndex(n => n.id === state.selectedId);
+            if (idx !== -1) {
+              History.save('added sibling');
+              const newNode = Node.create();
+              siblings.splice(idx + 1, 0, newNode);
+              state.selectedId = newNode.id;
+              Log.add('node', 'Added sibling node');
+              UI.render();
+              UI.autoEditNodeTitle(newNode.id);
+              toast('Sibling added');
+            }
+          }
+        }
+        // Add child with Tab
+        else if (e.key === 'Tab' && !isInput) {
+          e.preventDefault();
+          if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
+          if (!state.selectedId) return toast('Select node first', 'info');
+          const node = Node.find(state.selectedId);
+          if (node) {
+            History.save('added child');
+            const child = Node.create();
+            node.children.push(child);
+            state.selectedId = child.id;
+            Log.add('node', `Added child to: ${node.title}`);
+            UI.render();
+            UI.autoEditNodeTitle(child.id);
+            toast('Child added');
+          }
+        }
+        // Delete with Delete key
+        else if (e.key === 'Delete' && state.selectedId && !isInput) {
+          const node = Node.find(state.selectedId);
+          if (confirm('Delete node?')) {
+            History.save('deleted node');
+            Log.add('node', `Deleted node: ${node.title}`);
+            Node.remove(state.selectedId);
+            state.selectedId = null;
+            UI.render();
+            toast('Node deleted');
+          }
+        }
+      });
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      document.documentElement.setAttribute('data-theme', state.theme);
+      
+      Log.add('system', 'TUI Builder Pro v4.0 initialized');
+      
+      if (!History.load()) {
+        History.save('initial state');
+      }
+      
+      UI.render();
+      initEvents();
+      
+      console.log('%c🚀 TUI Builder Pro v4.0 - Black & White Edition', 'font-size:20px;font-weight:bold;color:#000');
+      console.log('%c📋 System Log: Max 100 activities', 'font-size:14px;color:#666');
+      console.log('%c🎨 Theme: Strict Black & White', 'font-size:14px;color:#666');
+      console.log('%c⌨️  Press ? to see keyboard shortcuts', 'font-size:14px;color:#666');
+    }
+
+    init();
+  </script>
+</body>
+</html>
