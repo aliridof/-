@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TUI Builder Pro - Black & White Edition</title>
+  <title>TUI Builder Pro - Enhanced Shortcuts Edition</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
     /* ==================== CSS VARIABLES - BLACK & WHITE ONLY ==================== */
@@ -654,7 +654,7 @@
       justify-content: space-between;
     }
 
-    /* ==================== SHORTCUTS MODAL ==================== */
+    /* ==================== SHORTCUTS MODAL - ENHANCED ==================== */
     .shortcut-grid {
       display: grid;
       gap: calc(var(--spacing) * 1);
@@ -669,11 +669,24 @@
       border-radius: var(--radius);
       border: 1px solid var(--border);
       transition: all var(--transition);
+      position: relative;
     }
 
     .shortcut-item:active {
       background: var(--active-bg);
       transform: scale(0.98);
+    }
+
+    .shortcut-item .usage-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--primary);
+      color: var(--secondary);
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 700;
     }
 
     .shortcut-desc {
@@ -735,7 +748,7 @@
 
     .shortcut-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--spacing);
       margin-bottom: calc(var(--spacing) * 2);
     }
@@ -761,38 +774,102 @@
       margin-top: 4px;
     }
 
+    /* ==================== ENHANCED SHORTCUT HINT ==================== */
     .shortcut-hint {
       position: fixed;
-      bottom: calc(var(--spacing) * 10);
-      right: calc(var(--spacing) * 2);
+      bottom: calc(var(--spacing) * 2);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
       background: var(--primary);
       color: var(--secondary);
-      padding: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
+      padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
       border-radius: var(--radius);
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 600;
-      box-shadow: 0 4px 16px var(--shadow);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       opacity: 0;
-      transform: translateY(20px);
-      transition: all var(--transition);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
       z-index: 1500;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: calc(var(--spacing) * 1.5);
+      max-width: 600px;
     }
 
     .shortcut-hint.visible {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
 
     .shortcut-hint .key {
       background: var(--secondary);
       color: var(--primary);
-      padding: 2px 6px;
-      font-size: 10px;
-      min-width: 24px;
+      padding: 4px 8px;
+      font-size: 11px;
+      min-width: 28px;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .shortcut-hint .hint-divider {
+      width: 2px;
+      height: 20px;
+      background: var(--secondary);
+      opacity: 0.3;
+    }
+
+    /* ==================== QUICK HELP OVERLAY ==================== */
+    #quick-help {
+      position: fixed;
+      top: calc(var(--spacing) * 10);
+      right: calc(var(--spacing) * 2);
+      background: var(--secondary);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: calc(var(--spacing) * 2);
+      box-shadow: 0 8px 24px var(--shadow);
+      z-index: 1000;
+      max-width: 300px;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: all var(--transition);
+      pointer-events: none;
+    }
+
+    #quick-help.visible {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .quick-help-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: calc(var(--spacing) * 1.5);
+      padding-bottom: var(--spacing);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quick-help-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing);
+    }
+
+    .quick-help-list {
+      list-style: none;
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .quick-help-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
     }
 
     /* ==================== SEARCH ==================== */
@@ -828,6 +905,16 @@
       pointer-events: none;
     }
 
+    /* ==================== PULSE ANIMATION ==================== */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .pulse {
+      animation: pulse 0.5s ease-in-out;
+    }
+
     /* ==================== SCROLLBAR ==================== */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--secondary); }
@@ -840,6 +927,7 @@
     @media (max-width: 768px) {
       #sidebar, #preview-panel, #log-panel { position: absolute; z-index: 50; height: 100%; }
       .search-box { max-width: 150px; }
+      #quick-help { display: none; }
     }
   </style>
 </head>
@@ -858,7 +946,7 @@
       </div>
 
       <div class="flex gap-1 ml-auto" style="flex-wrap: wrap;">
-        <button class="btn btn--icon" id="btn-theme" title="Toggle Theme">
+        <button class="btn btn--icon" id="btn-theme" title="Toggle Theme (T)">
           <span class="material-icons">brightness_6</span>
         </button>
         <button class="btn" id="btn-add-main">
@@ -873,7 +961,7 @@
           <span class="material-icons">upload</span>
           Import
         </button>
-        <button class="btn" id="btn-export-json">
+        <button class="btn" id="btn-export-json" title="Export JSON (Ctrl+S)">
           <span class="material-icons">download</span>
           JSON
         </button>
@@ -887,7 +975,7 @@
         <button class="btn" id="btn-redo" disabled title="Redo (Ctrl+Shift+Z)">
           <span class="material-icons">redo</span>
         </button>
-        <button class="btn" id="btn-numbering" title="Toggle Auto Numbering">
+        <button class="btn" id="btn-numbering" title="Toggle Auto Numbering (N)">
           <span class="material-icons">format_list_numbered</span>
         </button>
         <button class="btn" id="btn-clear">
@@ -911,28 +999,28 @@
       <!-- CANVAS -->
       <div id="canvas-wrap">
         <div id="toolbar">
-          <button class="btn btn--icon" id="btn-toggle-sidebar" title="Toggle Sidebar">
+          <button class="btn btn--icon" id="btn-toggle-sidebar" title="Toggle Sidebar (Ctrl+B)">
             <span class="material-icons">menu</span>
           </button>
           <div class="flex items-center gap-1">
-            <button class="btn btn--icon" id="btn-zoom-out" title="Zoom Out">
+            <button class="btn btn--icon" id="btn-zoom-out" title="Zoom Out (-)">
               <span class="material-icons">remove</span>
             </button>
             <span id="zoom-level" style="font-size: 12px; min-width: 50px; text-align: center; font-family: monospace;">100%</span>
-            <button class="btn btn--icon" id="btn-zoom-in" title="Zoom In">
+            <button class="btn btn--icon" id="btn-zoom-in" title="Zoom In (+)">
               <span class="material-icons">add</span>
             </button>
-            <button class="btn btn--icon" id="btn-zoom-reset" title="Reset Zoom">
+            <button class="btn btn--icon" id="btn-zoom-reset" title="Reset Zoom (0)">
               <span class="material-icons">refresh</span>
             </button>
           </div>
           <button class="btn btn--icon ml-auto" id="btn-shortcuts" title="Keyboard Shortcuts (?)">
             <span class="material-icons">keyboard</span>
           </button>
-          <button class="btn btn--icon" id="btn-toggle-preview" title="Toggle Preview">
+          <button class="btn btn--icon" id="btn-toggle-preview" title="Toggle Preview (Ctrl+P)">
             <span class="material-icons">visibility</span>
           </button>
-          <button class="btn btn--icon" id="btn-toggle-log" title="Toggle System Log">
+          <button class="btn btn--icon" id="btn-toggle-log" title="Toggle System Log (Ctrl+L)">
             <span class="material-icons">receipt_long</span>
           </button>
         </div>
@@ -967,6 +1055,7 @@
           <button class="log-filter-btn" data-filter="node">Node</button>
           <button class="log-filter-btn" data-filter="history">History</button>
           <button class="log-filter-btn" data-filter="system">System</button>
+          <button class="log-filter-btn" data-filter="shortcut">Shortcut</button>
           <button class="btn btn--sm ml-auto" id="btn-clear-log">
             <span class="material-icons">clear</span>
           </button>
@@ -1005,7 +1094,7 @@
     </div>
   </div>
 
-  <!-- ==================== KEYBOARD SHORTCUTS MODAL ==================== -->
+  <!-- ==================== KEYBOARD SHORTCUTS MODAL - ENHANCED ==================== -->
   <div id="shortcuts-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -1018,11 +1107,11 @@
         </button>
       </div>
 
-      <!-- Stats -->
+      <!-- Enhanced Stats -->
       <div class="shortcut-stats">
         <div class="shortcut-stat">
           <div class="shortcut-stat-value" id="shortcut-stat-nodes">0</div>
-          <div class="shortcut-stat-label">Total Nodes</div>
+          <div class="shortcut-stat-label">Nodes</div>
         </div>
         <div class="shortcut-stat">
           <div class="shortcut-stat-value" id="shortcut-stat-history">0</div>
@@ -1032,137 +1121,53 @@
           <div class="shortcut-stat-value" id="shortcut-stat-logs">0</div>
           <div class="shortcut-stat-label">Logs</div>
         </div>
+        <div class="shortcut-stat">
+          <div class="shortcut-stat-value" id="shortcut-stat-usage">0</div>
+          <div class="shortcut-stat-label">Shortcuts Used</div>
+        </div>
       </div>
       
       <div class="shortcut-category">
         <span class="material-icons" style="font-size: 14px;">account_tree</span>
         Node Operations
       </div>
-      <div class="shortcut-grid">
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">add_circle</span>
-            Add sibling node
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Shift</span>
-            <span class="key-sep">+</span>
-            <span class="key">Enter</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">subdirectory_arrow_right</span>
-            Add child node
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Tab</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">delete</span>
-            Delete selected node
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Del</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">highlight_off</span>
-            Deselect node
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Esc</span>
-          </div>
-        </div>
+      <div class="shortcut-grid" id="shortcuts-node"></div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">navigation</span>
+        Navigation
       </div>
+      <div class="shortcut-grid" id="shortcuts-navigation"></div>
 
       <div class="shortcut-category">
         <span class="material-icons" style="font-size: 14px;">content_copy</span>
         Clipboard
       </div>
-      <div class="shortcut-grid">
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">content_copy</span>
-            Copy selected node
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Ctrl</span>
-            <span class="key-sep">+</span>
-            <span class="key">C</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">content_paste</span>
-            Paste as child
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Ctrl</span>
-            <span class="key-sep">+</span>
-            <span class="key">V</span>
-          </div>
-        </div>
-      </div>
+      <div class="shortcut-grid" id="shortcuts-clipboard"></div>
 
       <div class="shortcut-category">
         <span class="material-icons" style="font-size: 14px;">history</span>
         History & Undo
       </div>
-      <div class="shortcut-grid">
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">undo</span>
-            Undo action
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Ctrl</span>
-            <span class="key-sep">+</span>
-            <span class="key">Z</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">redo</span>
-            Redo action
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Ctrl</span>
-            <span class="key-sep">+</span>
-            <span class="key">Shift</span>
-            <span class="key-sep">+</span>
-            <span class="key">Z</span>
-          </div>
-        </div>
+      <div class="shortcut-grid" id="shortcuts-history"></div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">zoom_in</span>
+        Zoom & View
       </div>
+      <div class="shortcut-grid" id="shortcuts-zoom"></div>
 
       <div class="shortcut-category">
         <span class="material-icons" style="font-size: 14px;">visibility</span>
-        UI & Panels
+        Panels & UI
       </div>
-      <div class="shortcut-grid">
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">help</span>
-            Show this shortcuts
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">?</span>
-          </div>
-        </div>
-        <div class="shortcut-item">
-          <span class="shortcut-desc">
-            <span class="material-icons shortcut-icon">close</span>
-            Close modals
-          </span>
-          <div class="shortcut-keys">
-            <span class="key">Esc</span>
-          </div>
-        </div>
+      <div class="shortcut-grid" id="shortcuts-ui"></div>
+
+      <div class="shortcut-category">
+        <span class="material-icons" style="font-size: 14px;">save</span>
+        File Operations
       </div>
+      <div class="shortcut-grid" id="shortcuts-file"></div>
 
       <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 2); background: var(--hover-bg); border-radius: var(--radius); border: 1px solid var(--border);">
         <div style="display: flex; align-items: center; gap: var(--spacing); margin-bottom: var(--spacing);">
@@ -1170,23 +1175,48 @@
           <strong style="font-size: 13px;">Pro Tips</strong>
         </div>
         <ul style="font-size: 12px; opacity: 0.8; line-height: 1.8; padding-left: 20px; margin: 0;">
-          <li>Most shortcuts work when no input field is focused</li>
-          <li>Check System Log to track all your actions</li>
-          <li>Use Ctrl+Z/Ctrl+Shift+Z to navigate history</li>
-          <li>Drag nodes from palette or move them on canvas</li>
+          <li>Press <strong>H</strong> to toggle Quick Help panel</li>
+          <li>Use <strong>Arrow Keys</strong> to navigate between nodes</li>
+          <li>Shortcuts show usage count (most used highlighted)</li>
+          <li>All shortcuts work when no input field is focused</li>
+          <li>Visual feedback appears for every shortcut action</li>
         </ul>
       </div>
 
       <div style="margin-top: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 1); background: var(--primary); color: var(--secondary); border-radius: var(--radius); text-align: center; font-size: 11px; font-weight: 600;">
-        📊 All actions are logged in System Log panel
+        ⚡ <span id="total-shortcuts">0</span> shortcuts available | <span id="total-used">0</span> used
       </div>
     </div>
   </div>
 
-  <!-- ==================== SHORTCUT HINT ==================== -->
+  <!-- ==================== ENHANCED SHORTCUT HINT ==================== -->
   <div id="shortcut-hint" class="shortcut-hint">
     <span class="material-icons" id="hint-icon">info</span>
     <span id="hint-text"></span>
+    <span class="hint-divider"></span>
+    <div id="hint-keys"></div>
+  </div>
+
+  <!-- ==================== QUICK HELP OVERLAY ==================== -->
+  <div id="quick-help">
+    <div class="quick-help-header">
+      <div class="quick-help-title">
+        <span class="material-icons">help_outline</span>
+        Quick Help
+      </div>
+      <button class="btn btn--icon btn--sm" id="btn-close-quick-help">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <ul class="quick-help-list">
+      <li><span>Show all shortcuts</span> <span class="key">?</span></li>
+      <li><span>Add sibling</span> <span class="key">⇧ Enter</span></li>
+      <li><span>Add child</span> <span class="key">Tab</span></li>
+      <li><span>Navigate</span> <span class="key">← ↑ → ↓</span></li>
+      <li><span>Delete node</span> <span class="key">Del</span></li>
+      <li><span>Undo/Redo</span> <span class="key">Ctrl Z/Y</span></li>
+      <li><span>Quick export</span> <span class="key">Ctrl S</span></li>
+    </ul>
   </div>
 
   <script>
@@ -1198,21 +1228,68 @@
       maxLogs: 100,
       autoSaveDelay: 1000,
       maxNodes: 100,
-      storageKey: 'tuiBuilderPro_v4',
+      storageKey: 'tuiBuilderPro_v5',
       zoomStep: 0.1,
       minZoom: 0.5,
       maxZoom: 2,
-      debounceDelay: 300
+      debounceDelay: 300,
+      hintDuration: 3000,
+      quickHelpKey: 'showQuickHelp'
     };
 
     // ==================== MATERIAL ICONS ====================
     const ICONS = ['home','account_circle','settings','search','favorite','star','delete','add','remove','edit','save','check','close','menu','more_vert','arrow_back','arrow_forward','refresh','check_circle','info','warning','error','help','visibility','visibility_off','lock','lock_open','https','vpn_key','security','fingerprint','face','person','people','group','person_add','group_add','mail','send','drafts','inbox','reply','forward','call','phone','smartphone','computer','desktop_windows','laptop','memory','router','scanner','print','keyboard','mouse','watch','tv','radio','videocam','headset','speaker','folder','folder_open','create_new_folder','insert_drive_file','attach_file','cloud','cloud_upload','cloud_download','cloud_done','cloud_off','file_download','file_upload','attachment','archive','folder_shared','work','business','school','local_library','store','local_mall','shopping_cart','shopping_basket','shop','add_shopping_cart','flight','hotel','restaurant','local_cafe','local_bar','local_pizza','map','navigation','place','my_location','location_on','directions','traffic','train','directions_car','directions_bus','directions_bike','schedule','access_time','alarm','alarm_on','alarm_off','timer','today','date_range','event','event_available','event_busy','trending_up','trending_down','trending_flat','analytics','pie_chart','show_chart','bar_chart','timeline','code','developer_mode','devices','widgets','wallpaper','brightness_low','brightness_high','data_usage','storage','usb','wifi','bluetooth','cast','build','extension','explore','bookmark','book','dns','dashboard','language','translate','record_voice_over','mic','play_arrow','pause','stop','skip_next','skip_previous','fast_forward','fast_rewind','volume_up','volume_down','volume_mute','music_note','image','photo','camera','camera_alt','photo_library','brush','palette','format_paint','colorize','gradient','layers','assessment','assignment','ballot','poll','quiz','receipt','auto_awesome','terminal','account_tree','hub','all_inclusive','api','integration_instructions','webhook','schema','table_chart','view_list','view_module','view_quilt','view_stream','view_agenda','rocket_launch','science','psychology','engineering','biotech','category','label','style','format_list_bulleted','format_list_numbered','drag_indicator','drag_handle','reorder','swap_vert','swap_horiz'];
+
+    // ==================== SHORTCUTS DEFINITIONS ====================
+    const SHORTCUTS = {
+      node: [
+        { key: 'Shift+Enter', desc: 'Add sibling node', icon: 'add_circle', action: 'addSibling' },
+        { key: 'Tab', desc: 'Add child node', icon: 'subdirectory_arrow_right', action: 'addChild' },
+        { key: 'Delete', desc: 'Delete selected node', icon: 'delete', action: 'deleteNode' },
+        { key: 'Escape', desc: 'Deselect node', icon: 'highlight_off', action: 'deselect' },
+        { key: 'Enter', desc: 'Edit node title', icon: 'edit', action: 'editTitle' }
+      ],
+      navigation: [
+        { key: 'ArrowUp', desc: 'Select previous node', icon: 'arrow_upward', action: 'navigateUp' },
+        { key: 'ArrowDown', desc: 'Select next node', icon: 'arrow_downward', action: 'navigateDown' },
+        { key: 'ArrowLeft', desc: 'Select parent node', icon: 'arrow_back', action: 'navigateLeft' },
+        { key: 'ArrowRight', desc: 'Select first child', icon: 'arrow_forward', action: 'navigateRight' }
+      ],
+      clipboard: [
+        { key: 'Ctrl+C', desc: 'Copy selected node', icon: 'content_copy', action: 'copyNode' },
+        { key: 'Ctrl+V', desc: 'Paste as child', icon: 'content_paste', action: 'pasteNode' },
+        { key: 'Ctrl+X', desc: 'Cut selected node', icon: 'content_cut', action: 'cutNode' }
+      ],
+      history: [
+        { key: 'Ctrl+Z', desc: 'Undo action', icon: 'undo', action: 'undo' },
+        { key: 'Ctrl+Shift+Z', desc: 'Redo action', icon: 'redo', action: 'redo' }
+      ],
+      zoom: [
+        { key: '+', desc: 'Zoom in', icon: 'zoom_in', action: 'zoomIn' },
+        { key: '-', desc: 'Zoom out', icon: 'zoom_out', action: 'zoomOut' },
+        { key: '0', desc: 'Reset zoom', icon: 'filter_center_focus', action: 'zoomReset' }
+      ],
+      ui: [
+        { key: '?', desc: 'Show shortcuts', icon: 'keyboard', action: 'showShortcuts' },
+        { key: 'H', desc: 'Toggle quick help', icon: 'help_outline', action: 'toggleQuickHelp' },
+        { key: 'Ctrl+B', desc: 'Toggle sidebar', icon: 'menu', action: 'toggleSidebar' },
+        { key: 'Ctrl+P', desc: 'Toggle preview', icon: 'visibility', action: 'togglePreview' },
+        { key: 'Ctrl+L', desc: 'Toggle system log', icon: 'receipt_long', action: 'toggleLog' },
+        { key: 'T', desc: 'Toggle theme', icon: 'brightness_6', action: 'toggleTheme' },
+        { key: 'N', desc: 'Toggle numbering', icon: 'format_list_numbered', action: 'toggleNumbering' }
+      ],
+      file: [
+        { key: 'Ctrl+S', desc: 'Quick export JSON', icon: 'save', action: 'quickExport' },
+        { key: 'Ctrl+O', desc: 'Open import dialog', icon: 'upload', action: 'openImport' }
+      ]
+    };
 
     // ==================== STATE ====================
     const state = {
       nodes: [],
       selectedId: null,
       copiedNode: null,
+      cutNode: null,
       draggedNode: null,
       draggedFromPalette: false,
       zoom: 1,
@@ -1222,7 +1299,9 @@
       logFilter: 'all',
       theme: localStorage.getItem('theme') || 'light',
       autoNumbering: localStorage.getItem('autoNumbering') === 'true',
-      searchQuery: ''
+      searchQuery: '',
+      shortcutUsage: JSON.parse(localStorage.getItem('shortcutUsage') || '{}'),
+      showQuickHelp: localStorage.getItem(CONFIG.quickHelpKey) !== 'false'
     };
 
     // ==================== UTILITIES ====================
@@ -1241,6 +1320,61 @@
       clearTimeout(t._timer);
       t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
     }
+
+    // ==================== SHORTCUT HINT SYSTEM ====================
+    const ShortcutHint = {
+      show(text, keys, icon = 'info') {
+        const hint = $('#shortcut-hint');
+        const hintText = $('#hint-text');
+        const hintKeys = $('#hint-keys');
+        const hintIcon = $('#hint-icon');
+        
+        hintIcon.textContent = icon;
+        hintText.textContent = text;
+        
+        if (Array.isArray(keys)) {
+          hintKeys.innerHTML = keys.map(k => `<span class="key">${k}</span>`).join('<span class="key-sep">+</span>');
+        } else {
+          hintKeys.innerHTML = `<span class="key">${keys}</span>`;
+        }
+        
+        hint.classList.add('visible');
+        
+        clearTimeout(hint._timer);
+        hint._timer = setTimeout(() => {
+          hint.classList.remove('visible');
+        }, CONFIG.hintDuration);
+      },
+
+      hide() {
+        $('#shortcut-hint').classList.remove('visible');
+      }
+    };
+
+    // ==================== SHORTCUT USAGE TRACKER ====================
+    const ShortcutTracker = {
+      track(action) {
+        if (!state.shortcutUsage[action]) {
+          state.shortcutUsage[action] = 0;
+        }
+        state.shortcutUsage[action]++;
+        localStorage.setItem('shortcutUsage', JSON.stringify(state.shortcutUsage));
+        Log.add('shortcut', `Shortcut used: ${action}`, { count: state.shortcutUsage[action] });
+      },
+
+      getCount(action) {
+        return state.shortcutUsage[action] || 0;
+      },
+
+      getTotalUsage() {
+        return Object.values(state.shortcutUsage).reduce((sum, count) => sum + count, 0);
+      },
+
+      reset() {
+        state.shortcutUsage = {};
+        localStorage.setItem('shortcutUsage', '{}');
+      }
+    };
 
     // ==================== SYSTEM LOG ====================
     const Log = {
@@ -1383,6 +1517,36 @@
         };
         search(nodes);
         return results;
+      },
+
+      // Navigation helpers
+      getAllNodes() {
+        const all = [];
+        const traverse = (nodes) => {
+          nodes.forEach(n => {
+            all.push(n.id);
+            traverse(n.children);
+          });
+        };
+        traverse(state.nodes);
+        return all;
+      },
+
+      getNextNode(currentId) {
+        const all = this.getAllNodes();
+        const idx = all.indexOf(currentId);
+        return idx !== -1 && idx < all.length - 1 ? all[idx + 1] : null;
+      },
+
+      getPrevNode(currentId) {
+        const all = this.getAllNodes();
+        const idx = all.indexOf(currentId);
+        return idx > 0 ? all[idx - 1] : null;
+      },
+
+      getFirstChild(nodeId) {
+        const node = this.find(nodeId);
+        return node && node.children.length > 0 ? node.children[0].id : null;
       }
     };
 
@@ -1426,7 +1590,7 @@
         try {
           localStorage.setItem(CONFIG.storageKey, JSON.stringify({
             nodes: state.nodes,
-            version: '4.0',
+            version: '5.0',
             timestamp: Date.now()
           }));
           Log.add('system', 'Auto-saved to localStorage');
@@ -1466,13 +1630,11 @@
         Log.render();
       },
 
-      // Auto-edit node title after creation
       autoEditNodeTitle(nodeId) {
-        // Wait for render to complete
         setTimeout(() => {
           const nodeTitle = document.querySelector(`.node-title[data-id="${nodeId}"]`);
           if (nodeTitle) {
-            nodeTitle.click(); // Trigger inline edit
+            nodeTitle.click();
           }
         }, 50);
       },
@@ -1577,7 +1739,6 @@
 
           document.addEventListener('click', () => iconDropdown?.classList.add('hidden'), { once: true });
 
-          // FIX 1: Remove debounce and render - update immediately, save on blur
           const titleInput = $('#edit-title');
           if (titleInput) {
             titleInput.addEventListener('input', e => {
@@ -1842,7 +2003,6 @@
       renderPreview() {
         const lines = [];
         const walk = (n, level, isLast, prefix = '', parentNodes = null) => {
-          // Calculate numbering (same logic as renderNode)
           const siblings = parentNodes || state.nodes;
           const sibIdx = siblings.findIndex(node => node.id === n.id);
           const num = String(sibIdx + 1).padStart(2, '0');
@@ -1881,17 +2041,374 @@
         state.zoom = Math.max(CONFIG.minZoom, Math.min(CONFIG.maxZoom, z));
         $('#canvas').style.transform = `scale(${state.zoom})`;
         $('#zoom-level').textContent = Math.round(state.zoom * 100) + '%';
+      },
+
+      updateShortcutModal() {
+        // Update stats
+        $('#shortcut-stat-nodes').textContent = Node.count();
+        $('#shortcut-stat-history').textContent = state.history.length;
+        $('#shortcut-stat-logs').textContent = state.logs.length;
+        $('#shortcut-stat-usage').textContent = ShortcutTracker.getTotalUsage();
+
+        // Render shortcuts by category
+        Object.keys(SHORTCUTS).forEach(category => {
+          const container = $(`#shortcuts-${category}`);
+          if (!container) return;
+
+          container.innerHTML = SHORTCUTS[category].map(sc => {
+            const usage = ShortcutTracker.getCount(sc.action);
+            const keys = sc.key.split('+');
+            
+            return `
+              <div class="shortcut-item">
+                ${usage > 0 ? `<span class="usage-badge">${usage}</span>` : ''}
+                <span class="shortcut-desc">
+                  <span class="material-icons shortcut-icon">${sc.icon}</span>
+                  ${sc.desc}
+                </span>
+                <div class="shortcut-keys">
+                  ${keys.map(k => `<span class="key">${k}</span>`).join('<span class="key-sep">+</span>')}
+                </div>
+              </div>
+            `;
+          }).join('');
+        });
+
+        // Update totals
+        const totalShortcuts = Object.values(SHORTCUTS).reduce((sum, arr) => sum + arr.length, 0);
+        const totalUsed = Object.keys(state.shortcutUsage).length;
+        $('#total-shortcuts').textContent = totalShortcuts;
+        $('#total-used').textContent = totalUsed;
+      }
+    };
+
+    // ==================== SHORTCUT ACTIONS ====================
+    const ShortcutActions = {
+      addSibling() {
+        if (Node.count() >= CONFIG.maxNodes) {
+          toast('Max nodes reached', 'warning');
+          ShortcutHint.show('Maximum nodes limit reached', 'Shift+Enter', 'warning');
+          return;
+        }
+        
+        if (!state.selectedId) {
+          History.save('added sibling');
+          const newNode = Node.create();
+          state.nodes.push(newNode);
+          Log.add('node', 'Added root node');
+          UI.render();
+          UI.autoEditNodeTitle(newNode.id);
+          toast('Node added (root)');
+          ShortcutHint.show('Root node added', ['Shift', 'Enter'], 'add_circle');
+        } else {
+          const node = Node.find(state.selectedId);
+          const parent = Node.findParent(state.selectedId);
+          const siblings = parent ? parent.children : state.nodes;
+          const idx = siblings.findIndex(n => n.id === state.selectedId);
+          if (idx !== -1) {
+            History.save('added sibling');
+            const newNode = Node.create();
+            siblings.splice(idx + 1, 0, newNode);
+            state.selectedId = newNode.id;
+            Log.add('node', 'Added sibling node');
+            UI.render();
+            UI.autoEditNodeTitle(newNode.id);
+            toast('Sibling added');
+            ShortcutHint.show('Sibling node added', ['Shift', 'Enter'], 'add_circle');
+          }
+        }
+        ShortcutTracker.track('addSibling');
+      },
+
+      addChild() {
+        if (Node.count() >= CONFIG.maxNodes) {
+          toast('Max nodes reached', 'warning');
+          ShortcutHint.show('Maximum nodes limit reached', 'Tab', 'warning');
+          return;
+        }
+        if (!state.selectedId) {
+          toast('Select node first', 'info');
+          ShortcutHint.show('Please select a node first', 'Tab', 'info');
+          return;
+        }
+        const node = Node.find(state.selectedId);
+        if (node) {
+          History.save('added child');
+          const child = Node.create();
+          node.children.push(child);
+          state.selectedId = child.id;
+          Log.add('node', `Added child to: ${node.title}`);
+          UI.render();
+          UI.autoEditNodeTitle(child.id);
+          toast('Child added');
+          ShortcutHint.show('Child node added', 'Tab', 'subdirectory_arrow_right');
+          ShortcutTracker.track('addChild');
+        }
+      },
+
+      deleteNode() {
+        if (!state.selectedId) {
+          toast('No node selected', 'info');
+          return;
+        }
+        const node = Node.find(state.selectedId);
+        if (confirm('Delete node?')) {
+          History.save('deleted node');
+          Log.add('node', `Deleted node: ${node.title}`);
+          Node.remove(state.selectedId);
+          state.selectedId = null;
+          UI.render();
+          toast('Node deleted');
+          ShortcutHint.show('Node deleted', 'Delete', 'delete');
+          ShortcutTracker.track('deleteNode');
+        }
+      },
+
+      deselect() {
+        if (state.selectedId) {
+          state.selectedId = null;
+          UI.render();
+          toast('Node deselected');
+          ShortcutHint.show('Node deselected', 'Escape', 'highlight_off');
+          ShortcutTracker.track('deselect');
+        }
+      },
+
+      editTitle() {
+        if (!state.selectedId) {
+          toast('No node selected', 'info');
+          return;
+        }
+        const titleEl = document.querySelector(`.node-title[data-id="${state.selectedId}"]`);
+        if (titleEl) {
+          titleEl.click();
+          ShortcutHint.show('Editing node title', 'Enter', 'edit');
+          ShortcutTracker.track('editTitle');
+        }
+      },
+
+      navigateUp() {
+        const prev = Node.getPrevNode(state.selectedId || Node.getAllNodes()[0]);
+        if (prev) {
+          state.selectedId = prev;
+          UI.render();
+          ShortcutHint.show('Selected previous node', '↑', 'arrow_upward');
+          ShortcutTracker.track('navigateUp');
+        }
+      },
+
+      navigateDown() {
+        const next = Node.getNextNode(state.selectedId || Node.getAllNodes()[0]);
+        if (next) {
+          state.selectedId = next;
+          UI.render();
+          ShortcutHint.show('Selected next node', '↓', 'arrow_downward');
+          ShortcutTracker.track('navigateDown');
+        }
+      },
+
+      navigateLeft() {
+        if (!state.selectedId) return;
+        const parent = Node.findParent(state.selectedId);
+        if (parent) {
+          state.selectedId = parent.id;
+          UI.render();
+          ShortcutHint.show('Selected parent node', '←', 'arrow_back');
+          ShortcutTracker.track('navigateLeft');
+        }
+      },
+
+      navigateRight() {
+        if (!state.selectedId) return;
+        const firstChild = Node.getFirstChild(state.selectedId);
+        if (firstChild) {
+          state.selectedId = firstChild;
+          UI.render();
+          ShortcutHint.show('Selected first child', '→', 'arrow_forward');
+          ShortcutTracker.track('navigateRight');
+        }
+      },
+
+      copyNode() {
+        if (!state.selectedId) {
+          toast('No node selected', 'info');
+          return;
+        }
+        const node = Node.find(state.selectedId);
+        if (node) {
+          state.copiedNode = JSON.parse(JSON.stringify(node));
+          state.cutNode = null;
+          Log.add('node', `Copied node: ${node.title}`);
+          toast('Node copied!', 'content_copy');
+          ShortcutHint.show('Node copied to clipboard', ['Ctrl', 'C'], 'content_copy');
+          ShortcutTracker.track('copyNode');
+          UI.renderPalette();
+        }
+      },
+
+      cutNode() {
+        if (!state.selectedId) {
+          toast('No node selected', 'info');
+          return;
+        }
+        const node = Node.find(state.selectedId);
+        if (node) {
+          state.cutNode = JSON.parse(JSON.stringify(node));
+          state.copiedNode = state.cutNode;
+          Log.add('node', `Cut node: ${node.title}`);
+          toast('Node cut!', 'content_cut');
+          ShortcutHint.show('Node cut to clipboard', ['Ctrl', 'X'], 'content_cut');
+          ShortcutTracker.track('cutNode');
+        }
+      },
+
+      pasteNode() {
+        if (!state.copiedNode) {
+          toast('Nothing to paste', 'info');
+          return;
+        }
+        if (!state.selectedId) {
+          toast('Select parent node first', 'info');
+          return;
+        }
+        const parent = Node.find(state.selectedId);
+        if (parent) {
+          const copy = JSON.parse(JSON.stringify(state.copiedNode));
+          copy.id = uid();
+          if (state.cutNode && state.cutNode.id === state.copiedNode.id) {
+            Node.remove(state.cutNode.id);
+            state.cutNode = null;
+          } else {
+            copy.title = `${copy.title} (copy)`;
+          }
+          parent.children.push(copy);
+          History.save('pasted node');
+          Log.add('node', `Pasted node as child of: ${parent.title}`);
+          UI.render();
+          toast('Node pasted!', 'content_paste');
+          ShortcutHint.show('Node pasted as child', ['Ctrl', 'V'], 'content_paste');
+          ShortcutTracker.track('pasteNode');
+        }
+      },
+
+      undo() {
+        if (History.undo()) {
+          UI.render();
+          toast('Undo ✓', 'undo');
+          ShortcutHint.show('Undo successful', ['Ctrl', 'Z'], 'undo');
+          ShortcutTracker.track('undo');
+        }
+      },
+
+      redo() {
+        if (History.redo()) {
+          UI.render();
+          toast('Redo ✓', 'redo');
+          ShortcutHint.show('Redo successful', ['Ctrl', 'Shift', 'Z'], 'redo');
+          ShortcutTracker.track('redo');
+        }
+      },
+
+      zoomIn() {
+        UI.setZoom(state.zoom + CONFIG.zoomStep);
+        ShortcutHint.show(`Zoom: ${Math.round(state.zoom * 100)}%`, '+', 'zoom_in');
+        ShortcutTracker.track('zoomIn');
+      },
+
+      zoomOut() {
+        UI.setZoom(state.zoom - CONFIG.zoomStep);
+        ShortcutHint.show(`Zoom: ${Math.round(state.zoom * 100)}%`, '-', 'zoom_out');
+        ShortcutTracker.track('zoomOut');
+      },
+
+      zoomReset() {
+        UI.setZoom(1);
+        ShortcutHint.show('Zoom reset to 100%', '0', 'filter_center_focus');
+        ShortcutTracker.track('zoomReset');
+      },
+
+      showShortcuts() {
+        UI.updateShortcutModal();
+        $('#shortcuts-modal').classList.add('visible');
+        Log.add('shortcut', 'Opened keyboard shortcuts panel');
+        ShortcutTracker.track('showShortcuts');
+      },
+
+      toggleQuickHelp() {
+        const quickHelp = $('#quick-help');
+        const isVisible = quickHelp.classList.toggle('visible');
+        state.showQuickHelp = isVisible;
+        localStorage.setItem(CONFIG.quickHelpKey, isVisible);
+        toast(isVisible ? 'Quick help shown' : 'Quick help hidden');
+        ShortcutHint.show(isVisible ? 'Quick help enabled' : 'Quick help disabled', 'H', 'help_outline');
+        ShortcutTracker.track('toggleQuickHelp');
+      },
+
+      toggleSidebar() {
+        $('#sidebar').classList.toggle('collapsed');
+        const isCollapsed = $('#sidebar').classList.contains('collapsed');
+        ShortcutHint.show(isCollapsed ? 'Sidebar hidden' : 'Sidebar shown', ['Ctrl', 'B'], 'menu');
+        ShortcutTracker.track('toggleSidebar');
+      },
+
+      togglePreview() {
+        $('#preview-panel').classList.toggle('collapsed');
+        const isCollapsed = $('#preview-panel').classList.contains('collapsed');
+        ShortcutHint.show(isCollapsed ? 'Preview hidden' : 'Preview shown', ['Ctrl', 'P'], 'visibility');
+        ShortcutTracker.track('togglePreview');
+      },
+
+      toggleLog() {
+        $('#log-panel').classList.toggle('collapsed');
+        const isCollapsed = $('#log-panel').classList.contains('collapsed');
+        ShortcutHint.show(isCollapsed ? 'Log hidden' : 'Log shown', ['Ctrl', 'L'], 'receipt_long');
+        ShortcutTracker.track('toggleLog');
+      },
+
+      toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        localStorage.setItem('theme', state.theme);
+        Log.add('system', `Theme changed to ${state.theme}`);
+        ShortcutHint.show(`${state.theme} theme activated`, 'T', 'brightness_6');
+        ShortcutTracker.track('toggleTheme');
+      },
+
+      toggleNumbering() {
+        state.autoNumbering = !state.autoNumbering;
+        localStorage.setItem('autoNumbering', state.autoNumbering);
+        Log.add('system', `Auto numbering ${state.autoNumbering ? 'enabled' : 'disabled'}`);
+        toast(state.autoNumbering ? 'Numbering ON' : 'Numbering OFF', 'format_list_numbered');
+        ShortcutHint.show(state.autoNumbering ? 'Numbering enabled' : 'Numbering disabled', 'N', 'format_list_numbered');
+        UI.render();
+        ShortcutTracker.track('toggleNumbering');
+      },
+
+      quickExport() {
+        const data = JSON.stringify({ nodes: state.nodes, version: '5.0', exported: new Date().toISOString() }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tui-builder-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        Log.add('system', 'Quick exported data to JSON');
+        toast('JSON exported!', 'download');
+        ShortcutHint.show('JSON file exported', ['Ctrl', 'S'], 'save');
+        ShortcutTracker.track('quickExport');
+      },
+
+      openImport() {
+        $('#import-modal').classList.add('visible');
+        ShortcutHint.show('Import dialog opened', ['Ctrl', 'O'], 'upload');
+        ShortcutTracker.track('openImport');
       }
     };
 
     // ==================== EVENT HANDLERS ====================
     function initEvents() {
-      $('#btn-theme').onclick = () => {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', state.theme);
-        localStorage.setItem('theme', state.theme);
-        Log.add('system', `Theme changed to ${state.theme}`);
-      };
+      $('#btn-theme').onclick = () => ShortcutActions.toggleTheme();
 
       $('#btn-add-main').onclick = () => {
         if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
@@ -1920,7 +2437,7 @@
         toast('Sample loaded');
       };
 
-      $('#btn-import').onclick = () => $('#import-modal').classList.add('visible');
+      $('#btn-import').onclick = () => ShortcutActions.openImport();
       $('#btn-close-modal').onclick = () => $('#import-modal').classList.remove('visible');
       $('#btn-cancel-import').onclick = () => $('#import-modal').classList.remove('visible');
 
@@ -1943,18 +2460,7 @@
         }
       };
 
-      $('#btn-export-json').onclick = () => {
-        const data = JSON.stringify({ nodes: state.nodes, version: '4.0', exported: new Date().toISOString() }, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tui-builder-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        Log.add('system', 'Exported data to JSON');
-        toast('JSON exported!', 'download');
-      };
+      $('#btn-export-json').onclick = () => ShortcutActions.quickExport();
 
       $('#btn-export-ascii').onclick = () => {
         const ascii = $('#preview-content').textContent;
@@ -1967,19 +2473,8 @@
         );
       };
 
-      $('#btn-undo').onclick = () => {
-        if (History.undo()) {
-          UI.render();
-          toast('Undo ✓', 'undo');
-        }
-      };
-
-      $('#btn-redo').onclick = () => {
-        if (History.redo()) {
-          UI.render();
-          toast('Redo ✓', 'redo');
-        }
-      };
+      $('#btn-undo').onclick = () => ShortcutActions.undo();
+      $('#btn-redo').onclick = () => ShortcutActions.redo();
 
       $('#btn-clear').onclick = () => {
         if (state.nodes.length === 0) return;
@@ -1993,43 +2488,27 @@
         }
       };
 
-      $('#btn-numbering').onclick = () => {
-        state.autoNumbering = !state.autoNumbering;
-        localStorage.setItem('autoNumbering', state.autoNumbering);
-        Log.add('system', `Auto numbering ${state.autoNumbering ? 'enabled' : 'disabled'}`);
-        toast(state.autoNumbering ? 'Numbering ON' : 'Numbering OFF', 'format_list_numbered');
-        UI.render();
-      };
+      $('#btn-numbering').onclick = () => ShortcutActions.toggleNumbering();
 
-      $('#btn-zoom-in').onclick = () => UI.setZoom(state.zoom + CONFIG.zoomStep);
-      $('#btn-zoom-out').onclick = () => UI.setZoom(state.zoom - CONFIG.zoomStep);
-      $('#btn-zoom-reset').onclick = () => UI.setZoom(1);
+      $('#btn-zoom-in').onclick = () => ShortcutActions.zoomIn();
+      $('#btn-zoom-out').onclick = () => ShortcutActions.zoomOut();
+      $('#btn-zoom-reset').onclick = () => ShortcutActions.zoomReset();
 
-      $('#btn-toggle-sidebar').onclick = () => $('#sidebar').classList.toggle('collapsed');
-      $('#btn-toggle-preview').onclick = () => $('#preview-panel').classList.toggle('collapsed');
+      $('#btn-toggle-sidebar').onclick = () => ShortcutActions.toggleSidebar();
+      $('#btn-toggle-preview').onclick = () => ShortcutActions.togglePreview();
       $('#btn-close-preview').onclick = () => $('#preview-panel').classList.add('collapsed');
       
-      $('#btn-toggle-log').onclick = () => $('#log-panel').classList.toggle('collapsed');
+      $('#btn-toggle-log').onclick = () => ShortcutActions.toggleLog();
       $('#btn-close-log').onclick = () => $('#log-panel').classList.add('collapsed');
       
       $('#btn-clear-log').onclick = () => {
         if (confirm('Clear all logs?')) Log.clear();
       };
 
-      // OPTIMIZED: Keyboard Shortcuts Modal with Stats
-      $('#btn-shortcuts').onclick = () => {
-        // Update stats before showing
-        $('#shortcut-stat-nodes').textContent = Node.count();
-        $('#shortcut-stat-history').textContent = state.history.length;
-        $('#shortcut-stat-logs').textContent = state.logs.length;
-        
-        $('#shortcuts-modal').classList.add('visible');
-        Log.add('system', 'Opened keyboard shortcuts panel');
-      };
+      $('#btn-shortcuts').onclick = () => ShortcutActions.showShortcuts();
+      $('#btn-close-shortcuts').onclick = () => $('#shortcuts-modal').classList.remove('visible');
 
-      $('#btn-close-shortcuts').onclick = () => {
-        $('#shortcuts-modal').classList.remove('visible');
-      };
+      $('#btn-close-quick-help').onclick = () => ShortcutActions.toggleQuickHelp();
 
       // Close modals on background click
       $('#shortcuts-modal').onclick = (e) => {
@@ -2063,119 +2542,139 @@
         }
       }, 300));
 
-      // Keyboard shortcuts
+      // ENHANCED KEYBOARD SHORTCUTS
       document.addEventListener('keydown', e => {
         const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+        const ctrl = e.ctrlKey || e.metaKey;
 
         // Show shortcuts with "?"
         if (e.key === '?' && !isInput) {
           e.preventDefault();
-          $('#shortcuts-modal').classList.add('visible');
+          ShortcutActions.showShortcuts();
         }
-        // Escape to close modals
+        // Toggle quick help with "H"
+        else if (e.key === 'h' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.toggleQuickHelp();
+        }
+        // Toggle theme with "T"
+        else if (e.key === 't' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.toggleTheme();
+        }
+        // Toggle numbering with "N"
+        else if (e.key === 'n' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.toggleNumbering();
+        }
+        // Escape to close modals or deselect
         else if (e.key === 'Escape') {
           if ($('#shortcuts-modal').classList.contains('visible')) {
             $('#shortcuts-modal').classList.remove('visible');
           } else if ($('#import-modal').classList.contains('visible')) {
             $('#import-modal').classList.remove('visible');
           } else if (state.selectedId && !isInput) {
-            state.selectedId = null;
-            UI.render();
+            ShortcutActions.deselect();
           }
+        }
+        // Navigation with arrow keys
+        else if (e.key === 'ArrowUp' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.navigateUp();
+        }
+        else if (e.key === 'ArrowDown' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.navigateDown();
+        }
+        else if (e.key === 'ArrowLeft' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.navigateLeft();
+        }
+        else if (e.key === 'ArrowRight' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.navigateRight();
+        }
+        // Edit title with Enter
+        else if (e.key === 'Enter' && !e.shiftKey && !ctrl && state.selectedId && !isInput) {
+          e.preventDefault();
+          ShortcutActions.editTitle();
+        }
+        // Zoom with +/-/0
+        else if (e.key === '+' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.zoomIn();
+        }
+        else if (e.key === '-' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.zoomOut();
+        }
+        else if (e.key === '0' && !isInput && !ctrl) {
+          e.preventDefault();
+          ShortcutActions.zoomReset();
         }
         // Undo
-        else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !isInput) {
+        else if (ctrl && e.key === 'z' && !e.shiftKey && !isInput) {
           e.preventDefault();
-          $('#btn-undo').click();
+          ShortcutActions.undo();
         }
         // Redo
-        else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y') && !isInput) {
+        else if (ctrl && (e.shiftKey && e.key === 'z' || e.key === 'y') && !isInput) {
           e.preventDefault();
-          $('#btn-redo').click();
+          ShortcutActions.redo();
         }
         // Copy node
-        else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedId && !isInput) {
+        else if (ctrl && e.key === 'c' && state.selectedId && !isInput) {
           e.preventDefault();
-          const node = Node.find(state.selectedId);
-          if (node) {
-            state.copiedNode = JSON.parse(JSON.stringify(node));
-            Log.add('node', `Copied node: ${node.title}`);
-            toast('Node copied!', 'content_copy');
-            UI.renderPalette();
-          }
+          ShortcutActions.copyNode();
+        }
+        // Cut node
+        else if (ctrl && e.key === 'x' && state.selectedId && !isInput) {
+          e.preventDefault();
+          ShortcutActions.cutNode();
         }
         // Paste node
-        else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.copiedNode && state.selectedId && !isInput) {
+        else if (ctrl && e.key === 'v' && state.copiedNode && state.selectedId && !isInput) {
           e.preventDefault();
-          const parent = Node.find(state.selectedId);
-          if (parent) {
-            const copy = JSON.parse(JSON.stringify(state.copiedNode));
-            copy.id = uid();
-            copy.title = `${copy.title} (copy)`;
-            parent.children.push(copy);
-            History.save('pasted node');
-            Log.add('node', `Pasted node as child of: ${parent.title}`);
-            UI.render();
-            toast('Node pasted!', 'content_paste');
-          }
+          ShortcutActions.pasteNode();
+        }
+        // Quick export
+        else if (ctrl && e.key === 's' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.quickExport();
+        }
+        // Open import
+        else if (ctrl && e.key === 'o' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.openImport();
+        }
+        // Toggle sidebar
+        else if (ctrl && e.key === 'b' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.toggleSidebar();
+        }
+        // Toggle preview
+        else if (ctrl && e.key === 'p' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.togglePreview();
+        }
+        // Toggle log
+        else if (ctrl && e.key === 'l' && !isInput) {
+          e.preventDefault();
+          ShortcutActions.toggleLog();
         }
         // Add sibling with Shift+Enter
         else if (e.shiftKey && e.key === 'Enter' && !isInput) {
           e.preventDefault();
-          if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
-          if (!state.selectedId) {
-            History.save('added sibling');
-            const newNode = Node.create();
-            state.nodes.push(newNode);
-            Log.add('node', 'Added root node');
-            UI.render();
-            UI.autoEditNodeTitle(newNode.id);
-            toast('Node added (root)');
-          } else {
-            const node = Node.find(state.selectedId);
-            const parent = Node.findParent(state.selectedId);
-            const siblings = parent ? parent.children : state.nodes;
-            const idx = siblings.findIndex(n => n.id === state.selectedId);
-            if (idx !== -1) {
-              History.save('added sibling');
-              const newNode = Node.create();
-              siblings.splice(idx + 1, 0, newNode);
-              state.selectedId = newNode.id;
-              Log.add('node', 'Added sibling node');
-              UI.render();
-              UI.autoEditNodeTitle(newNode.id);
-              toast('Sibling added');
-            }
-          }
+          ShortcutActions.addSibling();
         }
         // Add child with Tab
         else if (e.key === 'Tab' && !isInput) {
           e.preventDefault();
-          if (Node.count() >= CONFIG.maxNodes) return toast('Max nodes', 'warning');
-          if (!state.selectedId) return toast('Select node first', 'info');
-          const node = Node.find(state.selectedId);
-          if (node) {
-            History.save('added child');
-            const child = Node.create();
-            node.children.push(child);
-            state.selectedId = child.id;
-            Log.add('node', `Added child to: ${node.title}`);
-            UI.render();
-            UI.autoEditNodeTitle(child.id);
-            toast('Child added');
-          }
+          ShortcutActions.addChild();
         }
         // Delete with Delete key
         else if (e.key === 'Delete' && state.selectedId && !isInput) {
-          const node = Node.find(state.selectedId);
-          if (confirm('Delete node?')) {
-            History.save('deleted node');
-            Log.add('node', `Deleted node: ${node.title}`);
-            Node.remove(state.selectedId);
-            state.selectedId = null;
-            UI.render();
-            toast('Node deleted');
-          }
+          ShortcutActions.deleteNode();
         }
       });
     }
@@ -2184,19 +2683,32 @@
     function init() {
       document.documentElement.setAttribute('data-theme', state.theme);
       
-      Log.add('system', 'TUI Builder Pro v4.0 initialized');
+      Log.add('system', '🚀 TUI Builder Pro v5.0 - Enhanced Shortcuts Edition');
       
       if (!History.load()) {
         History.save('initial state');
       }
       
       UI.render();
+      UI.updateShortcutModal();
       initEvents();
+
+      // Show/hide quick help based on saved preference
+      if (state.showQuickHelp) {
+        $('#quick-help').classList.add('visible');
+      }
       
-      console.log('%c🚀 TUI Builder Pro v4.0 - Black & White Edition', 'font-size:20px;font-weight:bold;color:#000');
-      console.log('%c📋 System Log: Max 100 activities', 'font-size:14px;color:#666');
-      console.log('%c🎨 Theme: Strict Black & White', 'font-size:14px;color:#666');
-      console.log('%c⌨️  Press ? to see keyboard shortcuts', 'font-size:14px;color:#666');
+      console.log('%c🚀 TUI Builder Pro v5.0 - Enhanced Shortcuts Edition', 'font-size:20px;font-weight:bold;color:#000');
+      console.log('%c⌨️  ENHANCED FEATURES:', 'font-size:14px;font-weight:bold;color:#666');
+      console.log('%c   • Dynamic shortcut hints with visual feedback', 'font-size:12px;color:#666');
+      console.log('%c   • Navigation with arrow keys (↑↓←→)', 'font-size:12px;color:#666');
+      console.log('%c   • Zoom controls (+/-/0)', 'font-size:12px;color:#666');
+      console.log('%c   • Panel toggles (Ctrl+B/P/L)', 'font-size:12px;color:#666');
+      console.log('%c   • Quick help overlay (H key)', 'font-size:12px;color:#666');
+      console.log('%c   • Shortcut usage tracking & statistics', 'font-size:12px;color:#666');
+      console.log('%c   • Enhanced cut/copy/paste (Ctrl+X/C/V)', 'font-size:12px;color:#666');
+      console.log('%c   • Quick export (Ctrl+S)', 'font-size:12px;color:#666');
+      console.log('%c⌨️  Press ? to see all shortcuts', 'font-size:14px;color:#666');
     }
 
     init();
