@@ -1841,27 +1841,33 @@
 
       renderPreview() {
         const lines = [];
-        const walk = (n, level, isLast, prefix = '') => {
+        const walk = (n, level, isLast, prefix = '', parentNodes = null) => {
+          // Calculate numbering (same logic as renderNode)
+          const siblings = parentNodes || state.nodes;
+          const sibIdx = siblings.findIndex(node => node.id === n.id);
+          const num = String(sibIdx + 1).padStart(2, '0');
+          const title = state.autoNumbering ? `${num}. ${n.title}` : n.title;
+          
           const conn = isLast ? '└─' : '├─';
           const childPrefix = prefix + (isLast ? '   ' : '│  ');
 
           if (level === 0) {
-            const t = ` ${n.title.toUpperCase()} `;
+            const t = ` ${title.toUpperCase()} `;
             const w = Math.max(50, t.length + 4);
             lines.push('┌' + '─'.repeat(w - 2) + '┐');
             lines.push('│' + t.padEnd(w - 2) + '│');
             if (n.meta) n.meta.split('\n').forEach(l => lines.push('│ ' + l.padEnd(w - 3) + '│'));
             lines.push('└' + '─'.repeat(w - 2) + '┘');
           } else {
-            lines.push(`${prefix}${conn}► ${n.title}`);
+            lines.push(`${prefix}${conn}► ${title}`);
             if (n.meta) n.meta.split('\n').forEach(l => lines.push(`${childPrefix}  ${l}`));
           }
 
-          n.children.forEach((c, i) => walk(c, level + 1, i === n.children.length - 1, level === 0 ? '  ' : childPrefix));
+          n.children.forEach((c, i) => walk(c, level + 1, i === n.children.length - 1, level === 0 ? '  ' : childPrefix, n.children));
           if (level === 0) lines.push('');
         };
 
-        state.nodes.forEach((n, i) => walk(n, 0, i === state.nodes.length - 1));
+        state.nodes.forEach((n, i) => walk(n, 0, i === state.nodes.length - 1, '', state.nodes));
         $('#preview-content').textContent = lines.join('\n') || 'Empty canvas';
       },
 
